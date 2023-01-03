@@ -16,9 +16,9 @@ import {
   deleteCareerQ,
   deleteProjectQ,
   findSkillsQ,
-  createSkillQ,
+  createSkillQ
 } from "../db/index.repo";
-import { isNumber } from "class-validator";
+import {isNumber} from "class-validator";
 
 // 1-1. 이력서 생성
 export const createResume = async (userId: number): Promise<Object> => {
@@ -28,7 +28,7 @@ export const createResume = async (userId: number): Promise<Object> => {
   const userInfo = await findOneUser(userId);
   const myResumeList = await findMyResumesQ(userId);
 
-  for (let i = 0; i < Object.keys(myResumeList).length; i++) {
+  for (let i=0; i<Object.keys(myResumeList).length; i++) {
     const resumeNames = myResumeList[i].resumeName.split(" ");
 
     if (resumeNames.length == 2 && resumeNames[0] == userInfo.username && isNumber(Number(resumeNames[1]))) {
@@ -48,21 +48,14 @@ export const createResume = async (userId: number): Promise<Object> => {
 };
 
 // 1-2. 업무경험 생성
-export const createCareer = async (
-  resumeId: number,
-  newCareerInfo: Record<string, string | number | boolean>
-): Promise<Object> => {
+export const createCareer = async (resumeId: number, newCareerInfo: Record<string, string | number | boolean>): Promise<Object> => {
   const newCareer = await createCareerQ(resumeId, newCareerInfo);
 
   return newCareer;
 };
 
 // 1-3. 프로젝트 생성
-export const createProject = async (
-  resumeId: number,
-  newProjectInfo: Record<string, string | number | boolean>
-): Promise<Object> => {
-  console.log(newProjectInfo, "consoleconsoleconsoleconsoleconsoleconsoleconsoleconsole");
+export const createProject = async (resumeId: number, newProjectInfo: Record<string, string | number | boolean>): Promise<Object> => {
   const newProject = await createProjectQ(resumeId, newProjectInfo);
 
   return newProject;
@@ -80,24 +73,22 @@ export const findMyResumes = async (userId: number): Promise<any> => {
 // 2-3. 이력서 상세 조회
 export const findMyResume = async (userId: number, resumeId: number): Promise<Object> => {
   let myResume = {};
+
+  const userInfo = await findOneUser(userId);
   const resumeInfo = await findResumeQ(resumeId);
-  const userInfo = await findOneUser(resumeInfo.userId); // undifindde
-  // 토큰값이랑 리점아이디랑 같은 경우에는 userInfo 를 userId 로 찾아주면 됨
-  // if (userId === resumeInfo.usedUserId) {
-  //   userInfo = await findOneUser(userId);
-  // }
   const careers = await findCareersQ(resumeId);
   const projects = await findProjectsQ(resumeId);
 
-  Promise.all([userInfo, resumeInfo, careers, projects]).catch((error) => {
-    console.log(error.message);
-  });
-  myResume["userData"] = userInfo;
-  myResume["resumeData"] = resumeInfo;
-  myResume["careersData"] = careers;
-  myResume["projectsData"] = projects;
+  Promise.all([userInfo, resumeInfo, careers, projects])
+    .catch(error => {
+      console.log(error.message);
+    })
 
-  console.log(myResume, "으악 난 잠을 안자는 우두루");
+  myResume['userData'] = userInfo;
+  myResume['resumeData'] = resumeInfo;
+  myResume['careersData'] = careers;
+  myResume['projectsData'] = projects;
+
   return myResume;
 };
 
@@ -162,11 +153,11 @@ export const findSkills = async () => {
   const skills = await findSkillsQ();
 
   return skills;
-};
+}
 
 // skill 생성
 export const createSkill = async (newSkillName: string) => {
   const newskill = await createSkillQ(newSkillName);
 
   return newskill;
-};
+}

@@ -28,6 +28,9 @@ export class Comment {
   @Column({ default: 1 })
   active: number;
 
+  @Column({ default: false })
+  checkout: boolean;
+
   @OneToMany((type) => CommentLikeMaping, (table) => table.comment)
   ownLikes: CommentLikeMaping;
 

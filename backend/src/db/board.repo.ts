@@ -6,10 +6,7 @@ import * as utils from "./utils";
 import { TypeCareer, TypeProject } from "./schemas";
 
 // type에 따라 자유게시판 목록
-export const firstGetCommunityNoticesQ = async (
-  type: string,
-  count: number
-) => {
+export const firstGetCommunityNoticesQ = async (type: string, count: number) => {
   let asType = "";
   if (type === "created") {
     asType = "unix_timestamp";
@@ -51,11 +48,7 @@ export const firstGetCommunityNoticesQ = async (
   };
   return result;
 };
-export const moreGetCommunityNoticesQ = async (
-  type: string,
-  count: number,
-  mark: string
-) => {
+export const moreGetCommunityNoticesQ = async (type: string, count: number, mark: string) => {
   let asType = "";
   if (type === "created") {
     asType = "unix_timestamp";
@@ -142,9 +135,7 @@ export const firstGetResumeNoticesQ = async (type: string, count: number) => {
       `,
     [count]
   );
-  const [boardList] = await db.query(
-    `SELECT id FROM board WHERE hasResumeId IS NOT NULL`
-  );
+  const [boardList] = await db.query(`SELECT id FROM board WHERE hasResumeId IS NOT NULL`);
   const boardListCount = utils.jsonParse(boardList).length;
   const result = {
     boardList: utils.jsonParse(boards),
@@ -152,11 +143,7 @@ export const firstGetResumeNoticesQ = async (type: string, count: number) => {
   };
   return result;
 };
-export const moreGetResumeNoticesQ = async (
-  type: string,
-  count: number,
-  mark: string
-) => {
+export const moreGetResumeNoticesQ = async (type: string, count: number, mark: string) => {
   let asType = "";
   if (type === "created") {
     asType = "unix_timestamp";
@@ -205,10 +192,7 @@ export const moreGetResumeNoticesQ = async (
 };
 
 // 메인페이지 애서 활용됨
-export const findAllBoardForMainpage = async (
-  filter: string,
-  perPage: number
-) => {
+export const findAllBoardForMainpage = async (filter: string, perPage: number) => {
   const [boards] = await db.query(
     `
     SELECT 
@@ -233,9 +217,7 @@ export const findAllBoardForMainpage = async (
   `,
     [perPage]
   );
-  const [boardList] = await db.query(
-    `SELECT id FROM board WHERE hasResumeId IS NOT NULL`
-  );
+  const [boardList] = await db.query(`SELECT id FROM board WHERE hasResumeId IS NOT NULL`);
   const boardListCount = utils.jsonParse(boardList).length;
   const result = {
     boardList: utils.jsonParse(boards),
@@ -246,10 +228,7 @@ export const findAllBoardForMainpage = async (
 
 // 게시물에 달린 좋아요 전체조회
 export const findLikesToBoard = async (boardId: number) => {
-  const [likes] = await db.query(
-    `select id from board_like_maping where boardId=?`,
-    [boardId]
-  );
+  const [likes] = await db.query(`select id from board_like_maping where boardId=?`, [boardId]);
   const result = utils.jsonParse(likes);
   return result;
 };
@@ -280,10 +259,7 @@ type OneBoardInfo = {
   };
 } | null;
 // 상세 게시글 보기
-export const findOneBoardQ = async (
-  boardId: number,
-  userId?: null | number
-): Promise<OneBoardInfo> => {
+export const findOneBoardQ = async (boardId: number, userId?: null | number): Promise<OneBoardInfo> => {
   // 이력서와 댓글의 기본값
   // const returnValue:{
   //   id: number;
@@ -384,9 +360,7 @@ export const findBoardData = async (boardId: number) => {
 };
 
 // 게시글 만들기
-export const create = async (
-  data: Record<string, string | number | boolean>
-): Promise<any> => {
+export const create = async (data: Record<string, string | number | boolean>): Promise<any> => {
   console.log("서비스가 받아온 data : ", data);
   const [keys, values, arrValues] = utils.insertData(data);
   const newBoard = await db.query(
@@ -402,10 +376,7 @@ export const create = async (
 };
 
 // 게시글 수정
-export const updateBoard = async (
-  boardId: number,
-  data: Record<string, string | number>
-) => {
+export const updateBoard = async (boardId: number, data: Record<string, string | number>) => {
   console.log("게시글 업데이트 내역 : ", data);
   console.log("boardID 값 : ", boardId);
   const [keys, values] = utils.updateData(data);
@@ -459,13 +430,9 @@ export const deleteBoard = async (userId: number, boardId: number) => {
   await Promise.all(
     zz.map(async (comment) => {
       console.log("첫번째 id", comment.commentId);
-      await db.query(`DELETE FROM comment_like_maping WHERE commentId=?`, [
-        comment.commentId,
-      ]);
+      await db.query(`DELETE FROM comment_like_maping WHERE commentId=?`, [comment.commentId]);
       console.log("댓글 좋아요 매핑테이블에서 해당 댓글 id로 등록된것 삭제");
-      await db.query(`DELETE FROM point_from_comment WHERE commentId=?`, [
-        comment.commentId,
-      ]);
+      await db.query(`DELETE FROM point_from_comment WHERE commentId=?`, [comment.commentId]);
       console.log("댓글 포인트테이블에서 해당 댓글 id로 등록된것 삭제");
     })
   );
@@ -508,39 +475,61 @@ export const alreadyLikesBoard = async (boardId: number, userId: number) => {
   return result;
 };
 
-// 좋아요 테이블에 board 값 추가
+// 좋아요 테이블에 board 값 추가  트렌젝션 o
 export const likeBoardFromUser = async (data: Record<number, number>) => {
   const [keys, values, valval] = utils.insertData(data);
   const boardId = valval[1];
   const userId = valval[0];
-  await db.query(
-    `
-      INSERT 
-      INTO 
-      board_like_maping (${keys.join(", ")})
-      VALUES (${values})
-    `,
-    [...valval]
-  );
-  await db.query(
-    `
-    UPDATE board
-    SET
-      likeCnt = likeCnt+1
-    WHERE id = ?
-  `,
-    [boardId]
-  );
-  await db.query(
-    `
-    UPDATE user
-    SET
-      clickedLikes = clickedLikes+1
-    WHERE id = ?
-  `,
-    [userId]
-  );
-  return true;
+  const conn = await db.getConnection();
+  conn.beginTransaction();
+  try {
+    await Promise.all([
+      db.query(
+        `
+          INSERT 
+          INTO 
+          board_like_maping (${keys.join(", ")})
+          VALUES (${values})
+        `,
+        [...valval]
+      ),
+      db.query(
+        `
+        UPDATE board
+        SET
+          likeCnt = likeCnt+1
+        WHERE id = ?
+      `,
+        [boardId]
+      ),
+      db.query(
+        `
+        UPDATE user
+        SET news = 1
+        WHERE id in (SELECT fromUserId FROM board WHERE id =?)
+      `,
+        [boardId]
+      ),
+      // 아래 쿼리는 내가 누른 좋아요가 몇개ㅑ인지 확인할때 쓰는것 근데 지금은 별 쓸일없긴함.
+      db.query(
+        `
+        UPDATE user
+        SET
+          clickedLikes = clickedLikes+1
+        WHERE id = ?
+      `,
+        [userId]
+      ),
+    ]);
+    conn.commit();
+    return true;
+  } catch (err) {
+    console.log(err.message);
+    conn.rollback();
+    throw new Error(err);
+  } finally {
+    conn.release();
+  }
 };
 
 export const unlikeBoardFromUser = async (userId: number, boardId: number) => {
@@ -567,10 +556,7 @@ export const unlikeBoardFromUser = async (userId: number, boardId: number) => {
 };
 
 // 이미 게시글에 좋아요 했는지 확인
-export const findSavedPointByBoard = async (
-  userId: number,
-  boardId: number
-) => {
+export const findSavedPointByBoard = async (userId: number, boardId: number) => {
   const [result] = await db.query(
     `
       SELECT userId
@@ -583,43 +569,52 @@ export const findSavedPointByBoard = async (
   return returnValue;
 };
 
-// 게시물 좋아요로 게시물 오너의 포인트가 증가됨
-export const savePointByBoard = async (data: {
-  userId: number;
-  boardId: number;
-}) => {
+// 게시물 좋아요로 게시물 오너의 포인트가 증가됨  트렌젝션 o
+export const savePointByBoard = async (data: { userId: number; boardId: number }) => {
   const [keys, values, valval] = utils.insertData(data);
-  await db.query(
-    `
-      INSERT INTO point_from_board (${keys.join(", ")})
-      VALUES (${values.join(", ")})
-    `,
-    [...valval]
-  );
-
-  // 보드정보에서 userId 를 가져옴
-  const [boardRows] = await db.query(
-    `
-    SELECT 
-      fromUserId
-    FROM board
-    WHERE id = ?
-  `,
-    [data.boardId]
-  );
-  const userId = boardRows[0].fromUserId;
-  console.log(userId);
-
-  // 해당 댓글 주인의 포인트 상승
-  await db.query(
-    `
-      UPDATE user 
-      SET 
-      point = point+?
-      WHERE id= ?
-    `,
-    [50, userId]
-  );
+  const conn = await db.getConnection();
+  conn.beginTransaction();
+  try {
+    const [uselessValue, boardRows] = await Promise.all([
+      db.query(
+        `
+          INSERT INTO point_from_board (${keys.join(", ")})
+          VALUES (${values.join(", ")})
+        `,
+        [...valval]
+      ),
+      db.query(
+        `
+        SELECT 
+          fromUserId
+        FROM board
+        WHERE id = ?
+      `,
+        [data.boardId]
+      ),
+    ]);
+    const userId = utils.jsonParse(boardRows)[0].fromUserId;
+    // 어뷰징 방지
+    if (userId !== data.userId) {
+      await db.query(
+        `
+        UPDATE user 
+        SET 
+        point = point+?
+        WHERE id= ?
+      `,
+        [5, userId]
+      );
+    }
+    conn.commit();
+    return true;
+  } catch (err) {
+    console.log(err.message);
+    conn.rollback();
+    throw new Error(err);
+  } finally {
+    conn.release();
+  }
 };
 
 export const randomBoardsQ = async (userId: number) => {

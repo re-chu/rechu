@@ -30,7 +30,7 @@ export const createCareerQ = async (resumeId: number, newCareerInfo: Record<stri
 // 1-3. 프로젝트 생성
 export const createProjectQ = async (resumeId: number, newProjectInfo: Record<string, string | number | boolean>) => {
   const [keys, values, arrValues] = insertData(newProjectInfo);
-  console.log(keys,"qwgqwg",arrValues)
+
   const newProject = await db.query(
     `INSERT INTO project (usedResumeId, ${keys.join(", ")})
      VALUES (?, ${values.join(",")})`,
@@ -98,7 +98,7 @@ export const findCareersQ = async (resumeId: number) => {
 export const findProjectsQ = async (resumeId: number) => {
   const [projects] = await db.query(
     `SELECT id AS projectId,
-                                             projectName, year, information, link1, link2, usedResumeId AS resumeId, skills
+                                             projectName, year, information, link1, link2, usedResumeId AS resumeId
                                       FROM project
                                       WHERE usedResumeId = ?`,
     resumeId
@@ -228,12 +228,6 @@ export const deleteCareerQ = async (careerId: number) => {
 
 // 4-3. 프로젝트 삭제
 export const deleteProjectQ = async (projectId: number) => {
-  console.log("잘들어옴 ㅋㅋ")
-  const deleteStackTable = await db.query(`
-    DELETE FROM stack
-    WHERE 
-      projectId = ?
-  `,[projectId])  
   const deletedProject = await db.query(
     `DELETE
                                          FROM project

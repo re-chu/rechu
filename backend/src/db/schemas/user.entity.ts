@@ -42,7 +42,7 @@ export class User {
   @Column({ length: 20, nullable: false })
   username: string;
 
-  @Column({ unique: true, nullable: true })
+  @Column({ nullable: true })
   email: string;
 
   @Column({ nullable: true, default: null })
@@ -83,7 +83,7 @@ export class User {
   @Column({ default: 3 })
   chance: number;
 
-  @Column({ default: true })
+  @Column({ default: false })
   working: boolean;
 
   @Column({ default: false })
@@ -97,6 +97,9 @@ export class User {
 
   @Column({ default: true })
   active: boolean;
+
+  @Column({ default: false })
+  news: boolean;
 
   @Column({ type: "bigint", default: 0, nullable: true })
   ban: number;

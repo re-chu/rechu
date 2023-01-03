@@ -2,6 +2,7 @@ import { CreateCommentDto } from "../routes/dto";
 import * as boardRepo from "../db/board.repo";
 import { Board, CreateBoardInFo } from "../db/schemas";
 import { jsonParse } from "../db/utils/parseToJSON";
+import { wsServer } from "../server";
 
 export const getCommunityNotices = async (firstRequest: number, type: string, count: number, mark: string) => {
   try {
@@ -134,6 +135,24 @@ export const addLikes = async (userId: number, boardId: number, likesStatus: boo
     // 좋아요 상태와 DB에 저장된 값이 없다면 좋아요
     if (!likesStatus && !alreadyLikes) {
       console.log("좋아요상태 : false , 좋아요 로직");
+      // 소켓으로 실시간 알림을 보내기 위해서 ...
+      const board = await boardRepo.findOneBoardQ(boardId);
+      const boardsOwnerId = String(board.boardInfo.ownUserId);
+      // 해당 게시물의 owner 가 아니라면 owner 에게 socket 시그널 보내야함
+      console.log("보내기 ㄱㄱ");
+      console.log(boardsOwnerId !== String(userId));
+      if (boardsOwnerId !== String(userId)) {
+        console.log("여기에 아예 안들어와짐?");
+        wsServer.on("connection", (socket) => {
+          console.log("이걸 한 사람", socket.id);
+          socket.join(boardsOwnerId);
+          socket.to(boardsOwnerId).emit("alarm");
+          socket.leave(boardsOwnerId);
+          console.log("빠져나오기!");
+          socket.disconnect();
+          socket.on("disconnecting", () => console.log("뭔진모르지만 ㅋ"));
+        });
+      }
       await boardRepo.likeBoardFromUser(data);
 
       const alreadySavePoint = await boardRepo.findSavedPointByBoard(userId, boardId);
