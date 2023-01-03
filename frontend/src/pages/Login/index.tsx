@@ -35,8 +35,9 @@ const Login = () => {
             localStorage.setItem('isAdmin', isAdmin);
             window.location.replace('/');
         } catch (err: any) {
-            console.error(err.stack);
-            alert('아이디 혹은 비밀번호가 틀렸습니다');
+            const res = err.response.data;
+            console.error(res);
+            alert(res.msg);
         }
     };
 
@@ -88,6 +89,10 @@ const Login = () => {
                             placeholder="비밀번호 입력"
                             autoComplete="new-password"
                         />
+                        <label className={`${errors.password ? 'block' : 'none'}`}>
+                            {errors?.password?.message}
+                        </label>
+
                         <div className="util">
                             <Link to="/join">회원가입 </Link>
                             <Link to="/find-pw">비밀번호 찾기</Link>
