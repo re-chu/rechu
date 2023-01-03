@@ -1,4 +1,4 @@
-import server from "./server";
+import server from "./wsServer";
 require("dotenv").config();
 
 import { dataSource } from "./db";

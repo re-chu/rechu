@@ -6,7 +6,6 @@ import { CreateUserDto } from "../routes/dto";
 import jwt from "jsonwebtoken";
 import { send } from "../config/sendMail";
 import { EmailAuth, UserProfile } from "../db/schemas";
-import { wsServer } from "../server";
 
 // 매칭 관련
 export const getRotListOrMatchingStatus = async (userId: number): Promise<userRepo.RotList | userRepo.MatchInfo> => {
@@ -196,6 +195,7 @@ export const login = async (email: string, password?: string) => {
     RT: refreshToken,
     ban: 0,
   };
+
   // RT 교체
   await userRepo.updateUser(user.id, data);
   // 옵젝으로 묶어서 리턴
@@ -208,10 +208,6 @@ export const login = async (email: string, password?: string) => {
   if (user.role === "admin") {
     result.isAdmin = true;
   }
-  wsServer.on("connection", (socket) => {
-    socket.join(String(result.userId));
-    console.log(`${result.userId}로 소켓에 방 만듬!`);
-  });
   return result;
 };
 
