@@ -32,7 +32,7 @@ export const createMatch = async (menteeId: number, mentoId: number): Promise<nu
   try {
     const alreadyMatch = await userRepo.findMatchQ(menteeId);
     console.log("alreadyMatch", alreadyMatch);
-    if (alreadyMatch) throw new Error(`이미 요청한 고인물입니다.`);
+    if (alreadyMatch.matchInfo) throw new Error(`이미 요청한 고인물입니다.`);
     const matchingId = await userRepo.createMatchQ(data);
     return matchingId;
   } catch (err) {

@@ -30,7 +30,7 @@ export const getUsersByAdmin = async () => {
 /** 인자로 userId 또는 email을 넣어주시면, 비밀번호를 제외한 사용자 정보를 드립니다. */
 export const unIncludePasswordUserInfoQ = async (userIdOrEmail: number | string): Promise<UserProfile> => {
   const queryResultCoulmns =
-    "id,username,point,email,phoneNumber,created,avatarUrl,clickedLikes,gitHubUrl,howToLogin,role,working,chance";
+    "id,news,username,point,email,phoneNumber,created,avatarUrl,clickedLikes,gitHubUrl,howToLogin,role,working,chance";
   let [userInfoRows, fields] = [[], []];
 
   // 파라미터로 들어온 data 값이 num이면 id로 찾고, 아니면 email로 찾음
