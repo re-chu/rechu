@@ -4,7 +4,7 @@ class axiosAPI {
     instance;
     // BASE_URL = 'https://rechu.jinytree.shop/api';
     // BASE_URL = 'http://localhost:5000';
-    BASE_URL = 'http://localhost:3000';
+    BASE_URL = 'http://localhost:3001';
 
     constructor() {
         this.instance = axios.create();
@@ -17,9 +17,10 @@ class axiosAPI {
                         headers.Authorization = token ? `Bearer ${token}` : '';
                     return config;
                 } catch (err) {
-                    console.error('[_axios.interceptors.request] config : ' + err);
+                    // console.error('[_axios.interceptors.request] config : ' + err);
+                    console.log('Without Token');
+                    return config;
                 }
-                return config;
             },
             error => {
                 return Promise.reject(error);
