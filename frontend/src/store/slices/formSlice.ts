@@ -12,7 +12,7 @@ const initialState: initialStateType = {
     projectFormToggle: false,
 };
 
-const slice = createSlice({
+export const slice = createSlice({
     name: 'form',
     initialState,
     reducers: {

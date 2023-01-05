@@ -30,7 +30,7 @@ export const getUsersByAdmin = async () => {
 /** 인자로 userId 또는 email을 넣어주시면, 비밀번호를 제외한 사용자 정보를 드립니다. */
 export const unIncludePasswordUserInfoQ = async (userIdOrEmail: number | string): Promise<UserProfile> => {
   const queryResultCoulmns =
-    "id,username,point,email,phoneNumber,created,avatarUrl,clickedLikes,gitHubUrl,howToLogin,role,working,chance";
+    "id,news,username,point,email,phoneNumber,created,avatarUrl,clickedLikes,gitHubUrl,howToLogin,role,working,chance";
   let [userInfoRows, fields] = [[], []];
 
   // 파라미터로 들어온 data 값이 num이면 id로 찾고, 아니면 email로 찾음
@@ -209,10 +209,7 @@ export const getRotListQ = async (userId: number): Promise<RotList> => {
       username,
       id,
       point,
-      corrections,
-      email,
-      gitHubUrl,
-      avatarUrl
+      corrections
     FROM user
     WHERE 
       id != ? AND
@@ -284,17 +281,6 @@ export const findMatchQ = async (userId: number): Promise<MatchInfo> => {
     },
     cancelAble: false,
   };
-  const [matchingId] = await db.query(
-    `
-    SELECT
-      matching
-    FROM user
-    WHERE
-      id = ?
-  `,
-    [userId]
-  );
-  const parseMatching = utils.jsonParse(matchingId)[0];
   const [connect] = await db.query(
     `
       SELECT 
@@ -311,9 +297,9 @@ export const findMatchQ = async (userId: number): Promise<MatchInfo> => {
       JOIN user u
       on mentoId = u.id
       WHERE 
-        c.id = ?
+        menteeId = ?
     `,
-    [parseMatching.matching]
+    [userId]
   );
   const parseConnect = utils.jsonParse(connect)[0];
   console.log("현재 진행중인 매칭", parseConnect);
@@ -416,19 +402,19 @@ export const acceptMatchQ = async (matchingId: number, menteeId: number): Promis
 };
 
 // 매칭 끝내기버튼
-export const successMatchQ = async (matchingId: number, data: { role: string; deleteMenteeIdQuery?: string }) => {
+export const successMatchQ = async (
+  matchingId: number,
+  data: { role: string; deleteMenteeIdQuery?: string }
+): Promise<string> => {
   const conn = await db.getConnection();
   conn.beginTransaction();
   try {
-    if (data.role === "menteeComplate") {
+    if (data.deleteMenteeIdQuery) {
       console.log("멘티제거");
-      // 멘티의 matching을 0으로 만들어서 추후 고인물조회가 가능하도록 함.
-
       await conn.query(
         `
       UPDATE user 
       SET 
-        point = point -50,
         matching = 0 
       WHERE 
         id IN (
@@ -442,27 +428,15 @@ export const successMatchQ = async (matchingId: number, data: { role: string; de
       `
     UPDATE connect
     SET
-      ${data.role} = 1 
+      ${data.role} = 1 ${data.deleteMenteeIdQuery}
     WHERE
       id = ?
   `,
       [matchingId]
     );
-    const [select] = await conn.query(
-      `
-      SELECT 
-      menteeComplate,
-      mentoComplate
-      FROM connect
-      WHERE
-       id = ?
-    `,
-      [matchingId]
-    );
-    const resultValue = utils.jsonParse(select)[0];
-    // const result = data.role === "menteeComplate" ? "멘티가 종료누름" : "멘토가 종료누름";
+    const result = data.role === "menteeComplate" ? "멘티가 종료누름" : "멘토가 종료누름";
     conn.commit();
-    return resultValue;
+    return result;
   } catch (err) {
     console.log(err.message);
     conn.rollback();
@@ -516,6 +490,17 @@ export const complateMatch = async (matchingId: number) => {
         id = ?
     `,
         [mentoId]
+      ),
+      conn.query(
+        `
+      UPDATE user
+      SET
+        matching = 0,
+        point = point -50
+      WHERE
+        id = ?
+    `,
+        [menteeId]
       ),
     ]);
     conn.commit();
@@ -574,13 +559,12 @@ export const getRequestCorrectionQ = async (userId: number) => {
       req.cancelAble = req.step !== "요청중" ? false : true;
       return { ...req };
     });
-    console.log("그지꺵꺵이", addCancelAble);
     conn.commit();
     // if (result.step !== "요청중") {
     //   result.cancelAble = false;
     // }
     // result.cancelAble = true;
-    return addCancelAble;
+    return result;
   } catch (err) {
     conn.rollback();
     console.log(err.message);
@@ -653,10 +637,10 @@ export const offUserQ = async (userId: number) => {
         `
         UPDATE user
         SET
-          email = NULL,
+          email = '${text}',
           username = '${text}',
           avatarUrl = '${"https://url.kr/7h42va"}',
-          phoneNumber = NULL,
+          phoneNumber = "",
           gitHubUrl = ""
         WHERE 
           id = ?

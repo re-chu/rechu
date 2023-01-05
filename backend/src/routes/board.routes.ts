@@ -161,11 +161,15 @@ boardRoute.patch("/:boardId", tokenValidator, async (req, res, next) => {
 });
 
 // 게시글 좋아요 API
+// import { wsServer } from "../server";
 boardRoute.patch("/:boardId/like", tokenValidator, async (req, res, next) => {
   const id = Number(req.body.jwtDecoded.id);
   const boardId = Number(req.params.boardId);
   const { likesStatus } = req.body;
   console.log("userID ", id, "boardId", boardId, likesStatus);
+  // wsServer.on("connecting",(socket)=>{
+
+  // })
   try {
     const likes = await boardService.addLikes(id, boardId, likesStatus);
     return res.status(200).json({

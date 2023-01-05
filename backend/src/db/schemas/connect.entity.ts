@@ -1,4 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany, ManyToMany, JoinTable, ManyToOne } from "typeorm";
+import { ChatRoomTable } from "./chatRoom.entity";
 // import { Company } from "./company.entity";
 import { User } from "./user.entity";
 export enum stepEnum {
@@ -19,8 +20,12 @@ export class Connect {
 
   @Column({ default: 0 })
   mentoComplate: number;
+
   @Column({ default: 0 })
   menteeComplate: number;
+
+  @OneToMany((type) => ChatRoomTable, (room) => room.fromConnect)
+  hasOwnRooms: ChatRoomTable[];
 
   @Column({ default: () => "CURRENT_TIMESTAMP" })
   created: Date;

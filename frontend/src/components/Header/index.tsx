@@ -3,26 +3,37 @@ import Logo from 'assets/images/logo.png';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import { HContainer, HHeader } from './style';
+import { BellOutlined } from '@ant-design/icons';
 import API from 'utils/api';
+import { setAdmin, setAlarm } from 'store/slices/userSlice';
+import { useAppDispatch, useAppSelector } from 'store/config';
 
 const Header = () => {
     const navigate = useNavigate();
+    const userState = useAppSelector(state => state.userState);
+    const dispatch = useAppDispatch();
+
+    // userState 안에 전역 관리하는 isAdmin이 들어있습니다.
+    console.log(userState);
+
     const token = localStorage.getItem('accessToken');
     const admin = localStorage.getItem('isAdmin') === 'true' ? true : false;
 
     const [isAdmin, setIsAdmin] = useState<boolean>(admin);
 
-    const userInfo = async () => {
-        try {
-            const res = await API.get(`/users/individuals`);
-        } catch (err: unknown) {
-            console.log(err);
-        }
-    };
+    // 로그아웃 시 전역 관리 중인 isAdmin값 초기화
+    const setAdminLogout = useCallback(() => {
+        dispatch(setAdmin(false));
+    }, [dispatch]);
+
+    // 새로운 알림 도착 시 새 알림 여부 on
+    const setNewAlarmOn = useCallback(() => {
+        dispatch(setAlarm(true));
+    }, [dispatch]);
 
     useEffect(() => {
-        userInfo();
-    }, [token]);
+        setNewAlarmOn();
+    }, []);
 
     const logout = useCallback(() => {
         try {
@@ -32,12 +43,15 @@ const Header = () => {
                 { headers: { authorization: `Bearer ${token}` } },
             );
 
+            // admin 여부 false
+            setAdminLogout();
+
             localStorage.clear();
             window.location.replace('/');
         } catch (err: unknown) {
             console.log(err);
         }
-    }, []);
+    }, [setAdminLogout, token]);
 
     return (
         <HContainer>
@@ -70,6 +84,11 @@ const Header = () => {
                             </li>
                             <li>
                                 <Link to="/match">상점</Link>
+                            </li>
+                            <li>
+                                <Link to="/alarm">
+                                    <BellOutlined />
+                                </Link>
                             </li>
                         </ul>
                     </nav>

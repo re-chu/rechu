@@ -97,7 +97,7 @@ export const findCareersQ = async (resumeId: number) => {
 export const findProjectsQ = async (resumeId: number) => {
   const [projects] = await db.query(
     `SELECT id AS projectId,
-                                             projectName, year, information, link1, link2, usedResumeId AS resumeId, skills
+                                             projectName, year, information, link1, link2, usedResumeId AS resumeId
                                       FROM project
                                       WHERE usedResumeId = ?`,
     resumeId
