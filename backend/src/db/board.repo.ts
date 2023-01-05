@@ -483,8 +483,19 @@ export const likeBoardFromUser = async (data: Record<number, number>) => {
   const conn = await db.getConnection();
   conn.beginTransaction();
   try {
+    const [compareUserId] = await conn.query(`SELECT fromUserId FROM board WHERE id = ?`, [boardId]);
+    if (compareUserId[0].fromUserId !== userId) {
+      conn.query(
+        `
+          UPDATE user
+          SET news = 1
+          WHERE id in (SELECT fromUserId FROM board WHERE id =?)
+        `,
+        [boardId]
+      );
+    }
     await Promise.all([
-      db.query(
+      conn.query(
         `
           INSERT 
           INTO 
@@ -493,7 +504,7 @@ export const likeBoardFromUser = async (data: Record<number, number>) => {
         `,
         [...valval]
       ),
-      db.query(
+      conn.query(
         `
         UPDATE board
         SET
@@ -502,16 +513,8 @@ export const likeBoardFromUser = async (data: Record<number, number>) => {
       `,
         [boardId]
       ),
-      db.query(
-        `
-        UPDATE user
-        SET news = 1
-        WHERE id in (SELECT fromUserId FROM board WHERE id =?)
-      `,
-        [boardId]
-      ),
       // 아래 쿼리는 내가 누른 좋아요가 몇개ㅑ인지 확인할때 쓰는것 근데 지금은 별 쓸일없긴함.
-      db.query(
+      conn.query(
         `
         UPDATE user
         SET

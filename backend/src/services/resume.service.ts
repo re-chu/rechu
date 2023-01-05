@@ -16,9 +16,9 @@ import {
   deleteCareerQ,
   deleteProjectQ,
   findSkillsQ,
-  createSkillQ
-} from "../db/index.repo";
-import {isNumber} from "class-validator";
+  createSkillQ,
+} from "../db";
+import { isNumber } from "class-validator";
 
 // 1-1. 이력서 생성
 export const createResume = async (userId: number): Promise<Object> => {
@@ -28,7 +28,7 @@ export const createResume = async (userId: number): Promise<Object> => {
   const userInfo = await findOneUser(userId);
   const myResumeList = await findMyResumesQ(userId);
 
-  for (let i=0; i<Object.keys(myResumeList).length; i++) {
+  for (let i = 0; i < Object.keys(myResumeList).length; i++) {
     const resumeNames = myResumeList[i].resumeName.split(" ");
 
     if (resumeNames.length == 2 && resumeNames[0] == userInfo.username && isNumber(Number(resumeNames[1]))) {
@@ -48,7 +48,10 @@ export const createResume = async (userId: number): Promise<Object> => {
 };
 
 // 1-2. 업무경험 생성
-export const createCareer = async (resumeId: number, newCareerInfo: Record<string, string | number | boolean>): Promise<Object> => {
+export const createCareer = async (
+  resumeId: number,
+  newCareerInfo: Record<string, string | number | boolean>
+): Promise<Object> => {
   const newCareer = await createCareerQ(resumeId, newCareerInfo);
 
   return newCareer;
@@ -77,20 +80,19 @@ export const findMyResumes = async (userId: number): Promise<any> => {
 export const findMyResume = async (userId: number, resumeId: number): Promise<Object> => {
   let myResume = {};
 
-  const userInfo = await findOneUser(userId);
   const resumeInfo = await findResumeQ(resumeId);
+  const userInfo = await findOneUser(resumeInfo.userId);
   const careers = await findCareersQ(resumeId);
   const projects = await findProjectsQ(resumeId);
 
-  Promise.all([userInfo, resumeInfo, careers, projects])
-    .catch(error => {
-      console.log(error.message);
-    })
+  Promise.all([userInfo, resumeInfo, careers, projects]).catch((error) => {
+    console.log(error.message);
+  });
 
-  myResume['userData'] = userInfo;
-  myResume['resumeData'] = resumeInfo;
-  myResume['careersData'] = careers;
-  myResume['projectsData'] = projects;
+  myResume["userData"] = userInfo;
+  myResume["resumeData"] = resumeInfo;
+  myResume["careersData"] = careers;
+  myResume["projectsData"] = projects;
 
   return myResume;
 };
@@ -156,11 +158,11 @@ export const findSkills = async () => {
   const skills = await findSkillsQ();
 
   return skills;
-}
+};
 
 // skill 생성
 export const createSkill = async (newSkillName: string) => {
   const newskill = await createSkillQ(newSkillName);
 
   return newskill;
-}
+};

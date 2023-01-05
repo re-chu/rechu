@@ -18,15 +18,15 @@ wsServer.on("connection", (socket) => {
 
   socket.on("likesBoard", (boardOwnerId) => {
     console.log("게시글좋아요 알림");
-    socket.to(String(boardOwnerId)).emit("alaram");
+    socket.to(String(boardOwnerId)).emit("alarm");
   });
   socket.on("addComment", (boardOwnerId) => {
     console.log("댓글추가 알림");
-    socket.to(String(boardOwnerId)).emit("alaram");
+    socket.to(String(boardOwnerId)).emit("alarm");
   });
   socket.on("likesComment", (commentOwnerId) => {
     console.log("댓글좋아요 알림");
-    socket.to(String(commentOwnerId)).emit("alaram");
+    socket.to(String(commentOwnerId)).emit("alarm");
   });
 });
 `

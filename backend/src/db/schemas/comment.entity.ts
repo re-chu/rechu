@@ -17,8 +17,10 @@ export class Comment {
 
   @Column({ type: "datetime", default: () => "CURRENT_TIMESTAMP" })
   created: Date;
+
   @Column({ type: "datetime", default: null, nullable: true })
   updated: Date;
+
   @Column({ default: 0 })
   likes: number;
 
