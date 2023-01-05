@@ -315,6 +315,7 @@ const AdminContent: React.FC = () => {
                     }}
                 >
                     <Pagination
+                        simple
                         defaultCurrent={current}
                         total={totalpages * 10}
                         onChange={onChange}
