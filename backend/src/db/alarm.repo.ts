@@ -14,6 +14,7 @@ type AlarmBoardsLikes = {
 };
 type AlarmNewComments = {
   type: string;
+  commentId: number;
   whoIsUserId: number;
   whoIsUsername: string;
   whoIsAvatarUrl: string;
@@ -23,11 +24,12 @@ type AlarmNewComments = {
 };
 type AlarmCommentsLikes = {
   type: string;
+  cmCommentId: number;
   whoIsUsername: string;
   whoIsUserAvatarUrl: string;
   whoIsUserId: number;
   created: Date;
-  fromBoardId: number;
+  whereBoard: number;
   checkout: number;
 };
 export const getAlarmDataQ = async (userId: number): Promise<AlarmData> => {
@@ -60,6 +62,7 @@ export const getAlarmDataQ = async (userId: number): Promise<AlarmData> => {
     db.query(
       `
     SELECT
+      c.id as commentId,
       u.id as whoIsUserId,
       u.username as whoIsUsername,
       u.avatarUrl as whoIsAvatarUrl,
@@ -83,11 +86,12 @@ export const getAlarmDataQ = async (userId: number): Promise<AlarmData> => {
     db.query(
       `
     SELECT 
+      cm.id as cmCommentId,
       u.username as whoIsUsername,
       u.avatarUrl as whoIsUserAvatarUrl,
       u.id as whoIsUserId,
       cm.created as created,
-      c.boardId as fromBoardId,
+      c.boardId as whereBoard,
       cm.checkout as checkout
     FROM comment_like_maping cm
     JOIN user u
