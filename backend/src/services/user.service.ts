@@ -44,8 +44,8 @@ export const createMatch = async (menteeId: number, mentoId: number): Promise<nu
 export const cancelMatch = async (matchingId: number) => {
   try {
     const isMatch = await userRepo.findMatchByMatchingId(matchingId);
-    console.log(isMatch);
     if (!isMatch) throw new Error("존재하지 않은 매칭입니다.");
+
     const deleteMatch = await userRepo.cancelMatchQ(matchingId);
     return deleteMatch;
   } catch (err) {
