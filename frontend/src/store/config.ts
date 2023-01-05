@@ -6,6 +6,7 @@ import userSlice from 'store/slices/userSlice';
 import authSlice from 'store/slices/authSlice';
 import formSlice from 'store/slices/formSlice';
 
+// redux-persist
 const persistConfig = {
     key: 'root',
     storage,
