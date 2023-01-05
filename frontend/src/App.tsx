@@ -9,7 +9,7 @@ import Router from 'Router';
 
 import io from 'socket.io-client';
 
-export const socket = io('localhost:3001', { transports: ['websocket'] });
+export const socket = io('http://localhost:8080', { transports: ['websocket'] });
 function App() {
     useEffect(() => {
         // 앱에 접속되면 socket 에 접속됨
