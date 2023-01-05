@@ -1,12 +1,31 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect } from 'react';
+import styled from '@emotion/styled';
 import Logo from 'assets/images/logo.png';
-import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 import { HContainer, HHeader } from './style';
 import { BellOutlined } from '@ant-design/icons';
-import API from 'utils/api';
 import { setAdmin, setAlarm } from 'store/slices/userSlice';
 import { useAppDispatch, useAppSelector } from 'store/config';
+import socket from 'services/socket';
+import axios from 'axios';
+import API from 'utils/api';
+
+const AlarmWrapper = styled.div`
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 5rem;
+    font-size: 3rem;
+    background-color: yellowgreen;
+    span {
+        position: absolute;
+        width: 1rem;
+        height: 1rem;
+        border-radius: 50%;
+        background-color: red;
+    }
+`;
 
 const Header = () => {
     const navigate = useNavigate();
@@ -14,12 +33,33 @@ const Header = () => {
     const dispatch = useAppDispatch();
 
     // userState 안에 전역 관리하는 isAdmin이 들어있습니다.
-    console.log(userState);
+    console.log(userState.hasNewAlarm);
 
     const token = localStorage.getItem('accessToken');
-    const admin = localStorage.getItem('isAdmin') === 'true' ? true : false;
+    const test = async () => {
+        const res = await API.get(`/users/individuals`);
+        if (res.news) setNewAlarmOn();
+    };
 
-    const [isAdmin, setIsAdmin] = useState<boolean>(admin);
+    const checkAlarm = async () => {
+        const data = {
+            news: 0,
+        };
+        const res = await API.patch('/users/individuals', '', data);
+        console.log(res);
+    };
+
+    useEffect(() => {
+        test();
+        // 게시글 좋아요, 댓글달기, 댓글좋아요 시 누가 눌럿던 간에 알림이 울림!!
+        socket.on('alaram', () => {
+            console.log('오옷 누군가 나의 게시글/댓글에 좋아요 또는 댓글을 남겼다!!');
+            setNewAlarmOn();
+        });
+
+        // 알림 확인했다는 이벤트 발송
+        checkAlarm();
+    }, []);
 
     // 로그아웃 시 전역 관리 중인 isAdmin값 초기화
     const setAdminLogout = useCallback(() => {
@@ -31,17 +71,15 @@ const Header = () => {
         dispatch(setAlarm(true));
     }, [dispatch]);
 
-    useEffect(() => {
-        setNewAlarmOn();
-    }, []);
-
-    const logout = useCallback(() => {
+    const logout = useCallback(async () => {
         try {
-            axios.patch(
-                `${API.BASE_URL}/users/sign-out`,
-                {},
-                { headers: { authorization: `Bearer ${token}` } },
-            );
+            // await axios.patch(
+            //     `${API.BASE_URL}/users/sign-out`,
+            //     {},
+            //     { headers: { authorization: `Bearer ${token}` } },
+            // );
+
+            await API.patch('/users/sign-out', '', {});
 
             // admin 여부 false
             setAdminLogout();
@@ -69,7 +107,7 @@ const Header = () => {
                 <div className="">
                     <nav>
                         <ul>
-                            {isAdmin === true && (
+                            {userState.isAdmin === true && (
                                 <li>
                                     <Link to="/admin">관리자</Link>
                                 </li>
@@ -87,7 +125,9 @@ const Header = () => {
                             </li>
                             <li>
                                 <Link to="/alarm">
-                                    <BellOutlined />
+                                    <AlarmWrapper>
+                                        <BellOutlined />
+                                    </AlarmWrapper>
                                 </Link>
                             </li>
                         </ul>

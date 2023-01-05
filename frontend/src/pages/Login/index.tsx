@@ -8,6 +8,11 @@ import API from 'utils/api';
 import { setAdmin } from 'store/slices/userSlice';
 import { useAppDispatch } from 'store/config';
 
+interface FormData {
+    password: string;
+    email: string;
+}
+
 const Login = () => {
     const dispatch = useAppDispatch();
 
@@ -16,11 +21,6 @@ const Login = () => {
         handleSubmit,
         formState: { errors },
     } = useForm<FormData>();
-
-    interface FormData {
-        password: string;
-        email: string;
-    }
 
     // 관리자 계정일 경우 유저 전역 상태에 관리자 여부 저장
     const setIsAdmin = useCallback(() => {
@@ -44,7 +44,7 @@ const Login = () => {
             localStorage.setItem('isAdmin', isAdmin);
             // 관리자 계정일 경우
             if (isAdmin) setIsAdmin();
-            // window.location.replace('/');
+            window.location.replace('/');
         } catch (err: any) {
             const res = err.response.data;
             console.error(res);

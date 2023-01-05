@@ -3,8 +3,6 @@ import axios from 'axios';
 class axiosAPI {
     instance;
     // BASE_URL = 'https://rechu.jinytree.shop/api';
-    // BASE_URL = 'http://localhost:5000';
-    // BASE_URL = 'http://localhost:3001';
     BASE_URL = 'http://localhost:8080';
 
     constructor() {
@@ -19,7 +17,7 @@ class axiosAPI {
                     return config;
                 } catch (err) {
                     // console.error('[_axios.interceptors.request] config : ' + err);
-                    console.log('Without Token');
+                    console.log('Without Token', err);
                     return config;
                 }
             },
