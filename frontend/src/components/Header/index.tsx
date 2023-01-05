@@ -8,8 +8,8 @@ import API from 'utils/api';
 const Header = () => {
     const navigate = useNavigate();
     const token = localStorage.getItem('accessToken');
+    const admin = localStorage.getItem('isAdmin') === 'true' ? true : false;
 
-    const admin = localStorage.getItem('isAdmin') ? false : true;
     const [isAdmin, setIsAdmin] = useState<boolean>(admin);
 
     const userInfo = async () => {
@@ -46,7 +46,13 @@ const Header = () => {
                     <img src={Logo} alt="logo" />
                 </h1>
 
-                <div>
+                <div className="toggleMenu">
+                    <span className="line"></span>
+                    <span className="line"></span>
+                    <span className="line"></span>
+                </div>
+
+                <div className="">
                     <nav>
                         <ul>
                             {isAdmin === true && (
