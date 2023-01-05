@@ -18,7 +18,6 @@ import Job from './Job';
 import Project from './Project';
 import { UserData, ResumeData, FormStore, CareerData, ProjectData } from 'models/resumeEdit-model';
 import { useSelector, useDispatch } from 'react-redux';
-import { RootState } from 'context/store';
 
 import API from 'utils/api';
 
@@ -31,8 +30,6 @@ const Resume = () => {
     const [addProjectElement, setAddProjectElement] = useState<FormStore[]>([]);
     const [createCareerData, setCreateCareerData] = useState<CareerData[]>([]);
     const [createProjectData, setCreateProjectData] = useState<ProjectData[]>([]);
-
-    const componentToggle = useSelector<RootState>(state => state.form.workFormToggle);
 
     const params = useParams();
     const resumeIds = params.id;
