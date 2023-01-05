@@ -1,13 +1,13 @@
-import { db } from "./index.repo";
+import { db } from "./";
 import * as userRepository from "../db/user.repo";
 import * as utils from "./utils/";
-import { AlreadyLikesComments } from "./schemas/comment.entity";
+import { AlreadyLikesComments, Comment } from "./schemas/comment.entity";
 
 // 댓글id로 댓글 검색, 없으면 false
-export const findComment = async (commentId: number): Promise<{ id: number } | boolean> => {
+export const findComment = async (commentId: number) => {
   const [comment] = await db.query(
     `
-    SELECT id 
+    SELECT * 
     FROM comment
     WHERE 
     id = ? AND
@@ -16,8 +16,8 @@ export const findComment = async (commentId: number): Promise<{ id: number } | b
     [commentId]
   );
   const parseRow = utils.jsonParse(comment)[0];
-  const result = parseRow !== undefined ? parseRow : false;
-  return result;
+  // const result = parseRow !== undefined ? parseRow : false;
+  return parseRow;
 };
 
 // 댓글 좋아요로 포인트 습득 트렌젝션 o
@@ -91,36 +91,60 @@ export const likeCommentFromUser = async (data: Record<number, number>) => {
   const userId = valval[0];
   // 트렌젝션으로 묶어야 할 수도 ??
   // 맵핑테이블에 추가
-
-  await db.query(
-    `
-    INSERT 
-    INTO 
-    comment_like_maping (${keys.join(", ")})
-    VALUES (${values.join(", ")})
-    `,
-    [...valval]
-  );
-  // comment테이블 likes 에 +1
-  await db.query(
-    `
-    UPDATE comment 
-    SET
-      likes= likes + 1
-    WHERE id = ?
-  `,
-    [commentId]
-  );
-  await db.query(
-    `
-    UPDATE user
-    SET
-      clickedLikes = clickedLikes+1
-    WHERE id = ?
-  `,
-    [userId]
-  );
-  return true;
+  const conn = await db.getConnection();
+  conn.beginTransaction();
+  try {
+    const [compareUserId] = await conn.query(`SELECT userId FROM comment WHERE id = ?`, [commentId]);
+    if (compareUserId[0].userId !== userId) {
+      console.log("이프문");
+      conn.query(
+        `
+          UPDATE user
+          SET news = 1
+          WHERE id in (SELECT userId FROM comment WHERE id =?)
+        `,
+        [commentId]
+      );
+    }
+    await Promise.all([
+      conn.query(
+        `
+        INSERT 
+        INTO 
+        comment_like_maping (${keys.join(", ")})
+        VALUES (${values.join(", ")})
+        `,
+        [...valval]
+      ),
+      // comment테이블 likes 에 +1
+      conn.query(
+        `
+        UPDATE comment 
+        SET
+          likes= likes + 1
+        WHERE id = ?
+      `,
+        [commentId]
+      ),
+      conn.query(
+        `
+        UPDATE user
+        SET
+          clickedLikes = clickedLikes+1
+        WHERE id = ?
+      `,
+        [userId]
+      ),
+    ]);
+    conn.commit();
+    return true;
+  } catch (err) {
+    conn.rollback();
+    console.log(err);
+    throw new Error(err);
+  } finally {
+    conn.release();
+  }
 };
 
 // 좋아요 취소
@@ -164,10 +188,22 @@ export const alreadyLikesComment = async (commentId: number, userId: number) => 
 // 댓글 달기  트렌젝션 o
 export const addCommentQ = async (data: { userId: number; boardId: number; text: string }) => {
   const [keys, values, valval] = utils.insertData(data);
+  const userId = valval[0];
   const boardId = valval[1];
   const conn = await db.getConnection();
   conn.beginTransaction();
   try {
+    const [compareUserId] = await conn.query(`SELECT fromUserId FROM board WHERE id = ?`, [boardId]);
+    if (compareUserId[0].fromUserId !== userId) {
+      conn.query(
+        `
+          UPDATE user
+          SET news = 1
+          WHERE id in (SELECT fromUserId FROM board WHERE id =?)
+        `,
+        [boardId]
+      );
+    }
     const [newComment] = await conn.query(
       `
       INSERT INTO 
