@@ -17,10 +17,9 @@ import Matched from 'pages/Matched';
 import AdminUser from 'components/Admin/AdminUser';
 import AdminContent from 'components/Admin/AdminContent';
 import Comunity from 'pages/Comunity';
+import Alaram from 'pages/Alarm';
 
 const Router = () => {
-    // const isLogined = localStorage.getItem('accessToken') ? true : false;
-    // const isAdmin = localStorage.getItem('isAdmin') ? true : false;
     return (
         <BrowserRouter>
             <Routes>
@@ -45,6 +44,7 @@ const Router = () => {
                             <Route path="/post/:postId/edit" element={<PostCreate />} />
                             <Route path="/post/create" element={<PostCreate />} />
                             <Route path="/profile" element={<Profile />} />
+                            <Route path="/alarm" element={<Alaram />} />
                             <Route path="/loading" element={<Loading />} />
 
                             <Route path="/login" element={<Navigate replace to="/" />} />

@@ -1,13 +1,15 @@
-import Router from 'Router';
+import { useEffect } from 'react';
+import { Provider } from 'react-redux';
+import { PersistGate } from 'redux-persist/integration/react';
+import store, { persistor } from 'store/config';
+import { ThemeProvider } from '@emotion/react';
 import GlobalStyle from 'styles/GlobalStyle';
 import theme from 'styles/theme';
-import { ThemeProvider } from '@emotion/react';
-import { Provider } from 'react-redux';
-import store from 'context/store';
-import React, { useState, useEffect } from 'react';
+import Router from 'Router';
+
 import io from 'socket.io-client';
 
-export const socket = io('localhost:5000', { transports: ['websocket'] });
+export const socket = io('localhost:3001', { transports: ['websocket'] });
 function App() {
     useEffect(() => {
         // 앱에 접속되면 socket 에 접속됨
@@ -28,12 +30,15 @@ function App() {
             console.log('오옷 누군가 나의 게시글/댓글에 좋아요 또는 댓글을 남겼다!!');
         });
     }, []);
+
     return (
         <Provider store={store}>
-            <ThemeProvider theme={theme}>
-                <GlobalStyle />
-                <Router />
-            </ThemeProvider>
+            <PersistGate loading={null} persistor={persistor}>
+                <ThemeProvider theme={theme}>
+                    <GlobalStyle />
+                    <Router />
+                </ThemeProvider>
+            </PersistGate>
         </Provider>
     );
 }
