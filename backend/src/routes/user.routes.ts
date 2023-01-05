@@ -84,8 +84,9 @@ userRoute.post("/match/success", tokenValidator, async (req, res, next) => {
     next(new Error(`400, role 값을 잘 입력해주세요`));
     return;
   }
+  console.log(matchingId, "야 잘 들어오냐?", role);
   try {
-    const result = await userService.successMatch(matchingId, role);
+    const result = await userService.successMatch(matchingId, role, userId);
     return res.status(200).json({
       msg: "첨삭완료",
       data: result,
