@@ -47,6 +47,7 @@ const Match = () => {
     const [modalUserNameContent, setModalUserNameContent] = useState<number | string>('');
     const [modalPointContent, setModalPointContent] = useState<number | string>();
     const [modalEmail, setModalEmail] = useState<number | string>();
+    const [modalTier, setModalTier] = useState<number | string>();
     const [modalGitHubUrl, setModalGitHubUrl] = useState<number | string | undefined>();
     const [data, setData] = useState<myData[]>([]);
     const [myData, setMyData] = useState<myData>();
@@ -114,6 +115,7 @@ const Match = () => {
         const email = data.email;
         const gitHubUrl = data.gitHubUrl;
         const avatarUrl = data.avatarUrl;
+        const tier = data.tier;
 
         setModalGitHubUrl(gitHubUrl);
         setModalEmail(email);
@@ -121,6 +123,7 @@ const Match = () => {
         setModalUserNameContent(userName);
         setModalPointContent(point);
         setModalAvatarUrl(avatarUrl);
+        setModalAvatarUrl(tier);
         setModalOpen(true);
     };
 
@@ -168,6 +171,7 @@ const Match = () => {
         <Layout>
             <Title className="title">
                 <h1>이력서 첨삭 매칭</h1>
+                <button onClick={getMyData}>🔄refresh</button>
             </Title>
             <MobileDiv>
                 <Row gutter={[0, 0]}>
@@ -210,7 +214,7 @@ const Match = () => {
                             <strong>{modalUserNameContent}</strong>님께 이력서 첨삭 부탁하기
                         </p>
                         <p>
-                            <strong>등급 :</strong> {modalPointContent}
+                            <strong>등급 :</strong> {tier}
                         </p>
                         <p>
                             <strong>이메일 :</strong> {modalEmail}

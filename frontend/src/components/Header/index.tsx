@@ -17,8 +17,8 @@ const Header = () => {
     console.log(userState);
 
     const token = localStorage.getItem('accessToken');
+    const admin = localStorage.getItem('isAdmin') === 'true' ? true : false;
 
-    const admin = localStorage.getItem('isAdmin') ? false : true;
     const [isAdmin, setIsAdmin] = useState<boolean>(admin);
 
     // 로그아웃 시 전역 관리 중인 isAdmin값 초기화
@@ -60,7 +60,13 @@ const Header = () => {
                     <img src={Logo} alt="logo" />
                 </h1>
 
-                <div>
+                <div className="toggleMenu">
+                    <span className="line"></span>
+                    <span className="line"></span>
+                    <span className="line"></span>
+                </div>
+
+                <div className="">
                     <nav>
                         <ul>
                             {isAdmin === true && (

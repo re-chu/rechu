@@ -17,6 +17,7 @@ import { useParams } from 'react-router-dom';
 import Job from './Job';
 import Project from './Project';
 import { UserData, ResumeData, FormStore, CareerData, ProjectData } from 'models/resumeEdit-model';
+import { useSelector, useDispatch } from 'react-redux';
 
 import API from 'utils/api';
 
@@ -27,9 +28,7 @@ const Resume = () => {
     const [resumeTitle, setResumeTitle] = useState<ResumeData>({} as ResumeData);
     const [addJobElement, setAddJobElement] = useState<FormStore[]>([]);
     const [addProjectElement, setAddProjectElement] = useState<FormStore[]>([]);
-
     const [createCareerData, setCreateCareerData] = useState<CareerData[]>([]);
-
     const [createProjectData, setCreateProjectData] = useState<ProjectData[]>([]);
 
     const params = useParams();
@@ -57,7 +56,7 @@ const Resume = () => {
             setUserInfo(userInfoData);
             setCreateCareerData(careerData);
             setCreateProjectData(projectData);
-        } catch (err) {
+        } catch (err: unknown) {
             console.log(err);
         }
     };
@@ -169,14 +168,6 @@ const Resume = () => {
                                             value={`${userInfo.phoneNumber}`}
                                         />
                                     </li>
-                                    {/* <li>
-                                        <textarea
-                                            placeholder="채용자에게 지원자님을 소개해주세요. (최대 200자)"
-                                            maxLength={200}
-                                            rows={3}
-                                            autoComplete="off"
-                                        ></textarea>
-                                    </li> */}
                                 </ul>
                             </div>
                         </UserInfo>
@@ -184,11 +175,24 @@ const Resume = () => {
                             <div className="inputFlex">
                                 <section>
                                     <div className="positionDiv">
-                                        <select onChange={choiceJob} defaultValue={`position`}>
-                                            <option value="position" disabled>
+                                        <select
+                                            onChange={choiceJob}
+                                            defaultValue={
+                                                resumeTitle.position === '' ? 'choice' : `position`
+                                            }
+                                        >
+                                            <option
+                                                value="choice"
+                                                disabled
+                                                className={
+                                                    resumeTitle.position === '' ? 'block' : 'none'
+                                                }
+                                            >
                                                 {resumeTitle.position}
                                             </option>
-                                            <option>포지션 선택</option>
+                                            <option value="position" disabled>
+                                                포지션 선택
+                                            </option>
                                             <option>전체</option>
                                             <option>개발</option>
                                             <option>게임개발</option>
