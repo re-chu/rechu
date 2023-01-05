@@ -3,10 +3,7 @@ import * as middlewares from "../middlewares/multer";
 import sharp from "sharp";
 import fs from "fs";
 export const rootRoute = express();
-rootRoute.get("/", (req, res, next) => {
-  console.log("아");
-  return res.send("ㅎㅇ요");
-});
+rootRoute.get("/", () => console.log("ㅎㅇ"));
 rootRoute.post("/file/url", middlewares.boardImg.single("image"), (req, res, next) => {
   try {
     sharp(req.file.path)
@@ -20,7 +17,7 @@ rootRoute.post("/file/url", middlewares.boardImg.single("image"), (req, res, nex
         });
       });
     return res.status(200).json({
-      imageUrl: `/api/${req.file.path}`,
+      imageUrl: req.file.path,
     });
   } catch (err) {
     next(err);

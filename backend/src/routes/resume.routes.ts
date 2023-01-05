@@ -59,8 +59,7 @@ resumeRoute.post("/resumes/:resumeId/new-career", async (req, res, next) => {
 resumeRoute.post("/resumes/:resumeId/new-project", async (req, res, next) => {
   const resumeId = Number(req.params.resumeId);
   const newProjectInfo = req.body;
-  console.log(newProjectInfo.skills.join())
-  newProjectInfo.skills = newProjectInfo.skills.join()
+
   try {
     const newProject = await createProject(resumeId, newProjectInfo);
 

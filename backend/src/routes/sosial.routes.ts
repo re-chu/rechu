@@ -21,9 +21,9 @@ sosialRoute.get("/kakao/auth", async (req, res, next) => {
   console.log(code);
   try {
     const result = await sosialService.kakaoAuth(code);
-    return res.status(200).json({ result });
+    return res.send(result);
   } catch (err) {
-    console.log(err.message);
+    console.log("kako REST API 연결실패!");
     next(new Error(`500, 카카오 로그인 실패!`));
   }
 });

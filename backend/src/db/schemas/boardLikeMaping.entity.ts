@@ -6,6 +6,9 @@ export class BoardLikeMaping {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column({ default: false })
+  checkout: boolean;
+
   @ManyToOne((type) => User, (user) => user.likesResume)
   user: User;
 

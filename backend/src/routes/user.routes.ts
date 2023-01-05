@@ -108,7 +108,6 @@ userRoute.get("/req", tokenValidator, async (req, res, next) => {
   }
 });
 
-//회원탈퇴
 userRoute.patch("/off", tokenValidator, async (req, res, next) => {
   const userId = Number(req.body.jwtDecoded.id);
   try {
@@ -201,7 +200,7 @@ userRoute.patch("/individuals", tokenValidator, async (req, res, next) => {
     ...(chance && { chance }),
   };
   // 0값으로 들어오면 위 코드로 잡히지 않음.
-  if (req.body.working === false) {
+  if (req.body.working === 0) {
     toUpdate.working = 0;
   }
   console.log("업데이트 할 것들", toUpdate);
@@ -241,7 +240,7 @@ userRoute.post("/email", validateBody(CreateAuthDataDto), async (req, res, next)
     // 실제로 보내는 함수
     return res.status(200).json({
       msg: "전송완료 4분이내 인증을 완료해주세요.",
-      // data: number,
+      data: number,
     });
   } catch (err) {
     next(err);
@@ -266,7 +265,7 @@ userRoute.post("/eamil/password", validateBody(CreateAuthDataDto), async (req, r
     const newPassword = await userService.findPassword(email);
     return res.status(200).json({
       msg: `임시 비밀번호가 ${email}로 발송되었습니다.`,
-      // data: newPassword, // 배포시 수정 -삭제
+      data: newPassword, // 배포시 수정 -삭제
     });
   } catch (err) {
     next(err);

@@ -11,7 +11,6 @@ import { EmailAuth, UserProfile } from "../db/schemas";
 export const getRotListOrMatchingStatus = async (userId: number): Promise<userRepo.RotList | userRepo.MatchInfo> => {
   try {
     const connect = await userRepo.findMatchQ(userId);
-    console.log("connect", connect);
     if (!connect.matchInfo) {
       console.log("고인물 리스트 리턴 로직");
       const list = await userRepo.getRotListQ(userId);
@@ -33,8 +32,7 @@ export const createMatch = async (menteeId: number, mentoId: number): Promise<nu
   try {
     const alreadyMatch = await userRepo.findMatchQ(menteeId);
     console.log("alreadyMatch", alreadyMatch);
-
-    if (alreadyMatch.matchInfo !== undefined) throw new Error(`이미 요청한 상태입니다.`);
+    if (alreadyMatch.matchInfo) throw new Error(`이미 요청한 고인물입니다.`);
     const matchingId = await userRepo.createMatchQ(data);
     return matchingId;
   } catch (err) {
@@ -71,6 +69,7 @@ export const acceptMatch = async (userId: number, matchingId: number, menteeId: 
 export const successMatch = async (matchingId: number, role: string): Promise<string> => {
   const data: { role: string; deleteMenteeIdQuery?: string } = {
     role: "",
+    deleteMenteeIdQuery: "",
   };
   switch (role) {
     case "mento":
@@ -78,21 +77,17 @@ export const successMatch = async (matchingId: number, role: string): Promise<st
       break;
     default:
       data.role = "menteeComplate";
+      data.deleteMenteeIdQuery = ", menteeId = 0";
       break;
   }
 
   try {
     const success = await userRepo.successMatchQ(matchingId, data);
-    // const matchInfo = await userRepo.findMatchByMatchingId(matchingId);
-    const menteeComplate = Number(success.menteeComplate);
-    const mentoComplate = Number(success.mentoComplate);
-    console.log("데이타", data.role, "가 누름");
-    // console.log("매치인포 ", matchInfo);
-    console.log("멘티컴플리트 ", menteeComplate);
-    console.log("멘토컴플리트 ", mentoComplate);
+    const matchInfo = await userRepo.findMatchByMatchingId(matchingId);
+    const menteeComplate = Number(matchInfo.menteeComplate);
+    const mentoComplate = Number(matchInfo.mentoComplate);
     if (mentoComplate > 0 && menteeComplate > 0) {
       console.log("ㅋㅋ");
-      // 완료로
       const complateMatch = await userRepo.complateMatch(matchingId);
       console.log(complateMatch);
       return complateMatch;
@@ -103,7 +98,6 @@ export const successMatch = async (matchingId: number, role: string): Promise<st
     throw new Error(`500, 서버 오류`);
   }
 };
-// 고인물이 마이페이지에서 요청들어온거 보는거임
 export const getRequestCorrection = async (userId: number) => {
   try {
     console.log(userId);
@@ -201,6 +195,7 @@ export const login = async (email: string, password?: string) => {
     RT: refreshToken,
     ban: 0,
   };
+
   // RT 교체
   await userRepo.updateUser(user.id, data);
   // 옵젝으로 묶어서 리턴
@@ -264,11 +259,11 @@ export const findPassword = async (email: string): Promise<boolean | string> => 
   }
 
   const mailInfo = {
-    from: process.env.MAILER_USER,
+    from: "jinytree1403@naver.com",
     to: email,
-    subject: "[RE-CHU] 비밀번호 발송 ",
+    subject: "[헤드헌터] 비밀번호 발송 ",
     text: `      
-    RE-CHU ${email} 
+    헤드헌터 ${email} 
     
     임시 비밀번호 :  ${randomStr}
     
@@ -297,11 +292,11 @@ export const sendEmail = async (toEmail: string, number?: number) => {
   }
   // 이메일 내용
   const mailInfo = {
-    from: process.env.MAILER_USER,
+    from: "jinytree1403@naver.com",
     to: toEmail,
-    subject: "[re-chu] 인증번호 발송 ",
+    subject: "[헤드헌터] 인증번호 발송 ",
     text: `      
-    re-chu 회원가입 인증번호
+    헤드헌터 회원가입 인증번호
     
     인증번호 입력란에 ${number} 를 입력해주세요.`,
   };

@@ -1,14 +1,14 @@
-import express, { Request, Response, NextFunction } from "express";
+import express from "express";
 import { errorHandler } from "./middlewares/error-handdler";
-
 import { userRoute, adminRoute, boardRoute, rootRoute, commentRoute, sosialRoute } from "./routes";
-
 import cors from "cors";
 import resumeRoute from "./routes/resume.routes";
+
 const app = express();
 app.use("/uploads", express.static("uploads"));
 // CORS 에러 방지
 app.use(cors());
+
 // Content-Type: application/json 형태의 데이터를 인식하고 핸들링할 수 있게 함.
 app.use(express.json());
 
