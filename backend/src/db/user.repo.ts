@@ -297,7 +297,7 @@ export const findMatchQ = async (userId: number): Promise<MatchInfo> => {
       JOIN user u
       on mentoId = u.id
       WHERE 
-        menteeId = ?
+        menteeId = ? AND menteeComplate = 0
     `,
     [userId]
   );
@@ -404,7 +404,8 @@ export const acceptMatchQ = async (matchingId: number, menteeId: number): Promis
 // 매칭 끝내기버튼
 export const successMatchQ = async (
   matchingId: number,
-  data: { role: string; deleteMenteeIdQuery?: string }
+  data: { role: string; deleteMenteeIdQuery?: string },
+  userId: number
 ): Promise<string> => {
   const conn = await db.getConnection();
   conn.beginTransaction();
@@ -415,7 +416,8 @@ export const successMatchQ = async (
         `
       UPDATE user 
       SET 
-        matching = 0 
+        matching = 0 ,
+        point = point -50
       WHERE 
         id IN (
             SELECT menteeId FROM connect WHERE id = ?
@@ -423,17 +425,48 @@ export const successMatchQ = async (
     `,
         [matchingId]
       );
+    } else {
+      conn.query(
+        `
+      UPDATE user
+      SET
+        corrections=corrections+1 ,
+        point = point +50
+      WHERE
+        id = ?
+    `,
+        [userId]
+      );
     }
     const [updated] = await conn.query(
       `
     UPDATE connect
     SET
-      ${data.role} = 1 ${data.deleteMenteeIdQuery}
+      ${data.role} = 1 
     WHERE
       id = ?
   `,
       [matchingId]
     );
+    const [matchInfoRow] = await conn.query(
+      `
+      SELECT mentoComplate , menteeComplate From connect Where id = ?
+    `,
+      [matchingId]
+    );
+    const matchInfo = utils.jsonParse(matchInfoRow)[0];
+    if (matchInfo.menteeComplate + matchInfo.mentoComplate === 2) {
+      await conn.query(
+        `
+      UPDATE connect
+      SET
+        step = "완료"
+      WHERE 
+        id = ?
+    `,
+        [matchingId]
+      );
+    }
     const result = data.role === "menteeComplate" ? "멘티가 종료누름" : "멘토가 종료누름";
     conn.commit();
     return result;
@@ -464,45 +497,7 @@ export const complateMatch = async (matchingId: number) => {
     `,
       [matchingId]
     );
-    const parseMatch = utils.jsonParse(match)[0];
-    const mentoId = parseMatch.mentoId;
-    const menteeId = parseMatch.menteeId;
-    console.log(parseMatch);
-    await Promise.all([
-      conn.query(
-        `
-      UPDATE connect
-      SET
-        menteeId = 0 ,
-        step = "완료"
-      WHERE 
-        id = ?
-    `,
-        [matchingId]
-      ),
-      conn.query(
-        `
-      UPDATE user
-      SET
-        corrections=corrections+1 ,
-        point = point +50
-      WHERE
-        id = ?
-    `,
-        [mentoId]
-      ),
-      conn.query(
-        `
-      UPDATE user
-      SET
-        matching = 0,
-        point = point -50
-      WHERE
-        id = ?
-    `,
-        [menteeId]
-      ),
-    ]);
+
     conn.commit();
     return "매칭 종료";
   } catch (err) {
@@ -523,6 +518,11 @@ type 임시 = {
   created: string;
 };
 // 고인물에게 들어온 요청  트렌젝션 O
+export type GetMatchRequest = {
+  matchingId: number;
+  step: string;
+  menteeId: number;
+};
 export const getRequestCorrectionQ = async (userId: number) => {
   // step = 요청중, mentoId =userId , complate = 0인것들을 created DESC 로 뱉기
   console.log("이까진 오나?", userId);
@@ -641,7 +641,8 @@ export const offUserQ = async (userId: number) => {
           username = '${text}',
           avatarUrl = '${"https://url.kr/7h42va"}',
           phoneNumber = "",
-          gitHubUrl = ""
+          gitHubUrl = "",
+          point = 0
         WHERE 
           id = ?
       `,
