@@ -1,3 +1,4 @@
+import { UpdateAlarm } from "../services";
 import { db } from "./";
 import * as utils from "./utils/";
 
@@ -38,9 +39,10 @@ export const getAlarmDataQ = async (userId: number): Promise<AlarmData> => {
     db.query(
       `
     SELECT 
+      bm.id as bmBoardId,
       u.id as whoIsUserId,
       u.avatarUrl as whoIsUserAvatarUrl,
-      u.username as whoIsUser,
+      u.username as whoIsUsername,
       bm.boardId as whereBoard,
       bm.created as created,
       bm.checkout as checkout
@@ -65,7 +67,7 @@ export const getAlarmDataQ = async (userId: number): Promise<AlarmData> => {
       c.id as commentId,
       u.id as whoIsUserId,
       u.username as whoIsUsername,
-      u.avatarUrl as whoIsAvatarUrl,
+      u.avatarUrl as whoIsUserAvatarUrl,
       c.boardId as whereBoard,
       c.created as created,
       c.checkout as checkout 
@@ -123,4 +125,39 @@ export const getAlarmDataQ = async (userId: number): Promise<AlarmData> => {
   const resultValue = result.sort((a, b) => new Date(b.created).getTime() - new Date(a.created).getTime()).slice(0, 10); // 트러블슈팅 ㄱㄱ
   // console.log(resultValue);
   return resultValue;
+};
+
+export const updateAlarm = async (data: UpdateAlarm): Promise<true> => {
+  switch (data.type) {
+    case "likesBoard":
+      await db.query(
+        `
+        UPDATE board_like_maping
+        SET checkout = 1
+        WHERE id = ?
+      `,
+        [data.bmBoardId]
+      );
+      break;
+    case "likesComment":
+      await db.query(
+        `
+        UPDATE comment_like_maping
+        SET checkout = 1
+        WHERE id = ?
+        `,
+        [data.cmCommentId]
+      );
+      break;
+    default:
+      await db.query(
+        `
+        UPDATE comment
+        SET checkout = 1
+        WHERE id = ?
+        `,
+        [data.commentId]
+      );
+  }
+  return true;
 };
