@@ -25,52 +25,77 @@ export const HHeader = styled.header`
         }
     }
 
-    & .toggleMenu {
-        position: absolute;
-        width: 2.3rem;
-        height: 2.2rem;
-        padding: 1rem;
-        border-right: 1px solid #d3d3d3;
-        border-bottom: 1px solid #d3d3d3;
-        cursor: pointer;
+    & .alarmIcon {
+        display: none;
+    }
 
-        .line {
-            position: absolute;
-            width: calc(100% - 20px);
-            height: 4px;
-            background-color: #000;
-            transition: 0.3s;
+    @media all and (max-width: 1080px) {
+        padding: 0.4rem;
 
-            &:nth-of-type(1) {
-                top: 10px;
+        & .alarmIcon {
+            display: block;
+        }
+
+        & .mobileMenu {
+            z-index: 999;
+
+            & .toggleMenu {
+                position: relative;
+                width: 2.3rem;
+                height: 2.2rem;
+                padding: 1rem;
+                border-right: 1px solid #d3d3d3;
+                border-bottom: 1px solid #d3d3d3;
+                cursor: pointer;
+
+                .line {
+                    position: absolute;
+                    width: calc(100% - 20px);
+                    height: 4px;
+                    background-color: #000;
+                    transition: 0.3s;
+
+                    &:nth-of-type(1) {
+                        top: 10px;
+                    }
+                    &:nth-of-type(2) {
+                        top: calc(50% - 2px);
+                    }
+                    &:nth-of-type(3) {
+                        top: calc(100% - 14px);
+                    }
+                }
             }
-            &:nth-of-type(2) {
-                top: calc(50% - 2px);
+
+            & .toggleMenu.active {
+                .line {
+                    &:nth-of-type(1) {
+                        top: calc(50% - 2px);
+                        transform: rotate(-45deg);
+                    }
+                    &:nth-of-type(2) {
+                        opacity: 0;
+                        visibility: hidden;
+                    }
+                    &:nth-of-type(3) {
+                        top: calc(50% - 2px);
+                        transform: rotate(45deg);
+                    }
+                }
             }
-            &:nth-of-type(3) {
-                top: calc(100% - 14px);
+
+            & .menuBar {
+                background-color: rgba(255, 255, 255, 0.5);
+
+                position: absolute;
+                padding-left: 0.4rem;
+                padding-top: 1rem;
+                line-height: 1.6;
             }
         }
     }
 
-    .toggleMenu.active {
-        .line {
-            &:nth-of-type(1) {
-                top: calc(50% - 2px);
-                transform: rotate(-45deg);
-            }
-            &:nth-of-type(2) {
-                opacity: 0;
-                visibility: hidden;
-            }
-            &:nth-of-type(3) {
-                top: calc(50% - 2px);
-                transform: rotate(45deg);
-            }
-        }
-    }
-
-    & div {
+    & .navMenu {
         display: flex;
         gap: 4.8rem;
 

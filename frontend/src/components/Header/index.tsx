@@ -20,11 +20,16 @@ const Header = () => {
     const admin = localStorage.getItem('isAdmin') === 'true' ? true : false;
 
     const [isAdmin, setIsAdmin] = useState<boolean>(admin);
+    const [menuBarToggle, setMenuBarToggle] = useState<boolean>(false);
 
     // 로그아웃 시 전역 관리 중인 isAdmin값 초기화
     const setAdminLogout = useCallback(() => {
         dispatch(setAdmin(false));
     }, [dispatch]);
+
+    const changeToggleMenu = () => {
+        setMenuBarToggle(!menuBarToggle);
+    };
 
     // 새로운 알림 도착 시 새 알림 여부 on
     const setNewAlarmOn = useCallback(() => {
@@ -60,13 +65,64 @@ const Header = () => {
                     <img src={Logo} alt="logo" />
                 </h1>
 
-                <div className="toggleMenu">
-                    <span className="line"></span>
-                    <span className="line"></span>
-                    <span className="line"></span>
+                <section className="alarmIcon">
+                    <Link to="/alarm">
+                        <BellOutlined />
+                    </Link>
+                </section>
+
+                <div className="mobileMenu">
+                    <article
+                        className={`${menuBarToggle ? 'toggleMenu active' : 'toggleMenu'}`}
+                        onClick={changeToggleMenu}
+                    >
+                        <span className="line"></span>
+                        <span className="line"></span>
+                        <span className="line"></span>
+                    </article>
+
+                    {menuBarToggle && (
+                        <div className="menuBar">
+                            <nav>
+                                <ul>
+                                    {isAdmin === true && (
+                                        <li>
+                                            <Link to="/admin">관리자</Link>
+                                        </li>
+                                    )}
+
+                                    <li>
+                                        <Link to="/comunity">커뮤니티</Link>
+                                    </li>
+
+                                    <li>
+                                        <Link to="/resume/list">이력서</Link>
+                                    </li>
+                                    <li>
+                                        <Link to="/match">상점</Link>
+                                    </li>
+                                </ul>
+                            </nav>
+
+                            <ul className="util">
+                                {token ? (
+                                    <>
+                                        <li>
+                                            <Link to="/profile">마이페이지</Link>
+                                        </li>
+                                        <li onClick={logout}>로그아웃</li>
+                                    </>
+                                ) : (
+                                    <li>
+                                        <Link to="/login">로그인</Link>
+                                    </li>
+                                )}
+                            </ul>
+                        </div>
+                    )}
                 </div>
 
-                <div className="">
+                <div className="navMenu">
                     <nav>
                         <ul>
                             {isAdmin === true && (
