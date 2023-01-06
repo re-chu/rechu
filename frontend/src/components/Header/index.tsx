@@ -48,7 +48,7 @@ const Header = () => {
         checkHasNewAlarm();
 
         // 게시글 좋아요, 댓글달기, 댓글좋아요 시 누가 눌럿던 간에 알림이 울림!!
-        socket.on('alaram', () => {
+        socket.on('alarm', () => {
             console.log('오옷 누군가 나의 게시글/댓글에 좋아요 또는 댓글을 남겼다!!');
             setNewAlarmState(true);
         });
@@ -119,7 +119,7 @@ const Header = () => {
                                 <Link to="/resume/list">이력서</Link>
                             </li>
                             <li>
-                                <Link to="/match">상점</Link>
+                                <Link to="/match">매칭</Link>
                             </li>
                             <li>
                                 <Link to="/alarm">

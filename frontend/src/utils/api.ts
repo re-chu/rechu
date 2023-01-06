@@ -30,7 +30,6 @@ class axiosAPI {
     async get(endpoint: string, params = '') {
         try {
             const apiUrl = `${endpoint}/${params}`;
-            console.log(`%cGET 요청: ${apiUrl} `, 'color: #a25cd1;');
             const res = await this.instance.get(this.BASE_URL + apiUrl);
             const data = res.data.data;
             return data;
