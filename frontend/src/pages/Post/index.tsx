@@ -10,7 +10,7 @@ import { Button, Typography, Input, Card, Modal, notification } from 'antd';
 import type { NotificationPlacement } from 'antd/es/notification/interface';
 import { calcElapsed } from 'utils/format';
 import ResumeComponent from 'components/Resume';
-import { socket } from 'App';
+import socket from 'services/socket';
 
 const { confirm } = Modal;
 const { Title, Text } = Typography;

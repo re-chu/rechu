@@ -15,12 +15,14 @@ export const commentLikes = async (userId: number, commentId: number, likesStatu
     // 좋아요 하지 않은 댓글이라면 좋아요 및 포인트 습득
     if (!likesStatus && !alreadyLikes) {
       await commentRepo.likeCommentFromUser(data);
-
       // 아래 변수명에 포인트 적립여부가 담겨있음
       const alreadySavePoint = await commentRepo.findSavedPointByComment(userId, commentId);
       console.log("포인트받음?", alreadySavePoint);
+
+      //어뷰징 막기위해
+      const commentInfo = await commentRepo.findComment(data.commentId);
       // 첫번째 좋아요라 포인트적립이 되지 않았을 경우 적립
-      if (!alreadySavePoint) {
+      if (!alreadySavePoint && userId !== commentInfo.userId) {
         console.log("첫번째 좋아요! 포인트 적립!");
         await commentRepo.savePointByComment(data);
       }
@@ -49,7 +51,7 @@ export const addComment = async (data: { userId: number; boardId: number; text: 
 export const deleteComment = async (userId: number, boardId: number, commentId: number) => {
   try {
     const isComment = await commentRepo.findComment(commentId);
-    if (isComment === false) throw new Error(`404`);
+    // if (isComment === false) throw new Error(`404`);
 
     const result = await commentRepo.deleteCommentQ(userId, boardId, commentId);
     return result;

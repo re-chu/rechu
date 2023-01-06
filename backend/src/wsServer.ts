@@ -18,16 +18,38 @@ wsServer.on("connection", (socket) => {
 
   socket.on("likesBoard", (boardOwnerId) => {
     console.log("게시글좋아요 알림");
-    socket.to(String(boardOwnerId)).emit("alaram");
+    socket.to(String(boardOwnerId)).emit("alarm");
   });
   socket.on("addComment", (boardOwnerId) => {
     console.log("댓글추가 알림");
-    socket.to(String(boardOwnerId)).emit("alaram");
+    socket.to(String(boardOwnerId)).emit("alarm");
   });
   socket.on("likesComment", (commentOwnerId) => {
     console.log("댓글좋아요 알림");
-    socket.to(String(commentOwnerId)).emit("alaram");
+    socket.to(String(commentOwnerId)).emit("alarm");
   });
 });
-
+`
+먼저 채팅방 목록 구하고
+1 SELECT 
+    c.id as roomId,
+    c.name as roomName,
+    c.lastText
+FROM 채팅방 c
+WHERE
+    c.menteeId = ? OR c.mentoId = ? AND
+--  채팅방 목록[]을 map 하여 쿼리한번 더 날림
+const result = 1SELECT.map(chatRomm=>{
+        2   SELECT 
+                dd
+            FROM 채팅내역 
+            WHERE
+                includeRoom = chatRomm.roomId AND
+                sendFrom != 내Id AND
+                checkout = 0
+        return {...chatRoom,noCheckout:2SELECT.length}
+})
+--
+return result
+`;
 export default httpServer;

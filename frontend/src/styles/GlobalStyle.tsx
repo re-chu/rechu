@@ -77,12 +77,6 @@ const style = css`
         box-sizing: border-box;
         font-family: 'arial', 'sans-serif';
     }
-
-    .Container {
-        max-width: 128rem;
-        margin: 0 auto;
-        padding: 0 1rem;
-    }
 `;
 
 const GlobalStyle = () => {

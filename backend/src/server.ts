@@ -1,6 +1,6 @@
 import express from "express";
 import { errorHandler } from "./middlewares/error-handdler";
-import { userRoute, adminRoute, boardRoute, rootRoute, commentRoute, sosialRoute } from "./routes";
+import { userRoute, adminRoute, boardRoute, rootRoute, commentRoute, sosialRoute, alarmRoute } from "./routes";
 import cors from "cors";
 import resumeRoute from "./routes/resume.routes";
 
@@ -23,6 +23,7 @@ app.use("/my-portfolio", resumeRoute);
 app.use("/board", boardRoute);
 app.use("/comments", commentRoute);
 app.use("/sosial", sosialRoute);
+app.use("/alarm", alarmRoute);
 
 // 에러 미들웨어
 app.use(errorHandler);

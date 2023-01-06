@@ -138,7 +138,10 @@ export const addLikes = async (userId: number, boardId: number, likesStatus: boo
 
       const alreadySavePoint = await boardRepo.findSavedPointByBoard(userId, boardId);
       // 첫번째 좋아요라 포인트적립이 되지 않았을 경우 적립
-      if (!alreadySavePoint) {
+
+      // 어뷰징 막기
+      const boardInfo = await boardRepo.findOneBoardQ(boardId);
+      if (!alreadySavePoint && boardInfo.boardInfo.ownUserId !== userId) {
         console.log("첫번째 좋아요! 포인트 적립!");
         await boardRepo.savePointByBoard(data);
       }

@@ -44,8 +44,8 @@ export const createMatch = async (menteeId: number, mentoId: number): Promise<nu
 export const cancelMatch = async (matchingId: number) => {
   try {
     const isMatch = await userRepo.findMatchByMatchingId(matchingId);
-    console.log(isMatch);
     if (!isMatch) throw new Error("존재하지 않은 매칭입니다.");
+
     const deleteMatch = await userRepo.cancelMatchQ(matchingId);
     return deleteMatch;
   } catch (err) {
@@ -66,7 +66,7 @@ export const acceptMatch = async (userId: number, matchingId: number, menteeId: 
     throw new Error(`500, 서버 오류`);
   }
 };
-export const successMatch = async (matchingId: number, role: string): Promise<string> => {
+export const successMatch = async (matchingId: number, role: string, userId: number): Promise<string> => {
   const data: { role: string; deleteMenteeIdQuery?: string } = {
     role: "",
     deleteMenteeIdQuery: "",
@@ -82,12 +82,14 @@ export const successMatch = async (matchingId: number, role: string): Promise<st
   }
 
   try {
-    const success = await userRepo.successMatchQ(matchingId, data);
+    const success = await userRepo.successMatchQ(matchingId, data, userId);
     const matchInfo = await userRepo.findMatchByMatchingId(matchingId);
     const menteeComplate = Number(matchInfo.menteeComplate);
     const mentoComplate = Number(matchInfo.mentoComplate);
+    console.log(mentoComplate, menteeComplate, matchInfo);
     if (mentoComplate > 0 && menteeComplate > 0) {
       console.log("ㅋㅋ");
+      console.log(matchingId, "이거 뭐냐고");
       const complateMatch = await userRepo.complateMatch(matchingId);
       console.log(complateMatch);
       return complateMatch;
