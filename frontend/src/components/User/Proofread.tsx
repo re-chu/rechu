@@ -3,6 +3,7 @@ import { Card, List, Switch, Button, Divider, Badge } from 'antd';
 import axios from 'axios';
 import { off } from 'process';
 import API from 'utils/api';
+import socket from 'services/socket';
 
 const data = [
     {
@@ -92,6 +93,7 @@ export const Proofread = () => {
                 { matchingId: matchingid * 1, menteeId: menteeid * 1 },
                 { headers: { authorization: `Bearer ${token}` } },
             );
+            socket.emit('matchRequestToMentee', menteeid);
             getMentoReq();
         } catch (e) {
             console.log(e);
