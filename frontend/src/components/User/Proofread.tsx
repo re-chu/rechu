@@ -17,10 +17,9 @@ const token = localStorage.getItem('accessToken');
 let lengthReq = 0;
 let lengthPro = 0;
 
-export const Proofread = () => {
+export const Proofread = (props: any) => {
     const [test, setTest] = useState(false);
     const [res, setRes] = useState<Mock[]>([]);
-
     async function getProfile() {
         try {
             const token = localStorage.getItem('accessToken');
@@ -64,7 +63,11 @@ export const Proofread = () => {
                 { matchingId: matchingid * 1, menteeId: menteeid * 1 },
                 { headers: { authorization: `Bearer ${token}` } },
             );
-            const chatPostRes=await axios.post(`${API.BASE_URL}/users/match`,{ menteeId: menteeid * 1, mentoId:matchingid * 1 },{ headers: { authorization: `Bearer ${token}` })
+            const chatPostRes = await axios.post(
+                `${API.BASE_URL}/users/match`,
+                { menteeId: menteeid * 1, mentoId: props.id, matchingId: matchingid * 1 },
+                { headers: { authorization: `Bearer ${token}` } },
+            );
             getMentoReq();
         } catch (e) {
             console.log(e);

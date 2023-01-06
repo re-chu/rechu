@@ -257,7 +257,7 @@ const Profile: React.FC = () => {
                             {
                                 label: `첨삭(플레티넘 이상)`,
                                 key: '2',
-                                children: <Proofread></Proofread>,
+                                children: <Proofread id={res.id}></Proofread>,
                                 disabled: true,
                             },
                         ]}
