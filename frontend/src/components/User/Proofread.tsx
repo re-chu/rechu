@@ -5,33 +5,6 @@ import { off } from 'process';
 import API from 'utils/api';
 import socket from 'services/socket';
 
-const data = [
-    {
-        title: 'Title 1',
-    },
-    {
-        title: 'Title 2',
-    },
-    {
-        title: 'Title 3',
-    },
-    {
-        title: 'Title 4',
-    },
-    {
-        title: 'Title 5',
-    },
-    {
-        title: 'Title 6',
-    },
-    {
-        title: 'Title 6',
-    },
-    {
-        title: 'Title 6',
-    },
-];
-
 type Mock = {
     matchingId: string;
     step: string;
@@ -44,12 +17,10 @@ let matchData: [];
 const token = localStorage.getItem('accessToken');
 let lengthReq = 0;
 let lengthPro = 0;
-// let test: number | boolean;
 
-export const Proofread = () => {
+export const Proofread = (props: any) => {
     const [test, setTest] = useState(false);
     const [res, setRes] = useState<Mock[]>([]);
-
     async function getProfile() {
         try {
             const token = localStorage.getItem('accessToken');
@@ -94,6 +65,11 @@ export const Proofread = () => {
                 { headers: { authorization: `Bearer ${token}` } },
             );
             socket.emit('matchRequestToMentee', menteeid);
+            const chatPostRes = await axios.post(
+                `${API.BASE_URL}/chat`,
+                { menteeId: menteeid * 1, mentoId: props.id * 1, matchingId: matchingid * 1 },
+                { headers: { authorization: `Bearer ${token}` } },
+            );
             getMentoReq();
         } catch (e) {
             console.log(e);
@@ -149,7 +125,6 @@ export const Proofread = () => {
         lengthReq = res.filter((e: any) => e.step === '요청중').length;
         lengthPro = res.filter((e: any) => e.step === '진행중').length;
     }, [res]);
-    console.log(test, '양반넘아! 이 애물딴지');
     return (
         <div
             style={{
