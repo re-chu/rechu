@@ -4,7 +4,7 @@ class axiosAPI {
     instance;
     // BASE_URL = 'https://rechu.jinytree.shop/api';
     // BASE_URL = 'http://localhost:5000';
-    BASE_URL = 'http://localhost:3001';
+    BASE_URL = 'http://localhost:3000';
 
     constructor() {
         this.instance = axios.create();
