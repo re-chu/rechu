@@ -9,12 +9,12 @@ const Container = styled.div`
     padding: 5rem 0;
     color: #666;
 `;
-const Img = styled.img`
+const EliceLogoWrapper = styled.div`
+    margin: 0 10px;
+`;
+const EliceLogo = styled.img`
     height: 17px;
     cursor: pointer;
-`;
-const Div = styled.div`
-    margin: 0 10px;
 `;
 
 const Footer = () => {
@@ -22,9 +22,9 @@ const Footer = () => {
     return (
         <Container>
             Copyrigh {year}. RE-CHU All rights reserved with
-            <Div>
-                <Img src={Elice} onClick={() => window.location.replace('https://elice.io/')}></Img>
-            </Div>
+            <EliceLogoWrapper>
+                <EliceLogo src={Elice} onClick={() => window.open('https://elice.io/')} />
+            </EliceLogoWrapper>
         </Container>
     );
 };

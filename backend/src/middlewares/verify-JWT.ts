@@ -13,7 +13,6 @@ export const tokenValidator: RequestHandler = (req, res, next) => {
   try {
     const secretKey = process.env.JWT_SECRET_KEY || "secret";
     const jwtDecoded = jwt.verify(userToken, secretKey);
-
     req.body = { ...req.body, jwtDecoded };
     if (req.body.jwtDecoded.type === "RT") throw new Error("is not access token");
     // console.log(req.body);

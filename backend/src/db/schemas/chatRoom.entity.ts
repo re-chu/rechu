@@ -14,8 +14,14 @@ export class ChatRoomTable {
   @Column({ unique: true })
   mentoId: number;
 
-  @Column({ type: "bigint" })
-  created: number;
+  @Column({ type: "datetime", default: () => "CURRENT_TIMESTAMP" })
+  created: Date;
+
+  @Column()
+  lastText: string;
+
+  @Column()
+  roomName: string;
 
   @ManyToOne((type) => Connect, (connect) => connect.hasOwnRooms)
   fromConnect: Connect;

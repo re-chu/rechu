@@ -84,8 +84,9 @@ userRoute.post("/match/success", tokenValidator, async (req, res, next) => {
     next(new Error(`400, role 값을 잘 입력해주세요`));
     return;
   }
+  console.log(matchingId, "야 잘 들어오냐?", role);
   try {
-    const result = await userService.successMatch(matchingId, role);
+    const result = await userService.successMatch(matchingId, role, userId);
     return res.status(200).json({
       msg: "첨삭완료",
       data: result,
@@ -190,6 +191,7 @@ userRoute.patch("/individuals", tokenValidator, async (req, res, next) => {
   const avatarUrl = req.body.avatarUrl;
   const working = req.body.working;
   const chance = req.body.chance;
+  const news = req.body.news;
   // const avatarUrl = req.body.avatarUrl;
   const toUpdate = {
     ...(password && { password }),
@@ -198,10 +200,14 @@ userRoute.patch("/individuals", tokenValidator, async (req, res, next) => {
     ...(gitHubUrl && { gitHubUrl }),
     ...(working && { working }),
     ...(chance && { chance }),
+    ...(news && { news }),
   };
   // 0값으로 들어오면 위 코드로 잡히지 않음.
   if (req.body.working === 0) {
     toUpdate.working = 0;
+  }
+  if (req.body.news === 0) {
+    toUpdate.news = 0;
   }
   console.log("업데이트 할 것들", toUpdate);
   try {
