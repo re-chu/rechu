@@ -340,6 +340,14 @@ export const createMatchQ = async (data: { step: string; menteeId: number; mento
     `,
       [matchingId, data.menteeId]
     );
+    await conn.query(
+      `
+      UPDATE user
+      SET news = 1
+      WHERE id = ?
+    `,
+      [data.mentoId]
+    );
     conn.commit();
     return matchingId;
   } catch (err) {
@@ -387,17 +395,37 @@ export const cancelMatchQ = async (matchingId: number): Promise<boolean> => {
 
 // 매칭 수락 ( 고인물 )
 export const acceptMatchQ = async (matchingId: number, menteeId: number): Promise<boolean> => {
-  const [updateMatch] = await db.query(
-    `
-    UPDATE connect
-    SET
-      step = "진행중"
-    WHERE 
-      id= ? AND
-      menteeId = ?
-  `,
-    [matchingId, menteeId]
-  );
+  const conn = await db.getConnection();
+  conn.beginTransaction();
+  try {
+  } catch (err) {
+    conn.rollback();
+    throw new Error(err);
+  } finally {
+    conn.release();
+  }
+  await Promise.all([
+    conn.query(
+      `
+        UPDATE user
+        SET news = 1 
+        WHERE id = ?
+      `,
+      [menteeId]
+    ),
+    conn.query(
+      `
+      UPDATE connect
+      SET
+        step = "진행중"
+      WHERE 
+        id= ? AND
+        menteeId = ?
+    `,
+      [matchingId, menteeId]
+    ),
+  ]);
+  conn.commit();
   return true;
 };
 
