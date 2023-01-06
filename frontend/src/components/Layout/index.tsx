@@ -1,6 +1,7 @@
 import styled from '@emotion/styled';
 import Header from 'components/Header';
 import Footer from 'components/Footer';
+import Chat from 'components/Chat';
 
 interface Props {
     children: React.ReactNode;
@@ -16,7 +17,10 @@ export default function Layout({ children }: Props) {
     return (
         <>
             <Header />
-            <Container className="Container">{children}</Container>
+            <section className="Container">
+                {children}
+                <Chat></Chat>
+            </section>
             <Footer />
         </>
     );
