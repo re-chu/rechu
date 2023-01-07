@@ -3,6 +3,7 @@ import Layout from 'components/Layout';
 import { useEffect, useState } from 'react';
 import API from 'utils/api';
 import { calcElapsed } from 'utils/format';
+import { useNavigate } from 'react-router-dom';
 
 const Wrapper = styled.div`
     display: flex;
@@ -27,8 +28,6 @@ const AlarmWrapper = styled.div`
     justify-content: space-between;
     width: 80%;
     height: 7rem;
-    margin-bottom: 0.1rem;
-    border-radius: 0.8rem;
     color: rgba(0, 0, 0, 0.88);
     background-color: #ffffff;
     background-image: none;
@@ -58,71 +57,81 @@ const AlarmDate = styled.p`
     }
 `;
 
+interface IMatchAlarmData {
+    matchingId: number;
+    step: string;
+    menteeId: number;
+    menteeName: string;
+    menteeEmail: string;
+    created: Date;
+}
+
 interface IAlarmData {
-    checkout: boolean;
-    created: string;
     type: string;
-    whereBoard: number;
-    whoIsUser: string;
-    whoIsUserAvatarUrl: string;
     whoIsUserId: number;
-}
-
-interface IAlarmLikesBoard extends IAlarmData {
-    bmCommentId: number;
     whoIsUsername: string;
-    whoIsAvatarUrl: string;
+    whereBoard: number;
+    created: Date;
+    checkout: number;
 }
 
-interface IAlarmLikesComment extends IAlarmData {
+interface IAlarmBoardsLikes extends IAlarmData {
+    whoIsUserAvatarUrl: string;
+}
+
+interface IAlarmCommentsLikes extends IAlarmData {
     commentId: number;
-    whoIsUsername: string;
     whoIsAvatarUrl: string;
 }
 
-interface IAlarmAddComment extends IAlarmData {
-    cmCommentId: number;
-    whoIsUsername: string;
+interface IAlarmNewComments extends IAlarmData {
+    commentId: number;
     whoIsAvatarUrl: string;
 }
 
 const Alaram = () => {
+    const navigate = useNavigate();
     const [alarmData, setAlarmData] = useState<
-        (IAlarmLikesBoard | IAlarmLikesComment | IAlarmAddComment)[]
+        (IAlarmBoardsLikes | IAlarmCommentsLikes | IAlarmNewComments)[]
     >([]);
+
+    const [matchAlarmData, setMatchAlarmData] = useState<IMatchAlarmData[]>([]);
 
     const fetchAlarmData = async () => {
         const res = await API.get('/alarm');
-        setAlarmData(res);
+        console.log(res);
+        setAlarmData(res.alarmData);
+        setMatchAlarmData(res.matchRequests);
     };
+
     useEffect(() => {
         fetchAlarmData();
     }, []);
-    console.log(alarmData);
 
     const handleAlarmCheck = async (
-        data: IAlarmLikesBoard | IAlarmLikesComment | IAlarmAddComment,
+        data: IAlarmBoardsLikes | IAlarmCommentsLikes | IAlarmNewComments,
     ) => {
-        console.log(data);
+        navigate(`/post/${data.whereBoard}`);
     };
 
     return (
         <Layout>
-            {/* <Title>매칭 알림</Title> */}
+            {matchAlarmData.length !== 0 && (
+                <Wrapper>
+                    <Title>매칭 알림</Title>
+                </Wrapper>
+            )}
             <Title>알림</Title>
             <Wrapper>
                 {alarmData.length !== 0
                     ? alarmData.map((item, index) => {
                           if (item.type === 'likesBoard') {
                               return (
-                                  <AlarmContainer>
-                                      <AlarmWrapper
-                                          key={index}
-                                          onClick={() => handleAlarmCheck(item)}
-                                      >
-                                          <Profile src={item.whoIsUserAvatarUrl} />
+                                  <AlarmContainer key={index}>
+                                      <AlarmWrapper onClick={() => handleAlarmCheck(item)}>
+                                          <Profile src={''} />
                                           <AlarmText>
-                                              {item.whoIsUser}님이 게시물에 좋아요를 눌렀습니다.
+                                              {item.whoIsUsername}님이 게시물에 좋아요를 눌렀습니다.
                                           </AlarmText>
                                           <AlarmDate>
                                               {calcElapsed(new Date(item.created))} 전
@@ -132,12 +141,9 @@ const Alaram = () => {
                               );
                           } else if (item.type === 'likesComment') {
                               return (
-                                  <AlarmContainer>
-                                      <AlarmWrapper
-                                          key={index}
-                                          onClick={() => handleAlarmCheck(item)}
-                                      >
-                                          <Profile src={item.whoIsUserAvatarUrl} />
+                                  <AlarmContainer key={index}>
+                                      <AlarmWrapper onClick={() => handleAlarmCheck(item)}>
+                                          <Profile src={''} />
                                           <AlarmText>
                                               {item.whoIsUsername}님이 댓글에 좋아요를 눌렀습니다.
                                           </AlarmText>
@@ -149,12 +155,9 @@ const Alaram = () => {
                               );
                           } else if (item.type === 'addComment') {
                               return (
-                                  <AlarmContainer>
-                                      <AlarmWrapper
-                                          key={index}
-                                          onClick={() => handleAlarmCheck(item)}
-                                      >
-                                          <Profile src={item.whoIsAvatarUrl} />
+                                  <AlarmContainer key={index}>
+                                      <AlarmWrapper onClick={() => handleAlarmCheck(item)}>
+                                          <Profile src={''} />
                                           <AlarmText>
                                               {item.whoIsUsername}님이 게시물에 댓글을 작성했습니다.
                                           </AlarmText>
