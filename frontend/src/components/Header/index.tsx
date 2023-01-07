@@ -1,32 +1,13 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import Logo from 'assets/images/logo.png';
 import { useNavigate, Link } from 'react-router-dom';
-import { HContainer, HHeader } from './style';
+import { HContainer, HHeader, AlarmWrapper, AlarmDot } from './style';
 import { BellOutlined, UserOutlined } from '@ant-design/icons';
 import { setAdmin, setAlarm } from 'store/slices/userSlice';
 import { useAppDispatch, useAppSelector } from 'store/config';
 import socket from 'services/socket';
 import API from 'utils/api';
-
-const AlarmWrapper = styled.div`
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 5rem;
-    font-size: 3rem;
-`;
-
-const AlarmDot = styled.span`
-    position: absolute;
-    width: 1.2rem;
-    height: 1.2rem;
-    right: 1rem;
-    top: 0.3rem;
-    border-radius: 50%;
-    background-color: red;
-`;
 
 const Header = () => {
     const navigate = useNavigate();
@@ -35,6 +16,7 @@ const Header = () => {
 
     const token = localStorage.getItem('accessToken');
 
+    const [menuBarToggle, setMenuBarToggle] = useState<boolean>(false);
     const checkHasNewAlarm = async () => {
         const res = await API.get(`/users/individuals`);
         if (res.news) {
@@ -57,6 +39,15 @@ const Header = () => {
     // 로그아웃 시 전역 관리 중인 isAdmin값 초기화
     const setAdminLogout = useCallback(() => {
         dispatch(setAdmin(false));
+    }, [dispatch]);
+
+    const changeToggleMenu = () => {
+        setMenuBarToggle(!menuBarToggle);
+    };
+
+    // 새로운 알림 도착 시 새 알림 여부 on
+    const setNewAlarmOn = useCallback(() => {
+        dispatch(setAlarm(true));
     }, [dispatch]);
 
     // 새로운 알림 도착 시 새 알림 여부 on off
@@ -96,13 +87,71 @@ const Header = () => {
                     <img src={Logo} alt="logo" />
                 </h1>
 
-                <div className="toggleMenu">
-                    <span className="line"></span>
-                    <span className="line"></span>
-                    <span className="line"></span>
+                <div className="mobileMenu">
+                    <article
+                        className={`${menuBarToggle ? 'toggleMenu active' : 'toggleMenu'}`}
+                        onClick={changeToggleMenu}
+                    >
+                        <span className="line"></span>
+                        <span className="line"></span>
+                        <span className="line"></span>
+                    </article>
+
+                    {menuBarToggle && (
+                        <div className="mobileMenuBar">
+                            <nav>
+                                <ul>
+                                    {token && (
+                                        <>
+                                            <li>
+                                                <Link to="/alarm">
+                                                    <AlarmWrapper onClick={handleAlarmToChecked}>
+                                                        <BellOutlined />
+                                                        {userState.hasNewAlarm ? <AlarmDot /> : ''}
+                                                    </AlarmWrapper>
+                                                </Link>
+                                            </li>
+                                            <li>
+                                                <Link to="/profile">
+                                                    <UserOutlined />
+                                                </Link>
+                                            </li>
+                                        </>
+                                    )}
+
+                                    {userState.isAdmin === true && (
+                                        <li>
+                                            <Link to="/admin">관리자</Link>
+                                        </li>
+                                    )}
+
+                                    <li>
+                                        <Link to="/comunity">커뮤니티</Link>
+                                    </li>
+
+                                    <li>
+                                        <Link to="/resume/list">이력서</Link>
+                                    </li>
+                                    <li>
+                                        <Link to="/match">매칭</Link>
+                                    </li>
+                                </ul>
+                            </nav>
+
+                            <ul className="util">
+                                {token ? (
+                                    <li onClick={logout}>로그아웃</li>
+                                ) : (
+                                    <li>
+                                        <Link to="/login">로그인</Link>
+                                    </li>
+                                )}
+                            </ul>
+                        </div>
+                    )}
                 </div>
 
-                <div className="">
+                <div className="navMenu">
                     <nav>
                         <ul>
                             {userState.isAdmin === true && (
@@ -121,20 +170,20 @@ const Header = () => {
                             <li>
                                 <Link to="/match">매칭</Link>
                             </li>
-                            <li>
-                                <Link to="/alarm">
-                                    <AlarmWrapper onClick={handleAlarmToChecked}>
-                                        <BellOutlined />
-                                        {userState.hasNewAlarm ? <AlarmDot /> : ''}
-                                    </AlarmWrapper>
-                                </Link>
-                            </li>
                         </ul>
                     </nav>
 
                     <ul className="util">
                         {token ? (
                             <>
+                                <li>
+                                    <Link to="/alarm">
+                                        <AlarmWrapper onClick={handleAlarmToChecked}>
+                                            <BellOutlined />
+                                            {userState.hasNewAlarm ? <AlarmDot /> : ''}
+                                        </AlarmWrapper>
+                                    </Link>
+                                </li>
                                 <li>
                                     <Link to="/profile">
                                         <UserOutlined />

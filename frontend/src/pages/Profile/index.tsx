@@ -9,7 +9,6 @@ import { useNavigate } from 'react-router-dom';
 import API from 'utils/api';
 import { io } from 'socket.io-client';
 const token = localStorage.getItem('accessToken');
-
 const tierColors = {
     bronze: '#964b00',
     silver: '#c0c0c0',

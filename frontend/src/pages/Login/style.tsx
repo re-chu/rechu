@@ -22,7 +22,7 @@ export const ImgSection = styled.figure`
     }
 
     & article {
-        transform: translate(10vw, 40vh);
+        transform: translate(3vw, 40vh);
 
         @media all and (max-width: 960px) {
             transform: unset;
@@ -31,7 +31,7 @@ export const ImgSection = styled.figure`
         }
 
         & img {
-            height: 200px;
+            height: 120px;
         }
     }
 `;
