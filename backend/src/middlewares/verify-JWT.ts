@@ -35,7 +35,7 @@ export const tokenValidator: RequestHandler = (req, res, next) => {
         next(notAT);
         break;
       default:
-        next(new Error("400, 토큰 검증 도중 오류가 발생했습니다."));
+        next(new Error("500, 토큰 검증 도중 오류가 발생했습니다."));
     }
   }
 };

@@ -291,16 +291,16 @@ export const findOneBoardQ = async (boardId: number, userId?: null | number): Pr
   }
   let [boardInfoRows] = await db.query(
     `SELECT 
-    id,
-    title,
-    content, 
-    hashTags, 
-    created as boardCreated,
-    hasResumeId, 
-    fixed,
-    likeCnt,
-    commentCnt,
-    fromUserId as ownUserId 
+      id,
+      title,
+      content, 
+      hashTags, 
+      created as boardCreated,
+      hasResumeId, 
+      fixed,
+      likeCnt,
+      commentCnt,
+      fromUserId as ownUserId 
     From board 
     WHERE id=? AND active = 1`,
     [boardId]
@@ -579,14 +579,14 @@ export const savePointByBoard = async (data: { userId: number; boardId: number }
   conn.beginTransaction();
   try {
     const [uselessValue, boardRows] = await Promise.all([
-      db.query(
+      conn.query(
         `
           INSERT INTO point_from_board (${keys.join(", ")})
           VALUES (${values.join(", ")})
         `,
         [...valval]
       ),
-      db.query(
+      conn.query(
         `
         SELECT 
           fromUserId
@@ -599,7 +599,7 @@ export const savePointByBoard = async (data: { userId: number; boardId: number }
     const userId = utils.jsonParse(boardRows)[0].fromUserId;
     // 어뷰징 방지
     if (userId !== data.userId) {
-      await db.query(
+      await conn.query(
         `
         UPDATE user 
         SET 

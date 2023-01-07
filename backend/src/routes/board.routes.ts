@@ -20,6 +20,7 @@ boardRoute.get("/random", tokenValidator, async (req, res, next) => {
     next(err);
   }
 });
+
 /**type으로 최신,좋아요,댓글 순으로 리스트 반환 */
 boardRoute.get("/", async (req, res, next) => {
   const filter = String(req.query.filter);

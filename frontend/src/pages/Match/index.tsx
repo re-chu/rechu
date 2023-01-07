@@ -8,7 +8,7 @@ import Header from 'components/Header';
 import { Outlet } from 'react-router-dom';
 import { Link, useNavigate } from 'react-router-dom';
 import Layout from 'components/Layout';
-
+import socket from 'services/socket';
 interface myData {
     avatarUrl: string;
     chance: number;
@@ -74,6 +74,7 @@ const Match = () => {
             console.log(rotId);
             const res = await API.post(`/users/match`, { rotId });
             console.log(res);
+            socket.emit('matchRequestToMento', rotId);
             getMatching();
             setModalOpen(false);
         } catch (e) {

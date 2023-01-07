@@ -20,9 +20,9 @@ const Header = () => {
     const checkHasNewAlarm = async () => {
         const res = await API.get(`/users/individuals`);
         if (res.news) {
-            setNewAlarmState(true);
+            setHasNewAlarmState(true);
         } else {
-            setNewAlarmState(false);
+            setHasNewAlarmState(false);
         }
     };
 
@@ -32,7 +32,7 @@ const Header = () => {
         // 게시글 좋아요, 댓글달기, 댓글좋아요 시 누가 눌럿던 간에 알림이 울림!!
         socket.on('alarm', () => {
             console.log('오옷 누군가 나의 게시글/댓글에 좋아요 또는 댓글을 남겼다!!');
-            setNewAlarmState(true);
+            setHasNewAlarmState(true);
         });
     }, [userState]);
 
@@ -51,7 +51,7 @@ const Header = () => {
     }, [dispatch]);
 
     // 새로운 알림 도착 시 새 알림 여부 on off
-    const setNewAlarmState = useCallback(
+    const setHasNewAlarmState = useCallback(
         (state: boolean) => {
             dispatch(setAlarm(state));
         },
@@ -77,7 +77,7 @@ const Header = () => {
             news: 0,
         };
         await API.patch('/users/individuals', '', data);
-        setNewAlarmState(false);
+        setHasNewAlarmState(false);
     };
 
     return (

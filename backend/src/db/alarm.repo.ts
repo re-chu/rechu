@@ -4,7 +4,7 @@ import * as utils from "./utils/";
 import * as userRepo from "./user.repo";
 
 type AlarmData = {
-  matchRequests: MatchRequests[];
+  matchRequests: MatchRequests[] | null;
   alarmData: Array<AlarmBoardsLikes | AlarmNewComments | AlarmCommentsLikes | AlarmAcceptMatch>;
 };
 type MatchRequests = {
