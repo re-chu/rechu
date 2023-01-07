@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import styled from '@emotion/styled';
 import Logo from 'assets/images/logo.png';
 import { useNavigate, Link } from 'react-router-dom';
@@ -16,7 +16,6 @@ const Header = () => {
 
     const token = localStorage.getItem('accessToken');
 
-    const [isAdmin, setIsAdmin] = useState<boolean>(admin);
     const [menuBarToggle, setMenuBarToggle] = useState<boolean>(false);
     const checkHasNewAlarm = async () => {
         const res = await API.get(`/users/individuals`);
@@ -88,11 +87,11 @@ const Header = () => {
                     <img src={Logo} alt="logo" />
                 </h1>
 
-                <section className="alarmIcon">
+                {/* <section className="alarmIcon">
                     <Link to="/alarm">
                         <BellOutlined />
                     </Link>
-                </section>
+                </section> */}
 
                 <div className="mobileMenu">
                     <article
@@ -108,7 +107,25 @@ const Header = () => {
                         <div className="menuBar">
                             <nav>
                                 <ul>
-                                    {isAdmin === true && (
+                                    {token && (
+                                        <>
+                                            <li>
+                                                <Link to="/alarm">
+                                                    <AlarmWrapper onClick={handleAlarmToChecked}>
+                                                        <BellOutlined />
+                                                        {userState.hasNewAlarm ? <AlarmDot /> : ''}
+                                                    </AlarmWrapper>
+                                                </Link>
+                                            </li>
+                                            <li>
+                                                <Link to="/profile">
+                                                    <UserOutlined />
+                                                </Link>
+                                            </li>
+                                        </>
+                                    )}
+
+                                    {userState.isAdmin === true && (
                                         <li>
                                             <Link to="/admin">관리자</Link>
                                         </li>
@@ -122,19 +139,14 @@ const Header = () => {
                                         <Link to="/resume/list">이력서</Link>
                                     </li>
                                     <li>
-                                        <Link to="/match">상점</Link>
+                                        <Link to="/match">매칭</Link>
                                     </li>
                                 </ul>
                             </nav>
 
                             <ul className="util">
                                 {token ? (
-                                    <>
-                                        <li>
-                                            <Link to="/profile">마이페이지</Link>
-                                        </li>
-                                        <li onClick={logout}>로그아웃</li>
-                                    </>
+                                    <li onClick={logout}>로그아웃</li>
                                 ) : (
                                     <li>
                                         <Link to="/login">로그인</Link>
@@ -164,20 +176,20 @@ const Header = () => {
                             <li>
                                 <Link to="/match">매칭</Link>
                             </li>
-                            <li>
-                                <Link to="/alarm">
-                                    <AlarmWrapper onClick={handleAlarmToChecked}>
-                                        <BellOutlined />
-                                        {userState.hasNewAlarm ? <AlarmDot /> : ''}
-                                    </AlarmWrapper>
-                                </Link>
-                            </li>
                         </ul>
                     </nav>
 
                     <ul className="util">
                         {token ? (
                             <>
+                                <li>
+                                    <Link to="/alarm">
+                                        <AlarmWrapper onClick={handleAlarmToChecked}>
+                                            <BellOutlined />
+                                            {userState.hasNewAlarm ? <AlarmDot /> : ''}
+                                        </AlarmWrapper>
+                                    </Link>
+                                </li>
                                 <li>
                                     <Link to="/profile">
                                         <UserOutlined />

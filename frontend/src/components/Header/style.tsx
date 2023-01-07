@@ -119,3 +119,24 @@ export const HHeader = styled.header`
         }
     }
 `;
+
+export const AlarmWrapper = styled.div`
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    @media all and (max-width: 1080px) {
+        justify-content: unset;
+    }
+`;
+
+export const AlarmDot = styled.span`
+    position: absolute;
+    width: 1.2rem;
+    height: 1.2rem;
+    right: 1rem;
+    top: 0.3rem;
+    border-radius: 50%;
+    background-color: red;
+`;
