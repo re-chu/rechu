@@ -8,7 +8,7 @@ export const HContainer = styled.section`
 export const HHeader = styled.header`
     display: flex;
     justify-content: space-around;
-    padding: 1rem;
+    padding: 4rem 1rem;
     align-items: center;
     font-size: 2rem;
     border-bottom: 1px solid #b0e0e6;
@@ -16,8 +16,11 @@ export const HHeader = styled.header`
     font-weight: 600;
     width: 100%;
 
+    @media all and (max-width: 1080px) {
+        padding: 2rem 1rem;
+    }
+
     & h1 {
-        height: 100px;
         cursor: pointer;
 
         & img {
@@ -25,17 +28,13 @@ export const HHeader = styled.header`
         }
     }
 
-    & .alarmIcon {
-        display: none;
+    @media all and (min-width: 1081px) and (max-width: 2560px) {
+        .mobileMenu {
+            display: none;
+        }
     }
 
     @media all and (max-width: 1080px) {
-        padding: 0.4rem;
-
-        & .alarmIcon {
-            display: block;
-        }
-
         & .mobileMenu {
             z-index: 999;
 
@@ -44,8 +43,6 @@ export const HHeader = styled.header`
                 width: 2.3rem;
                 height: 2.2rem;
                 padding: 1rem;
-                border-right: 1px solid #d3d3d3;
-                border-bottom: 1px solid #d3d3d3;
                 cursor: pointer;
 
                 .line {
@@ -84,13 +81,18 @@ export const HHeader = styled.header`
                 }
             }
 
-            & .menuBar {
+            & .mobileMenuBar {
                 background-color: rgba(255, 255, 255, 0.5);
-
                 position: absolute;
                 padding-left: 0.4rem;
                 padding-top: 1rem;
                 line-height: 1.6;
+
+                & .util {
+                    & li {
+                        cursor: pointer;
+                    }
+                }
             }
         }
     }
@@ -120,7 +122,7 @@ export const HHeader = styled.header`
     }
 `;
 
-export const AlarmWrapper = styled.div`
+export const AlarmWrapper = styled.figure`
     position: relative;
     display: flex;
     justify-content: center;

@@ -87,12 +87,6 @@ const Header = () => {
                     <img src={Logo} alt="logo" />
                 </h1>
 
-                {/* <section className="alarmIcon">
-                    <Link to="/alarm">
-                        <BellOutlined />
-                    </Link>
-                </section> */}
-
                 <div className="mobileMenu">
                     <article
                         className={`${menuBarToggle ? 'toggleMenu active' : 'toggleMenu'}`}
@@ -104,7 +98,7 @@ const Header = () => {
                     </article>
 
                     {menuBarToggle && (
-                        <div className="menuBar">
+                        <div className="mobileMenuBar">
                             <nav>
                                 <ul>
                                     {token && (
