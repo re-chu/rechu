@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import API from 'utils/api';
 import { calcElapsed } from 'utils/format';
 import { useNavigate } from 'react-router-dom';
+import { Button } from 'antd';
 
 const Wrapper = styled.div`
     display: flex;
@@ -15,27 +16,49 @@ const Wrapper = styled.div`
 
 const Title = styled.h1`
     font-size: 2.4rem;
-    margin-bottom: 5rem;
+    margin-bottom: 2rem;
 `;
+
 const AlarmContainer = styled.div`
     display: flex;
+    align-items: center;
     width: 100%;
 `;
 
-const AlarmWrapper = styled.div`
+const MatchingAlarmContainer = styled(AlarmContainer)`
+    margin-bottom: 5rem;
+`;
+
+const AlarmWrapper = styled.div<{ isChecked: number }>`
     display: flex;
     align-items: center;
     justify-content: space-between;
-    width: 80%;
+    width: 100%;
     height: 7rem;
     color: rgba(0, 0, 0, 0.88);
-    background-color: #ffffff;
     background-image: none;
+    background-color: ${({ isChecked }) => (isChecked === 1 ? '#ffffff' : '#fffbe3')};
     border: 1px solid #d9d9d9;
     transition: all 0.2s;
     cursor: pointer;
     :hover {
-        background-color: yellowgreen;
+        background-color: #fff09e;
+    }
+`;
+
+const MatchingAlarmWrapper = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    height: 7rem;
+    color: rgba(0, 0, 0, 0.88);
+    background-image: none;
+    background-color: #fffbe3;
+    border: 1px solid #d9d9d9;
+    transition: all 0.2s;
+    :hover {
+        background-color: #fff09e;
     }
 `;
 
@@ -43,18 +66,35 @@ const Profile = styled.img`
     width: 5rem;
     height: 5rem;
     border-radius: 50%;
+    margin-left: 5rem;
 `;
 
 const AlarmText = styled.p`
     font-size: 1.8rem;
+    margin: auto 0;
+    @media screen and (max-width: 780px) {
+        margin-right: 5rem;
+        text-overflow: ellipsis;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+    }
 `;
 
 const AlarmDate = styled.p`
     font-size: 1.8rem;
     color: #666;
+    margin-right: 3rem;
     @media screen and (max-width: 780px) {
         display: none;
     }
+`;
+
+const RightWrapper = styled.div`
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    padding: 2rem 0;
+    margin-right: 3rem;
 `;
 
 interface IMatchAlarmData {
@@ -73,27 +113,16 @@ interface IAlarmData {
     whereBoard: number;
     created: Date;
     checkout: number;
-}
-
-interface IAlarmBoardsLikes extends IAlarmData {
     whoIsUserAvatarUrl: string;
 }
 
-interface IAlarmCommentsLikes extends IAlarmData {
+interface IAlarmComments extends IAlarmData {
     commentId: number;
-    whoIsAvatarUrl: string;
-}
-
-interface IAlarmNewComments extends IAlarmData {
-    commentId: number;
-    whoIsAvatarUrl: string;
 }
 
 const Alaram = () => {
     const navigate = useNavigate();
-    const [alarmData, setAlarmData] = useState<
-        (IAlarmBoardsLikes | IAlarmCommentsLikes | IAlarmNewComments)[]
-    >([]);
+    const [alarmData, setAlarmData] = useState<(IAlarmData | IAlarmComments)[]>([]);
 
     const [matchAlarmData, setMatchAlarmData] = useState<IMatchAlarmData[]>([]);
 
@@ -108,18 +137,37 @@ const Alaram = () => {
         fetchAlarmData();
     }, []);
 
-    const handleAlarmCheck = async (
-        data: IAlarmBoardsLikes | IAlarmCommentsLikes | IAlarmNewComments,
-    ) => {
+    const handleAlarmCheck = async (data: IAlarmData | IAlarmComments) => {
         navigate(`/post/${data.whereBoard}`);
     };
 
     return (
         <Layout>
             {matchAlarmData.length !== 0 && (
-                <Wrapper>
-                    <Title>매칭 알림</Title>
-                </Wrapper>
+                <>
+                    <Title>매칭 요청</Title>
+                    {matchAlarmData.map((item, index) => (
+                        <>
+                            <MatchingAlarmContainer key={index}>
+                                <MatchingAlarmWrapper>
+                                    <Profile src={''} />
+                                    <AlarmText>
+                                        {item.menteeName}님이 이력서 첨삭 요청을 하셨습니다.
+                                    </AlarmText>
+                                    <RightWrapper>
+                                        <AlarmDate>
+                                            {calcElapsed(new Date(item.created))} 전
+                                        </AlarmDate>
+                                        <Button type="primary">수락</Button>
+                                        <Button type="primary" danger>
+                                            거절
+                                        </Button>
+                                    </RightWrapper>
+                                </MatchingAlarmWrapper>
+                            </MatchingAlarmContainer>
+                        </>
+                    ))}
+                </>
             )}
             <Title>알림</Title>
             <Wrapper>
@@ -128,8 +176,11 @@ const Alaram = () => {
                           if (item.type === 'likesBoard') {
                               return (
                                   <AlarmContainer key={index}>
-                                      <AlarmWrapper onClick={() => handleAlarmCheck(item)}>
-                                          <Profile src={''} />
+                                      <AlarmWrapper
+                                          isChecked={item.checkout}
+                                          onClick={() => handleAlarmCheck(item)}
+                                      >
+                                          <Profile src={item.whoIsUserAvatarUrl} />
                                           <AlarmText>
                                               {item.whoIsUsername}님이 게시물에 좋아요를 눌렀습니다.
                                           </AlarmText>
@@ -142,8 +193,11 @@ const Alaram = () => {
                           } else if (item.type === 'likesComment') {
                               return (
                                   <AlarmContainer key={index}>
-                                      <AlarmWrapper onClick={() => handleAlarmCheck(item)}>
-                                          <Profile src={''} />
+                                      <AlarmWrapper
+                                          isChecked={item.checkout}
+                                          onClick={() => handleAlarmCheck(item)}
+                                      >
+                                          <Profile src={item.whoIsUserAvatarUrl} />
                                           <AlarmText>
                                               {item.whoIsUsername}님이 댓글에 좋아요를 눌렀습니다.
                                           </AlarmText>
@@ -156,8 +210,11 @@ const Alaram = () => {
                           } else if (item.type === 'addComment') {
                               return (
                                   <AlarmContainer key={index}>
-                                      <AlarmWrapper onClick={() => handleAlarmCheck(item)}>
-                                          <Profile src={''} />
+                                      <AlarmWrapper
+                                          isChecked={item.checkout}
+                                          onClick={() => handleAlarmCheck(item)}
+                                      >
+                                          <Profile src={item.whoIsUserAvatarUrl} />
                                           <AlarmText>
                                               {item.whoIsUsername}님이 게시물에 댓글을 작성했습니다.
                                           </AlarmText>
