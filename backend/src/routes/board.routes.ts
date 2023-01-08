@@ -168,8 +168,6 @@ boardRoute.patch("/:boardId/like", tokenValidator, async (req, res, next) => {
   const boardId = Number(req.params.boardId);
   const { likesStatus } = req.body;
   console.log("userID ", id, "boardId", boardId, likesStatus);
-  // wsServer.on("connecting",(socket)=>{
-
   // })
   try {
     const likes = await boardService.addLikes(id, boardId, likesStatus);

@@ -18,7 +18,7 @@ type MatchRequests = {
 type AlarmBoardsLikes = {
   type: string;
   whoIsUserId: number;
-  whoIsUserAvatarUrl: string;
+  whoIsAvatarUrl: string;
   whoIsUsername: string;
   whereBoard: number;
   created: Date;
@@ -38,7 +38,7 @@ type AlarmCommentsLikes = {
   type: string;
   cmCommentId: number;
   whoIsUsername: string;
-  whoIsUserAvatarUrl: string;
+  whoIsAvatarUrl: string;
   whoIsUserId: number;
   created: Date;
   whereBoard: number;
@@ -48,6 +48,7 @@ type AlarmAcceptMatch = {
   mentoName: string;
   mentoAvatarUrl: string;
   created: Date;
+  type: string;
 };
 export const getAlarmDataQ = async (userId: number): Promise<AlarmData> => {
   const [mentoReqRows] = await db.query(

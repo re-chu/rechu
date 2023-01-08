@@ -280,6 +280,7 @@ export const findOneBoardQ = async (boardId: number, userId?: null | number): Pr
       likeCnt: 0,
       commentCnt: 0,
       active: 1,
+      username: "",
     },
     resumeInfo: null,
   };
@@ -291,18 +292,21 @@ export const findOneBoardQ = async (boardId: number, userId?: null | number): Pr
   }
   let [boardInfoRows] = await db.query(
     `SELECT 
-      id,
-      title,
-      content, 
-      hashTags, 
-      created as boardCreated,
-      hasResumeId, 
-      fixed,
-      likeCnt,
-      commentCnt,
-      fromUserId as ownUserId 
-    From board 
-    WHERE id=? AND active = 1`,
+      b.id,
+      b.title,
+      b.content, 
+      b.hashTags, 
+      b.created as boardCreated,
+      b.hasResumeId, 
+      b.fixed,
+      b.likeCnt,
+      b.commentCnt,
+      b.fromUserId as ownUserId,
+      u.username as username
+    From board b
+    JOIN user as u 
+    ON u.id = b.fromUserId
+    WHERE b.id=? AND b.active = 1`,
     [boardId]
   );
   // 쿼리로 받아온 배열의 length 를 사용하기 위해서 jsonParse 유틸함수를 사용함.
