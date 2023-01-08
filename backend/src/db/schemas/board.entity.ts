@@ -19,6 +19,7 @@ export type BoardInfo = {
   likeCnt: number;
   commentCnt: number;
   active: number;
+  username: string;
 };
 export type CreateBoardInFo = {
   fieldCount: null | number;
