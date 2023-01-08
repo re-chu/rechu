@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import * as S from './style';
 import Logo from 'assets/images/logo.png';
 import { useForm } from 'react-hook-form';
-import Layout from 'components/Layout';
 import API from 'utils/api';
 import { Container, ImgSection } from '../Login/style';
 
@@ -42,8 +41,7 @@ const Join = () => {
         };
 
         try {
-            const res = await axios.post(`${API.BASE_URL}/users/individuals`, jsondata);
-
+            await axios.post(`${API.BASE_URL}/users/individuals`, jsondata);
             alert('회원가입이 완료되었습니다.');
             navigate('/login');
         } catch (err: any) {

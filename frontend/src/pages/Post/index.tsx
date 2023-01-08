@@ -97,6 +97,7 @@ interface IBoardInfo {
     likeCnt: number;
     ownUserId: number;
     title: string;
+    username: string;
 }
 
 interface IResumeInfo {
@@ -497,7 +498,7 @@ const Post = () => {
                             onClick={() => checkReportBoardUser(boardData?.ownUserId)}
                         ></ProfileImg>
                         <ProfileInfo>
-                            <ProfileInfoName>{boardData?.email}</ProfileInfoName>
+                            <ProfileInfoName>{boardData?.username}</ProfileInfoName>
                             <Text>{calcElapsed(boardData?.boardCreated)} 전</Text>
                         </ProfileInfo>
                         {ownBoard ? (
