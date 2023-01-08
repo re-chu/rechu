@@ -398,67 +398,81 @@ export const updateBoard = async (boardId: number, data: Record<string, string |
 
 // 게시글 삭제
 export const deleteBoard = async (userId: number, boardId: number) => {
-  // 보드에 연관된 포인트와 좋아요 행 삭제
-  await db.query(
-    `
+  const conn = await db.getConnection();
+  conn.beginTransaction();
+  try {
+    // 보드에 연관된 포인트와 좋아요 행 삭제
+    await conn.query(
+      `
       DELETE 
       FROM board_like_maping 
       WHERE boardId = ?
       `,
-    [boardId]
-  );
-  console.log("게시물좋아요매핑 삭제");
-  await db.query(
-    `
+      [boardId]
+    );
+    console.log("게시물좋아요매핑 삭제");
+    await conn.query(
+      `
       DELETE 
       FROM point_from_board 
-      WHERE boardId = ? AND userId = ?
+      WHERE boardId = ? 
       `,
-    [boardId, userId]
-  );
-  console.log("게시물 포인트테이블에서 삭제");
+      [boardId]
+    );
+    console.log("게시물 포인트테이블에서 삭제");
 
-  // 보드에 소속된 댓글들에 관련된거 지우고, 댓글까지 지워야함
-  const [comments] = await db.query(
-    `
+    // 보드에 소속된 댓글들에 관련된거 지우고, 댓글까지 지워야함
+    const [comments] = await conn.query(
+      `
     select id as commentId 
     from comment
     where boardId = ?
     `,
-    [boardId]
-  );
-  console.log("게시글에 달린 커맨트 id 찾음");
-  const zz = utils.jsonParse(comments);
-  console.log(zz);
-  // 게시물에 달린 댓글들 모조리 조사해서 연관있는것들 KILL....
-  await Promise.all(
-    zz.map(async (comment) => {
-      console.log("첫번째 id", comment.commentId);
-      await db.query(`DELETE FROM comment_like_maping WHERE commentId=?`, [comment.commentId]);
-      console.log("댓글 좋아요 매핑테이블에서 해당 댓글 id로 등록된것 삭제");
-      await db.query(`DELETE FROM point_from_comment WHERE commentId=?`, [comment.commentId]);
-      console.log("댓글 포인트테이블에서 해당 댓글 id로 등록된것 삭제");
-    })
-  );
+      [boardId]
+    );
+    console.log("게시글에 달린 커맨트 id 찾음");
+    const isBoardHasComment = utils.jsonParse(comments);
+    console.log("코멘트 id 들", isBoardHasComment);
+    // 게시물에 달린 댓글들 모조리 조사해서 연관있는것들 KILL....
+    if (isBoardHasComment.length !== 0) {
+      await Promise.all(
+        isBoardHasComment.map(async (comment) => {
+          console.log("첫번째 id", comment.commentId);
+          await conn.query(`DELETE FROM comment_like_maping WHERE commentId=?`, [comment.commentId]);
+          console.log("댓글 좋아요 매핑테이블에서 해당 댓글 id로 등록된것 삭제");
+          await conn.query(`DELETE FROM point_from_comment WHERE commentId=?`, [comment.commentId]);
+          console.log("댓글 포인트테이블에서 해당 댓글 id로 등록된것 삭제");
+        })
+      );
+      await conn.query(
+        `
+      DELETE
+      FROM comment
+      WHERE boardId = ? 
+    `,
+        [boardId]
+      );
+      console.log("댓글삭제");
+    }
 
-  const deleteComment = await db.query(
-    `
-    DELETE
-    FROM comment
-    WHERE boardId = ? 
-  `,
-    [boardId]
-  );
-  console.log("댓글삭제");
-  await db.query(
-    `
+    await conn.query(
+      `
       DELETE 
       FROM board 
-      WHERE (id = ?)
+      WHERE id = ?
     `,
-    [boardId]
-  );
-  return true;
+      [boardId]
+    );
+    console.log("게시글 삭제");
+    conn.commit();
+    return true;
+  } catch (err) {
+    conn.rollback();
+    console.log(err.message);
+    throw new Error(err);
+  } finally {
+    conn.release();
+  }
 };
 
 // 게시물ID 로 댓글 찾기
