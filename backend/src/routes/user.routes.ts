@@ -192,6 +192,7 @@ userRoute.patch("/individuals", tokenValidator, async (req, res, next) => {
   const working = req.body.working;
   const chance = req.body.chance;
   const news = req.body.news;
+  console.log(req.body, "dd");
   // const avatarUrl = req.body.avatarUrl;
   const toUpdate = {
     ...(password && { password }),
@@ -203,7 +204,7 @@ userRoute.patch("/individuals", tokenValidator, async (req, res, next) => {
     ...(news && { news }),
   };
   // 0값으로 들어오면 위 코드로 잡히지 않음.
-  if (req.body.working === 0) {
+  if (req.body.working === false) {
     toUpdate.working = 0;
   }
   if (req.body.news === 0) {
