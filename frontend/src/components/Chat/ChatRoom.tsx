@@ -65,6 +65,9 @@ const MyChatMessage = styled.div`
     display: flex;
     flex-direction: column;
     align-items: flex-end;
+    p:last-child {
+        margin-right: 1.5rem;
+    }
 `;
 
 const MyChatMessageText = styled.p`
@@ -266,7 +269,7 @@ const ChatRoom = ({ otherChatUserData }: IPropData) => {
     };
 
     // const moveScrollToBottomFromNewChat = () => {
-    //     console.log("추후 구현")
+    //     console.log("미 구현")
     // }
 
     useEffect(() => {
