@@ -77,7 +77,7 @@ const Match = () => {
             console.log('되냐');
             console.log(res);
             socket.emit('matchRequestToMento', rotId);
-            window.location.reload();
+            window.location.href = 'matched';
             // getMatching();
             setModalOpen(false);
         } catch (e) {

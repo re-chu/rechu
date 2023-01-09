@@ -5,6 +5,9 @@ import { IOtherUser } from './index';
 import { chatSocket } from 'services/socket';
 import { LoadingOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 
+import { setChatRoomState, resetChatRoomState } from 'store/slices/chatRoomSlice';
+import { useAppDispatch, useAppSelector } from 'store/config';
+
 const Container = styled.div`
     width: 90%;
     display: flex;
@@ -125,7 +128,9 @@ const ChatRoomList = ({
     setOtherChatUserId,
     otherChatUserData,
 }: IPropData) => {
-    const [chatRoomList, setChatRoomList] = useState<IChatRoomItem[] | null>(null);
+    // const [chatRoomList, setChatRoomList] = useState<IChatRoomItem[] | null>(null);
+    const chatRoomState = useAppSelector(state => state.chatRoomState);
+    const dispatch = useAppDispatch();
 
     const handleEnterRoom = (item: IChatRoomItem) => {
         setOtherChatUserData({
@@ -144,7 +149,7 @@ const ChatRoomList = ({
             res.forEach((item: IChatRoomItem) => {
                 chatSocket.emit('enterChatRoom', item?.roomId);
             });
-            setChatRoomList(res);
+            dispatch(setChatRoomState(res));
         } catch (err) {
             console.log(err);
         }
@@ -152,15 +157,31 @@ const ChatRoomList = ({
 
     useEffect(() => {
         fetchChatRoomList();
-        chatSocket.on('newChatMessage', (data: IChatSocketData) => {
-            console.log('채팅 JKL!JKL', data);
-        });
     }, [otherChatUserData]);
+
+    useEffect(() => {
+        chatSocket.on('newChatAlarm', (roomId: number, data: IChatSocketData) => {
+            // console.log('dsfhlsdkhfklsdhfkldshfklsdhkldfhsklfhsdklfhklsdhfklsdhfkl');
+            const state = chatRoomState;
+
+            const newChatRoomList = state?.map(item => {
+                const newItem = {
+                    ...item,
+                };
+                if (newItem.roomId === roomId) {
+                    newItem.lastText = data.text;
+                    newItem.noCheckoutMessages = newItem.noCheckoutMessages + 1;
+                }
+                return newItem;
+            });
+            dispatch(setChatRoomState(newChatRoomList));
+        });
+    }, [chatRoomState]);
 
     return (
         <Container>
-            {chatRoomList !== null ? (
-                chatRoomList.length === 0 ? (
+            {chatRoomState !== null ? (
+                chatRoomState.length === 0 ? (
                     <EmptyWrapper>
                         <ExclamationCircleOutlined />
                         <EmptyInfo>
@@ -169,7 +190,7 @@ const ChatRoomList = ({
                         </EmptyInfo>
                     </EmptyWrapper>
                 ) : (
-                    chatRoomList.map((item, index) => (
+                    chatRoomState.map((item, index) => (
                         <ChatRoom key={index} onClick={() => handleEnterRoom(item)}>
                             <ChatRoomContent>
                                 <ProfileImg src={item.avatarUrl} />
