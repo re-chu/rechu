@@ -224,6 +224,7 @@ const ChatRoom = ({ otherChatUserData }: IPropData) => {
             };
 
             chatSocket.emit('sendMessage', otherChatUserData?.roomId, socketData);
+
             dispatch(setChatState([...chatState, newData]));
             moveScrollToBottom();
         } catch (err) {
