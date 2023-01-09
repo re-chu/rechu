@@ -89,6 +89,12 @@ interface IPropData {
     setOtherChatUserId: React.Dispatch<React.SetStateAction<number>>;
 }
 
+interface IChatSocketData {
+    senderId: number;
+    created: Date;
+    text: string;
+}
+
 const ChatRoomList = ({
     setOtherChatUserData,
     setOtherChatUser,
@@ -121,7 +127,7 @@ const ChatRoomList = ({
 
     useEffect(() => {
         fetchChatRoomList();
-        chatSocket.on('newChatMessage', (data: any) => {
+        chatSocket.on('newChatMessage', (data: IChatSocketData) => {
             console.log('채팅 JKL!JKL', data);
         });
     }, []);

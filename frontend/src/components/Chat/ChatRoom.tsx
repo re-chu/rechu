@@ -99,6 +99,12 @@ interface IChatData {
     text: string;
 }
 
+interface IChatSocketData {
+    senderId: number;
+    created: Date;
+    text: string;
+}
+
 const ChatRoom = ({ otherChatUserData }: IPropData) => {
     const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -157,25 +163,37 @@ const ChatRoom = ({ otherChatUserData }: IPropData) => {
         }
     };
 
-    const appendNewMessage = (data: any) => {
+    const appendNewMessage = (data: IChatSocketData) => {
         const newData = {
             MARK: '',
             chatId: 0,
             avatarUrl: '',
-            senderId: data.senderId,
             username: '',
+            senderId: data.senderId,
             created: data.created,
             text: data.text,
         };
         dispatch(setChatState([...chatState, newData]));
     };
 
+    const leaveChatRoom = async () => {
+        try {
+            await API.patch('/chat/room', '', otherChatUserData?.roomId);
+        } catch (err) {
+            console.log(err);
+        }
+    };
+
     useEffect(() => {
         fetchChatData();
+
+        return () => {
+            leaveChatRoom();
+        };
     }, []);
 
     useEffect(() => {
-        chatSocket.on('newChatMessage', (data: any) => {
+        chatSocket.on('newChatMessage', (data: IChatSocketData) => {
             appendNewMessage(data);
         });
     }, [chatState]);
