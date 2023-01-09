@@ -37,11 +37,14 @@ export const getChatRoomQ = async (userId: number): Promise<RoomData[]> => {
       [userId, userId]
     );
     const chatRoomData = utils.jsonParse(chatRoomDataRows);
+    console.log(chatRoomData, "??");
+
+    await chatRoomData.map(async (room) => {});
 
     const extendsRoomDatas = await Promise.all(
       chatRoomData.map(async (roomData: RoomData) => {
         const [chatRows] = await conn.query(
-          `SELECT 
+          `SELECT
             text,
             checkout,
             sendFrom
@@ -55,18 +58,31 @@ export const getChatRoomQ = async (userId: number): Promise<RoomData[]> => {
 
         const noCheckedChatDatas = utils.jsonParse(chatRows);
         // 상대방이 누군지 찾아서 리턴
+        let target = 0;
+        switch (userId) {
+          case roomData.menteeId:
+            target = roomData.menteeId;
+            break;
+          default:
+            target = roomData.mentoId;
+        }
+        console.log("맵", noCheckedChatDatas);
         const [targetUserRow] = await conn.query(
           `
-              SELECT avatarUrl,username FROM user WHERE ?
-            `,
-          [noCheckedChatDatas.sendFrom]
+          SELECT avatarUrl,username FROM user WHERE ?
+          `,
+          [target]
         );
         const targetUser = utils.jsonParse(targetUserRow)[0];
+        console.log("dddd", targetUser);
 
         roomData.avatarUrl = targetUser.avatarUrl;
         roomData.username = targetUser.username;
-        roomData.lastText = noCheckedChatDatas.text;
-        roomData.created = noCheckedChatDatas[0].created;
+        //
+        if (noCheckedChatDatas.length !== 0) {
+          roomData.lastText = noCheckedChatDatas[0].text;
+          roomData.created = noCheckedChatDatas[0].created;
+        }
         return {
           ...roomData,
           noCheckoutMessages: noCheckedChatDatas.length,
