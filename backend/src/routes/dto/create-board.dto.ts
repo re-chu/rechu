@@ -9,9 +9,6 @@ export class CreateBoardDto {
   @IsString()
   readonly content: string;
 
-  @IsString()
-  readonly hashTags: string | null;
-
   @IsNumber()
   readonly resumeId: number | string | null;
 }
