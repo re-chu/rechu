@@ -79,14 +79,10 @@ const EmptyWrapper = styled.div`
     width: 100%;
     font-size: 1.8rem;
     span {
-        color: #f66;
+        color: #5f9e5f;
         margin: 8rem 0;
         font-size: 8rem;
     }
-`;
-
-const EmptyInfo = styled.p`
-    color: #666;
 `;
 
 interface IChatRoomItem {
@@ -161,7 +157,9 @@ const ChatRoomList = ({
                 //         신청을 해주세요.
                 //     </EmptyInfo>
                 // </EmptyWrapper>
-                <LoadingOutlined />
+                <EmptyWrapper>
+                    <LoadingOutlined />
+                </EmptyWrapper>
             ) : (
                 chatRoomList.map((item, index) => (
                     <ChatRoom key={index} onClick={() => handleEnterRoom(item)}>
