@@ -565,6 +565,30 @@ export const complateMatch = async (matchingId: number) => {
     `,
       [matchingId]
     );
+    // 매칭아이디로 룸 찾기
+    const [roomDataRow] = await conn.query(
+      `
+      SELECT id FROM chat_room_table WHERE fromConnectId = ?
+    `,
+      [matchingId]
+    );
+    const roomData = utils.jsonParse(roomDataRow)[0];
+    // 채팅 내역, 룸 삭제
+    await Promise.all([
+      conn.query(
+        `
+       DELETE chat_data_table WHERE fromRoomId = ?
+     `,
+        [roomData.id]
+      ),
+      conn.query(
+        `
+       DELETE chat_room_table WHERE id = ?
+     `,
+        [roomData.id]
+      ),
+    ]);
+
     conn.commit();
     return "매칭 종료";
   } catch (err) {
