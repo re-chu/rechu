@@ -14,8 +14,8 @@ const WrapperClosed = styled.button`
     -webkit-box-align: center;
     width: 6rem;
     height: 6rem;
-    bottom: 2rem;
-    right: 2rem;
+    bottom: 4rem;
+    right: 4rem;
     border: none;
     border-radius: 50%;
     overflow: hidden;
@@ -46,8 +46,8 @@ const WrapperOpened = styled.div`
     width: 37.5rem;
     height: 100%;
     max-height: 67rem;
-    bottom: 2rem;
-    right: 2rem;
+    bottom: 4rem;
+    right: 4rem;
     margin: 0;
     padding: 0;
     border: 0;
@@ -58,6 +58,14 @@ const WrapperOpened = styled.div`
     animation: 0.7s ${appearAnimation};
     box-shadow: rgb(255 255 255 / 12%) 0px 0px 2px 0px inset, rgb(0 0 0 / 5%) 0px 0px 2px 1px,
         rgb(0 0 0 / 30%) 0px 12px 60px;
+    @media screen and (max-width: 580px) {
+        max-width: 90%;
+        max-height: 45vh;
+        left: 0;
+        bottom: 2rem;
+        right: 0;
+        margin: 0 auto;
+    }
 `;
 
 const ChatHeader = styled.div`
