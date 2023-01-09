@@ -105,15 +105,13 @@ const Header = () => {
                                             <li>
                                                 <Link to="/alarm">
                                                     <AlarmWrapper onClick={handleAlarmToChecked}>
-                                                        <BellOutlined />
+                                                        알림
                                                         {userState.hasNewAlarm ? <AlarmDot /> : ''}
                                                     </AlarmWrapper>
                                                 </Link>
                                             </li>
                                             <li>
-                                                <Link to="/profile">
-                                                    <UserOutlined />
-                                                </Link>
+                                                <Link to="/profile">마이 페이지</Link>
                                             </li>
                                         </>
                                     )}
