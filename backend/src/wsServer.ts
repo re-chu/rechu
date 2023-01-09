@@ -1,7 +1,7 @@
 import server from "./server";
 import { Server } from "socket.io";
-import { httpsServer } from "./server";
-const wsServer = new Server(httpsServer, {
+
+const wsServer = new Server(server, {
   cors: {
     origin: "*",
     methods: ["GET", "POST", "PATCH"],

@@ -1,5 +1,4 @@
 import http from "http";
-import https from "https";
 import express from "express";
 import { errorHandler } from "./middlewares/error-handdler";
 import {
@@ -16,7 +15,6 @@ import cors from "cors";
 import resumeRoute from "./routes/resume.routes";
 const app = express();
 const httpServer = http.createServer(app);
-export const httpsServer = https.createServer(app);
 // import { Server } from "socket.io";
 // const zz = new Server(httpServer);
 // zz.on("connection", (socket) => {
