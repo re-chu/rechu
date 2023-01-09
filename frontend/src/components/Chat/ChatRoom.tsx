@@ -247,6 +247,7 @@ const ChatRoom = ({ otherChatUserData }: IPropData) => {
             text: data.text,
         };
         dispatch(setChatState([...chatState, newData]));
+
         moveScrollToBottom();
     };
 
@@ -264,8 +265,10 @@ const ChatRoom = ({ otherChatUserData }: IPropData) => {
     };
 
     const moveScrollToBottom = () => {
-        if (scrollRef.current && scrollRef.current.clientHeight)
-            scrollRef.current.scrollTop = scrollRef.current.scrollHeight * 9999;
+        setTimeout(() => {
+            if (scrollRef.current && scrollRef.current.clientHeight)
+                scrollRef.current.scrollTop = scrollRef.current.scrollHeight * 9999;
+        }, 0);
     };
 
     // const moveScrollToBottomFromNewChat = () => {
