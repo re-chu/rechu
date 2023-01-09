@@ -126,10 +126,11 @@ const Chat = () => {
     const [isOpen, setIsOpen] = useState<boolean>(false);
     const [isEnter, setIsEnter] = useState<boolean>(false);
     const [otherChatUser, setOtherChatUser] = useState<string>('');
-    const [otherChatUserId, setOtherChatUserId] = useState<number | null>(null);
+    const [otherChatUserId, setOtherChatUserId] = useState<number>(0);
 
     const handleAlarmBack = () => {
         setIsEnter(false);
+        setOtherChatUserId(0);
     };
 
     const handleAlarmWindow = () => {
@@ -147,7 +148,7 @@ const Chat = () => {
                 <WrapperOpened>
                     <ChatHeader>
                         {/* 채팅방 리스트 or 채팅창에 따른 헤더 렌더링 */}
-                        {otherChatUser === null ? (
+                        {otherChatUserId !== 0 ? (
                             <ChatHeaderElem>
                                 <LeftOutlined onClick={handleAlarmBack} />
                                 <ChatTitle>채팅</ChatTitle>

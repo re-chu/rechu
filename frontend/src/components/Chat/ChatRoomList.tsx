@@ -1,5 +1,6 @@
 import styled from '@emotion/styled';
 import { useState, useEffect } from 'react';
+import API from 'utils/api';
 
 const Container = styled.div`
     width: 90%;
@@ -27,12 +28,14 @@ interface IChatRoomItem {
     menteeId: number;
     fromConnectId: number;
     noCheckoutMessages: number | null;
+    // userName: string;
+    // AvatarUrl: string;
 }
 
 interface IPropData {
     setIsEnter: React.Dispatch<React.SetStateAction<boolean>>;
     setOtherChatUser: React.Dispatch<React.SetStateAction<string>>;
-    setOtherChatUserId: React.Dispatch<React.SetStateAction<number | null>>;
+    setOtherChatUserId: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const ChatRoomList = ({ setIsEnter, setOtherChatUser, setOtherChatUserId }: IPropData) => {
@@ -40,10 +43,20 @@ const ChatRoomList = ({ setIsEnter, setOtherChatUser, setOtherChatUserId }: IPro
 
     const handleEnterRoom = (item: IChatRoomItem) => {
         setIsEnter(true);
-        setOtherChatUser('123');
+        setOtherChatUserId(1);
+    };
+
+    const fetchChatRoomList = async () => {
+        try {
+            const res = await API.get('/chat/room');
+            console.log(res);
+        } catch (err) {
+            console.log(err);
+        }
     };
 
     useEffect(() => {
+        fetchChatRoomList();
         setChatRoomList(data);
     }, []);
 
@@ -53,6 +66,8 @@ const ChatRoomList = ({ setIsEnter, setOtherChatUser, setOtherChatUserId }: IPro
                 chatRoomList.map((item, index) => (
                     <ChatRoom key={index} onClick={() => handleEnterRoom(item)}>
                         {item.lastText}
+                        {item.menteeId}
+                        {item.mentoId}
                     </ChatRoom>
                 ))}
         </Container>
