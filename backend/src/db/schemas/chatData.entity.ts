@@ -1,27 +1,27 @@
-import { Entity, PrimaryGeneratedColumn, ManyToOne, Column } from 'typeorm';
-import { ChatRoomTable } from './chatRoom.entity';
-import { User } from './user.entity';
+import { Entity, PrimaryGeneratedColumn, ManyToOne, Column } from "typeorm";
+import { ChatRoomTable } from "./chatRoom.entity";
+import { User } from "./user.entity";
 
 @Entity()
 export class ChatDataTable {
-   @PrimaryGeneratedColumn()
-   id: number;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-   @Column()
-   sendFrom: number;
+  @Column()
+  sendFrom: number;
 
-   // @Column({ unique: true })
-   // mentoId: number;
+  // @Column({ unique: true })
+  // mentoId: number;
 
-   @Column()
-   text: string;
+  @Column({ type: "varchar" })
+  text: string;
 
-   @Column({ default: 0 })
-   checkout: number;
+  @Column({ default: 0 })
+  checkout: number;
 
-   @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
-   created: Date;
+  @Column({ type: "datetime", default: () => "CURRENT_TIMESTAMP" })
+  created: Date;
 
-   @ManyToOne(type => ChatRoomTable, room => room.ownDatas)
-   fromRoom: ChatRoomTable;
+  @ManyToOne((type) => ChatRoomTable, (room) => room.ownDatas)
+  fromRoom: ChatRoomTable;
 }
