@@ -4,6 +4,7 @@ import { db } from ".";
 // 채팅방 목록 가져오기
 export type RoomData = {
   roomId: number;
+  otherUserId: number;
   username: string;
   avatarUrl: string;
   lastText: string;
@@ -66,12 +67,13 @@ export const getChatRoomQ = async (userId: number): Promise<RoomData[]> => {
         console.log(target, "??");
         const [targetUserRow] = await conn.query(
           `
-          SELECT avatarUrl,username FROM user WHERE id =?
+          SELECT id as otherUserId,avatarUrl,username FROM user WHERE id =?
           `,
           [target]
         );
         const targetUser = utils.jsonParse(targetUserRow)[0];
 
+        roomData.otherUserId = targetUser.otherUserId;
         roomData.avatarUrl = targetUser.avatarUrl;
         roomData.username = targetUser.username;
         //

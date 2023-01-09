@@ -574,20 +574,21 @@ export const complateMatch = async (matchingId: number) => {
     );
     const roomData = utils.jsonParse(roomDataRow)[0];
     // 채팅 내역, 룸 삭제
-    await Promise.all([
-      conn.query(
-        `
-       DELETE chat_data_table WHERE fromRoomId = ?
-     `,
-        [roomData.id]
-      ),
-      conn.query(
-        `
-       DELETE chat_room_table WHERE id = ?
-     `,
-        [roomData.id]
-      ),
-    ]);
+    await chatRepo.destructionRoom(roomData.id);
+    // await Promise.all([
+    //   conn.query(
+    //     `
+    //    DELETE chat_data_table WHERE fromRoomId = ?
+    //  `,
+    //     [roomData.id]
+    //   ),
+    //   conn.query(
+    //     `
+    //    DELETE chat_room_table WHERE id = ?
+    //  `,
+    //     [roomData.id]
+    //   ),
+    // ]);
 
     conn.commit();
     return "매칭 종료";
