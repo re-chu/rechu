@@ -272,7 +272,7 @@ export const deleteCommentQ = async (userId: number, boardId: number, commentId:
       `
       DELETE 
       FROM point_from_comment
-      WHERE commentId = 
+      WHERE commentId = ?
     `,
       [commentId]
     );
