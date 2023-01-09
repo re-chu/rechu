@@ -52,6 +52,7 @@ userRoute.post("/match", tokenValidator, async (req, res, next) => {
 });
 userRoute.delete("/match", tokenValidator, async (req, res, next) => {
   const matchingId = req.body.matchingId;
+  console.log(req.body, "wegwgwegweg");
   try {
     const result = await userService.cancelMatch(matchingId);
     return res.status(200).json({
@@ -192,6 +193,7 @@ userRoute.patch("/individuals", tokenValidator, async (req, res, next) => {
   const working = req.body.working;
   const chance = req.body.chance;
   const news = req.body.news;
+  console.log(req.body, "dd");
   // const avatarUrl = req.body.avatarUrl;
   const toUpdate = {
     ...(password && { password }),
@@ -203,7 +205,7 @@ userRoute.patch("/individuals", tokenValidator, async (req, res, next) => {
     ...(news && { news }),
   };
   // 0값으로 들어오면 위 코드로 잡히지 않음.
-  if (req.body.working === 0) {
+  if (req.body.working === false) {
     toUpdate.working = 0;
   }
   if (req.body.news === 0) {

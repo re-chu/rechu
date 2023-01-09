@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from 'react';
-import styled from '@emotion/styled';
 import Logo from 'assets/images/logo.png';
 import { useNavigate, Link } from 'react-router-dom';
 import { HContainer, HHeader, AlarmWrapper, AlarmDot } from './style';
@@ -113,7 +112,7 @@ const Header = () => {
                                                 </Link>
                                             </li>
                                             <li>
-                                                <Link to="/profile">마이페이지</Link>
+                                                <Link to="/profile">마이 페이지</Link>
                                             </li>
                                         </>
                                     )}

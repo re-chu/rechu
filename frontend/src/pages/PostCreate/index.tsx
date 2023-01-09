@@ -7,7 +7,7 @@ import '@toast-ui/editor/dist/toastui-editor.css';
 import '@toast-ui/editor-plugin-color-syntax/dist/toastui-editor-plugin-color-syntax.css';
 import '@toast-ui/editor/dist/i18n/ko-kr';
 import colorSyntax from '@toast-ui/editor-plugin-color-syntax';
-import { Button, Input, Switch, Typography, notification, Modal, Tag, Radio, Space } from 'antd';
+import { Button, Input, Switch, Typography, notification, Modal, Radio, Space } from 'antd';
 import type { RadioChangeEvent } from 'antd';
 import type { NotificationPlacement } from 'antd/es/notification/interface';
 import API from 'utils/api';
@@ -50,8 +50,6 @@ const ResumeSelectUI = styled.div`
     padding: 2rem;
 `;
 
-const TagWrapper = styled.div``;
-
 interface RouteState {
     state: IBoardInfo;
 }
@@ -86,14 +84,11 @@ function PostCreate() {
     const [resumeList, setResumeList] = useState<IResumeInfo[]>([]);
     const [resume, setResume] = useState<number>(0);
 
-    // 해쉬태그 입력 영역
-    const [tag, setTag] = useState('');
     // 폼 입력 데이터
     const [form, setForm] = useState({
         title: '',
-        hashTags: '',
     });
-    const { title, hashTags } = form;
+    const { title } = form;
 
     // 폼 제출 시 에러 발생한 항목에 에러 메세지 출력을 위한 상태값
     const [error, setError] = useState({
@@ -117,7 +112,6 @@ function PostCreate() {
             }
         }
         setIsResume(prev => !prev);
-        console.log('Resume :', isResume);
     };
 
     // 이력서 선택
@@ -184,7 +178,6 @@ function PostCreate() {
             content,
             resumeId: resume,
         };
-        console.log(data);
 
         try {
             if (postId === undefined) {
@@ -228,7 +221,6 @@ function PostCreate() {
             if (state) {
                 setForm({
                     title: state.title,
-                    hashTags: state.hashTags,
                 });
                 updateEditorContent(state.content);
                 return;
@@ -245,12 +237,10 @@ function PostCreate() {
             const result = {
                 title: data.title,
                 content: data.content,
-                hashTags: data.hashTags,
             };
 
             setForm({
                 title: result?.title,
-                hashTags: result.hashTags,
             });
             updateEditorContent(result.content);
         };
@@ -263,31 +253,12 @@ function PostCreate() {
         return () => {};
     }, [postId, state]);
 
-    const onKeyDown = (e: React.KeyboardEvent<HTMLElement>) => {
-        if (tag === '') return;
-        if (e.keyCode === 13) {
-            if (form.hashTags === '') {
-                setForm({
-                    ...form,
-                    hashTags: tag,
-                });
-            } else {
-                setForm({
-                    ...form,
-                    hashTags: form.hashTags + ', ' + tag,
-                });
-            }
-            setTag('');
+    const cancleEdit = () => {
+        if (postId) {
+            navigate(`/post/${postId}`);
+            return;
         }
-    };
-
-    const handleTagInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setTag(e.target.value);
-    };
-
-    const handleTagDelete = (e: React.MouseEvent<HTMLElement>) => {
-        console.log(e.target);
-        console.log(form.hashTags);
+        navigate('/');
     };
 
     return (
@@ -349,27 +320,9 @@ function PostCreate() {
                         ref={editorRef}
                     />
                 </Wrapper>
-                <Wrapper>
-                    {/* <Title level={4}>태그</Title>
-                    <TagWrapper>
-                        {hashTags !== '' &&
-                            hashTags.split(',').map((item, index) => (
-                                <Tag key={index} closable onClose={handleTagDelete}>
-                                    {item}
-                                </Tag>
-                            ))}
-                    </TagWrapper>
-
-                    <Input
-                        size="large"
-                        name="hashTags"
-                        value={tag}
-                        onChange={handleTagInput}
-                        onKeyDown={onKeyDown}
-                    /> */}
-                </Wrapper>
+                <Wrapper></Wrapper>
                 <ButtonDiv>
-                    <Button type="default" size="large">
+                    <Button type="default" size="large" onClick={cancleEdit}>
                         취소
                     </Button>
                     <Button type="primary" size="large" onClick={() => setModalOpen(true)}>

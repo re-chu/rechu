@@ -74,6 +74,8 @@ const Match = () => {
             console.log(rotId);
             const res = await API.post(`/users/match`, { rotId });
             console.log(res);
+            console.log('되냐');
+            console.log(res);
             socket.emit('matchRequestToMento', rotId);
             getMatching();
             setModalOpen(false);

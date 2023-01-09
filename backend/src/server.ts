@@ -1,4 +1,5 @@
 import http from "http";
+import https from "https";
 import express from "express";
 import { errorHandler } from "./middlewares/error-handdler";
 import {
@@ -15,10 +16,17 @@ import cors from "cors";
 import resumeRoute from "./routes/resume.routes";
 const app = express();
 const httpServer = http.createServer(app);
+export const httpsServer = https.createServer(app);
 // import { Server } from "socket.io";
 // const zz = new Server(httpServer);
-
+// zz.on("connection", (socket) => {
+//   socket.on("login", (userId) => {
+//     socket.join(String(userId));
+//     console.log("로그인된다면 만들어지", socket.rooms);
+//   });
+// });
 // app.set("io", zz);
+
 app.use("/uploads", express.static("uploads"));
 // CORS 에러 방지
 app.use(cors());

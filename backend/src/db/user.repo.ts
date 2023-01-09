@@ -3,6 +3,7 @@ import { CreateUserDto } from "src/routes/dto/create-individual.dto";
 import { db } from ".";
 import { UserProfile } from "./schemas";
 import { updateData } from "./utils/transData";
+import * as chatRepo from "./chat.repo";
 
 export const getUsersWhereRot = async () => {
   const getColumns = "id,username,point,avatarUrl,working";
@@ -394,39 +395,78 @@ export const cancelMatchQ = async (matchingId: number): Promise<boolean> => {
 };
 
 // 매칭 수락 ( 고인물 )
-export const acceptMatchQ = async (matchingId: number, menteeId: number): Promise<boolean> => {
+export const acceptMatchQ = async (matchingId: number, menteeId: number, mentoId: number): Promise<boolean> => {
+  const data = {
+    fromConnectId: matchingId,
+    menteeId,
+    mentoId,
+  };
+  const [keys, values, valval] = utils.insertData(data);
   const conn = await db.getConnection();
   conn.beginTransaction();
   try {
+    await Promise.all([
+      conn.query(
+        `
+          UPDATE user
+          SET news = 1 
+          WHERE id = ?
+        `,
+        [menteeId]
+      ),
+      conn.query(
+        `
+        UPDATE connect
+        SET
+          step = "진행중"
+        WHERE 
+          id= ? AND
+          menteeId = ?
+      `,
+        [matchingId, menteeId]
+      ),
+    ]);
+    const [checkMatchStatus, alreadyCreatedRoom] = await Promise.all([
+      utils.jsonParse(
+        await conn.query(
+          `
+            SELECT step
+            FROM connect
+            WHERE id=?
+        `,
+          [matchingId]
+        )
+      )[0][0],
+      utils.jsonParse(
+        await conn.query(
+          `
+            SELECT id FROM chat_room_table WHERE fromConnectId = ?
+    `,
+          [matchingId]
+        )
+      )[0][0],
+    ]);
+    // 채팅방 중복생성 불가하게 함
+    console.log("아마 이게 안되는듯");
+    if (checkMatchStatus || !alreadyCreatedRoom) {
+      await conn.query(
+        `
+        INSERT INTO chat_room_table
+        (${keys.join(",")})
+        VALUES (${values.join(", ")})
+      `,
+        [...valval]
+      );
+    }
+
+    conn.commit();
+    return true;
   } catch (err) {
     conn.rollback();
     throw new Error(err);
   } finally {
     conn.release();
   }
-  await Promise.all([
-    conn.query(
-      `
-        UPDATE user
-        SET news = 1 
-        WHERE id = ?
-      `,
-      [menteeId]
-    ),
-    conn.query(
-      `
-      UPDATE connect
-      SET
-        step = "진행중"
-      WHERE 
-        id= ? AND
-        menteeId = ?
-    `,
-      [matchingId, menteeId]
-    ),
-  ]);
-  conn.commit();
-  return true;
 };
 
 // 매칭 끝내기버튼
@@ -525,6 +565,30 @@ export const complateMatch = async (matchingId: number) => {
     `,
       [matchingId]
     );
+    // 매칭아이디로 룸 찾기
+    const [roomDataRow] = await conn.query(
+      `
+      SELECT id FROM chat_room_table WHERE fromConnectId = ?
+    `,
+      [matchingId]
+    );
+    const roomData = utils.jsonParse(roomDataRow)[0];
+    // 채팅 내역, 룸 삭제
+    await chatRepo.destructionRoom(roomData.id);
+    // await Promise.all([
+    //   conn.query(
+    //     `
+    //    DELETE chat_data_table WHERE fromRoomId = ?
+    //  `,
+    //     [roomData.id]
+    //   ),
+    //   conn.query(
+    //     `
+    //    DELETE chat_room_table WHERE id = ?
+    //  `,
+    //     [roomData.id]
+    //   ),
+    // ]);
 
     conn.commit();
     return "매칭 종료";
