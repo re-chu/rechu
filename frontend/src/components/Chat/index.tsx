@@ -1,14 +1,9 @@
 import styled from '@emotion/styled';
 import { keyframes } from '@emotion/react';
-import { WechatOutlined, CloseOutlined, LeftOutlined } from '@ant-design/icons';
+import { MessageOutlined, CloseOutlined, LeftOutlined } from '@ant-design/icons';
 import { useState } from 'react';
 import ChatRoomList from './ChatRoomList';
 import ChatRoom from './ChatRoom';
-
-const Container = styled.div`
-    display: flex;
-    flex-direction: column;
-`;
 
 const WrapperClosed = styled.button`
     position: fixed;
@@ -96,8 +91,9 @@ const ChatBody = styled.div`
     display: flex;
     flex-direction: column;
     width: 100%;
-    height: 85%;
+    height: 100%;
     color: black;
+    border-radius: 0 0 1rem 1rem;
     // Scrollbar Design
     overflow: auto;
     overflow-x: hidden;
@@ -122,27 +118,35 @@ const Dot = styled.span`
     background-color: white;
 `;
 
+export interface IOtherUser {
+    userId: number;
+    userName: string;
+    avatarUrl: string;
+    roomId: number;
+}
+
 const Chat = () => {
     const [isOpen, setIsOpen] = useState<boolean>(false);
-    const [isEnter, setIsEnter] = useState<boolean>(false);
+    const [otherChatUserData, setOtherChatUserData] = useState<IOtherUser | null>(null);
     const [otherChatUser, setOtherChatUser] = useState<string>('');
     const [otherChatUserId, setOtherChatUserId] = useState<number>(0);
 
     const handleAlarmBack = () => {
-        setIsEnter(false);
         setOtherChatUserId(0);
     };
 
     const handleAlarmWindow = () => {
         setIsOpen(!isOpen);
-        setIsEnter(false);
+        setOtherChatUser('');
+        setOtherChatUserId(0);
+        setOtherChatUserData(null);
     };
 
     return (
         <>
             {!isOpen ? (
                 <WrapperClosed onClick={handleAlarmWindow}>
-                    <WechatOutlined />
+                    <MessageOutlined />
                 </WrapperClosed>
             ) : (
                 <WrapperOpened>
@@ -151,7 +155,7 @@ const Chat = () => {
                         {otherChatUserId !== 0 ? (
                             <ChatHeaderElem>
                                 <LeftOutlined onClick={handleAlarmBack} />
-                                <ChatTitle>채팅</ChatTitle>
+                                <ChatTitle>{otherChatUser}</ChatTitle>
                             </ChatHeaderElem>
                         ) : (
                             <ChatHeaderElem>
@@ -165,17 +169,14 @@ const Chat = () => {
                     </ChatHeader>
                     <ChatBody>
                         {/* 채팅방 리스트 or 채팅창 */}
-                        {!isEnter ? (
+                        {otherChatUserId === 0 ? (
                             <ChatRoomList
-                                setIsEnter={setIsEnter}
+                                setOtherChatUserData={setOtherChatUserData}
                                 setOtherChatUser={setOtherChatUser}
                                 setOtherChatUserId={setOtherChatUserId}
                             />
                         ) : (
-                            <ChatRoom
-                                setOtherChatUser={setOtherChatUser}
-                                setOtherChatUserId={setOtherChatUserId}
-                            />
+                            <ChatRoom otherChatUserData={otherChatUserData} />
                         )}
                     </ChatBody>
                 </WrapperOpened>

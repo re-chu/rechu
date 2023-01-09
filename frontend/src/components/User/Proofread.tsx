@@ -90,11 +90,11 @@ export const Proofread = (props: any) => {
     };
 
     const updateMatchData = async (e: any) => {
-        const matchingid = e.currentTarget.id;
+        const matchingId = e.currentTarget.id;
         try {
             const res = await axios.post(
                 `${API.BASE_URL}/users/match/success`,
-                { matchingId: matchingid * 1, role: 'mento' },
+                { matchingId, role: 'mento' },
                 { headers: { authorization: `Bearer ${token}` } },
             );
             if (res.status === 200) getMentoReq();
