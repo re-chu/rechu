@@ -9,7 +9,6 @@ export type BoardInfo = {
   id: number;
   title: string;
   content: string;
-  hashTags: string;
   boardCreated: Date;
   hasResumeId: number;
   fixed: boolean;
