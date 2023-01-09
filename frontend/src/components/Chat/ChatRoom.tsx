@@ -164,15 +164,43 @@ const ChatRoom = ({ otherChatUserData }: IPropData) => {
 
     const myId = Number(localStorage.getItem('userId'));
 
+    const fetchChatData = async () => {
+        try {
+            const res = await API.get(
+                '/chat/message',
+                `?roomId=${otherChatUserData?.roomId}&mark=`,
+            );
+            const result = res.reverse();
+            if (result.length !== 0) dispatch(setChatState(result));
+        } catch (err) {
+            console.log(err);
+        }
+    };
+
+    const fetchMoreChatData = async () => {
+        try {
+            const firstMark = chatState[0].MARK;
+            const res = await API.get(
+                '/chat/message',
+                `?roomId=${otherChatUserData?.roomId}&mark=${firstMark}`,
+            );
+            const result = res.reverse();
+            dispatch(setChatState([...result, ...chatState]));
+        } catch (err) {
+            console.log(err);
+        }
+    };
+
     const onChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         setText(e.target.value);
     };
 
     const sendMessage = async () => {
+        if (text === '') return;
         try {
             const data = {
                 fromRoomId: otherChatUserData?.roomId,
-                text: text,
+                text,
             };
             await API.post('/chat/message', data);
 
@@ -194,6 +222,7 @@ const ChatRoom = ({ otherChatUserData }: IPropData) => {
 
             chatSocket.emit('sendMessage', otherChatUserData?.roomId, socketData);
             dispatch(setChatState([...chatState, newData]));
+            moveScrollToBottom();
         } catch (err) {
             console.log(err);
         }
@@ -202,19 +231,6 @@ const ChatRoom = ({ otherChatUserData }: IPropData) => {
 
     const sendMessageWithEnter = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         if (e.key === 'Enter') sendMessage();
-    };
-
-    const fetchChatData = async () => {
-        try {
-            const res = await API.get(
-                '/chat/message',
-                `?roomId=${otherChatUserData?.roomId}&mark=`,
-            );
-            const result = res.reverse();
-            dispatch(setChatState(result));
-        } catch (err) {
-            console.log(err);
-        }
     };
 
     const appendNewMessage = (data: IChatSocketData) => {
@@ -228,16 +244,30 @@ const ChatRoom = ({ otherChatUserData }: IPropData) => {
             text: data.text,
         };
         dispatch(setChatState([...chatState, newData]));
+        moveScrollToBottom();
     };
 
     const leaveChatRoom = async () => {
         try {
-            await API.patch('/chat/room', '', otherChatUserData?.roomId);
-            resetChatState();
+            const data = {
+                roomId: otherChatUserData?.roomId,
+            };
+            await API.patch('/chat/room', '', data);
+
+            dispatch(resetChatState());
         } catch (err) {
             console.log(err);
         }
     };
+
+    const moveScrollToBottom = () => {
+        if (scrollRef.current && scrollRef.current.clientHeight)
+            scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    };
+
+    // const moveScrollToBottomFromNewChat = () => {
+    //     console.log("추후 구현")
+    // }
 
     useEffect(() => {
         fetchChatData();
@@ -254,10 +284,17 @@ const ChatRoom = ({ otherChatUserData }: IPropData) => {
     }, [chatState]);
 
     useEffect(() => {
+        scrollRef.current?.addEventListener('scroll', () => {
+            if (scrollRef.current?.scrollTop === 0 && chatState.length >= 20) {
+                fetchMoreChatData();
+            }
+        });
+    }, []);
+
+    useEffect(() => {
         //채팅 시작 시 스크롤 맨 아래에서부터 시작
-        if (scrollRef.current && scrollRef.current.clientHeight)
-            scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }, [chatState]);
+        moveScrollToBottom();
+    }, []);
 
     return (
         <Container>
