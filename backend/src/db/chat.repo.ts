@@ -206,20 +206,20 @@ export const sendChatQ = async (data: { sendFrom: number; fromRoomId: number; te
   try {
     await conn.query(
       `
-      INSERT INTO chat_data_table
-      (${keys.join(", ")})
-      VALUES (${values.join(", ")})
-    `,
+          INSERT
+          INTO chat_data_table (${keys.join(", ")})
+          VALUES (${values.join(",")})
+        `,
       [...valval]
     );
     await conn.query(
       `
       UPDATE chat_room_table
       SET
-        lastText = ${data.text}
+      lastText = ?
       WHERE id = ?
-    `,
-      [data.fromRoomId]
+      `,
+      [data.text, data.fromRoomId]
     );
     conn.commit();
     return true;
@@ -233,6 +233,7 @@ export const sendChatQ = async (data: { sendFrom: number; fromRoomId: number; te
 };
 
 export const checkoutChatRoomQ = async (userId: number, roomId: number) => {
+  console.log(userId, roomId, "ㅇㅇ");
   await db.query(
     `
     UPDATE chat_data_table
@@ -250,14 +251,14 @@ export const destructionRoom = async (roomId: number) => {
   try {
     await db.query(
       `
-      DELETE chat_data_table
+      DELETE FROM chat_data_table
       WHERE fromRoomId=?
     `,
       [roomId]
     );
     await db.query(
       `
-      DELETE chat_room_table
+      DELETE FROM chat_room_table
       where id= ?
     `,
       [roomId]

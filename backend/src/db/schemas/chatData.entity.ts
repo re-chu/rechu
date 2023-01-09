@@ -13,7 +13,7 @@ export class ChatDataTable {
   // @Column({ unique: true })
   // mentoId: number;
 
-  @Column({ type: "varchar" })
+  @Column({ type: "varchar", length: 1000 })
   text: string;
 
   @Column({ default: 0 })
