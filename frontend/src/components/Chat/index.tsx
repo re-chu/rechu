@@ -179,6 +179,7 @@ const Chat = () => {
                         {/* 채팅방 리스트 or 채팅창 */}
                         {otherChatUserId === 0 ? (
                             <ChatRoomList
+                                otherChatUserData={otherChatUserData}
                                 setOtherChatUserData={setOtherChatUserData}
                                 setOtherChatUser={setOtherChatUser}
                                 setOtherChatUserId={setOtherChatUserId}

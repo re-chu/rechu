@@ -110,6 +110,7 @@ interface IPropData {
     setOtherChatUserData: React.Dispatch<React.SetStateAction<IOtherUser | null>>;
     setOtherChatUser: React.Dispatch<React.SetStateAction<string>>;
     setOtherChatUserId: React.Dispatch<React.SetStateAction<number>>;
+    otherChatUserData: IOtherUser | null;
 }
 
 interface IChatSocketData {
@@ -122,6 +123,7 @@ const ChatRoomList = ({
     setOtherChatUserData,
     setOtherChatUser,
     setOtherChatUserId,
+    otherChatUserData,
 }: IPropData) => {
     const [chatRoomList, setChatRoomList] = useState<IChatRoomItem[] | null>(null);
 
@@ -153,7 +155,7 @@ const ChatRoomList = ({
         chatSocket.on('newChatMessage', (data: IChatSocketData) => {
             console.log('채팅 JKL!JKL', data);
         });
-    }, []);
+    }, [otherChatUserData]);
 
     return (
         <Container>
