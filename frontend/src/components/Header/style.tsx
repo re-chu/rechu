@@ -88,9 +88,27 @@ export const HHeader = styled.header`
                 padding-top: 1rem;
                 line-height: 1.6;
 
+                & nav {
+                    & ul {
+                        & li {
+                            & a {
+                                display: inline-block;
+                                width: 100%;
+                                &:hover {
+                                    color: #b0e0e6;
+                                }
+                            }
+                        }
+                    }
+                }
+
                 & .util {
                     & li {
                         cursor: pointer;
+
+                        &:hover {
+                            color: #b0e0e6;
+                        }
                     }
                 }
             }
