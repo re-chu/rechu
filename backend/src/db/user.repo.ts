@@ -556,6 +556,12 @@ export const successMatchQ = async (
       // 채팅 내역, 룸 삭제
       await chatRepo.destructionRoom(roomData.id);
       console.log(roomData.id, "룸아이디 ");
+      await conn.query(
+        `
+        DELETE FROM connect WHERE id = ?
+      `,
+        [matchingId]
+      );
     }
     const result = data.role === "menteeComplate" ? "멘티가 종료누름" : "멘토가 종료누름";
     conn.commit();
