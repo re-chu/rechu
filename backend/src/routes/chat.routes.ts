@@ -72,3 +72,17 @@ chatRoute.patch("/message", tokenValidator, async (req, res, next) => {
     next(err);
   }
 });
+
+chatRoute.patch("/chat/room", tokenValidator, async (req, res, next) => {
+  const userId = Number(req.body.jwtDecoded.id);
+  const roomId = req.body.roomId;
+  try {
+    await chatService.checkoutChatRoom(userId, roomId);
+    return res.status(200).json({
+      msg: "채팅방 나가기, 수정완료",
+      data: "수정완료",
+    });
+  } catch (err) {
+    next(err);
+  }
+});
