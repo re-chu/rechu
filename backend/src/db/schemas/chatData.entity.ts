@@ -10,11 +10,14 @@ export class ChatDataTable {
   @Column()
   sendFrom: number;
 
-  @Column({ unique: true })
-  mentoId: number;
+  // @Column({ unique: true })
+  // mentoId: number;
 
   @Column()
-  msg: string;
+  text: string;
+
+  @Column({ default: 0 })
+  checkout: number;
 
   @Column({ type: "bigint" })
   created: number;

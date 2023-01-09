@@ -13,6 +13,7 @@ type MatchRequests = {
   menteeId: number;
   menteeName: string;
   menteeEmail: string;
+  menteeAvatarUrl: string;
   created: Date;
 };
 type AlarmBoardsLikes = {
@@ -59,6 +60,7 @@ export const getAlarmDataQ = async (userId: number): Promise<AlarmData> => {
         c.menteeId,
         u.username as menteeName,
         u.email as menteeEmail,
+        u.avatarUrl as menteeAvatarUrl,
         c.created
       FROM connect c
       JOIN user u

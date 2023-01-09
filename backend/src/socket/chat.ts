@@ -1,6 +1,6 @@
 import { Socket } from "socket.io";
 import wsServer from "../wsServer";
-
+import { db } from "../db";
 const chatSocket = wsServer.of("/chat");
 chatSocket.on("connection", (socket: Socket) => {
   console.log("채팅 소켓 연결");
@@ -15,5 +15,8 @@ chatSocket.on("connection", (socket: Socket) => {
       socket.to(String(data.roomId)).emit("newChatMessage", data);
     }
   );
+  socket.on("leaveChatRoom", (roomId) => {
+    socket.leave(String(roomId));
+  });
 });
 export default chatSocket;
