@@ -46,7 +46,7 @@ export const getChatRoomQ = async (userId: number): Promise<RoomData[]> => {
             checkout,
             sendFrom
             FROM chat_data_table 
-            WHERE fromRoomId = ? ,sendFrom != ? AND checkout = 0
+            WHERE fromRoomId = ? AND sendFrom != ? AND checkout = 0
             ORDER BY created DESC
             LIMIT 301
             `,
