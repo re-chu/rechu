@@ -65,6 +65,9 @@ const MyChatMessage = styled.div`
     display: flex;
     flex-direction: column;
     align-items: flex-end;
+    p:last-child {
+        margin-right: 1.5rem;
+    }
 `;
 
 const MyChatMessageText = styled.p`
@@ -262,11 +265,11 @@ const ChatRoom = ({ otherChatUserData }: IPropData) => {
 
     const moveScrollToBottom = () => {
         if (scrollRef.current && scrollRef.current.clientHeight)
-            scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+            scrollRef.current.scrollTop = scrollRef.current.scrollHeight * 9999;
     };
 
     // const moveScrollToBottomFromNewChat = () => {
-    //     console.log("추후 구현")
+    //     console.log("미 구현")
     // }
 
     useEffect(() => {
@@ -281,6 +284,9 @@ const ChatRoom = ({ otherChatUserData }: IPropData) => {
         chatSocket.on('newChatMessage', (data: IChatSocketData) => {
             appendNewMessage(data);
         });
+
+        //채팅 시작 시 스크롤 맨 아래에서부터 시작
+        moveScrollToBottom();
     }, [chatState]);
 
     useEffect(() => {
@@ -328,7 +334,7 @@ const ChatRoom = ({ otherChatUserData }: IPropData) => {
                 ))}
             </MessageWrapper>
             <FormWrapper>
-                <MessageInput value={text} onChange={onChange} onKeyDown={sendMessageWithEnter} />
+                <MessageInput value={text} onChange={onChange} onKeyUp={sendMessageWithEnter} />
                 <ButtonMessageSend onClick={sendMessage}>전송</ButtonMessageSend>
             </FormWrapper>
         </Container>
