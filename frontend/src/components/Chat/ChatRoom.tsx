@@ -4,6 +4,9 @@ import API from 'utils/api';
 import { IOtherUser } from './index';
 import { chatSocket } from 'services/socket';
 
+import { setChatState, resetChatState } from 'store/slices/chatSlice';
+import { useAppDispatch, useAppSelector } from 'store/config';
+
 const Container = styled.div`
     display: grid;
     grid-template-rows: 1fr 8rem;
@@ -98,8 +101,13 @@ interface IChatData {
 
 const ChatRoom = ({ otherChatUserData }: IPropData) => {
     const scrollRef = useRef<HTMLDivElement>(null);
-    const [chatData, setChatData] = useState<IChatData[]>([]);
+
+    const chatState = useAppSelector(state => state.chatState);
+    const dispatch = useAppDispatch();
+
     const [text, setText] = useState<string>('');
+
+    const myId = Number(localStorage.getItem('userId'));
 
     const onChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         setText(e.target.value);
@@ -112,6 +120,24 @@ const ChatRoom = ({ otherChatUserData }: IPropData) => {
                 text: text,
             };
             await API.post('/chat/message', data);
+
+            const socketData = {
+                text,
+                senderId: myId,
+                created: new Date(),
+            };
+
+            const newData = {
+                MARK: '',
+                chatId: 0,
+                avatarUrl: '',
+                senderId: myId,
+                username: '',
+                created: new Date(),
+                text,
+            };
+            chatSocket.emit('sendMessage', otherChatUserData?.roomId, socketData);
+            dispatch(setChatState([...chatState, newData]));
         } catch (err) {
             console.log(err);
         }
@@ -124,34 +150,46 @@ const ChatRoom = ({ otherChatUserData }: IPropData) => {
                 '/chat/message',
                 `?roomId=${otherChatUserData?.roomId}&mark=`,
             );
-            setChatData(res.reverse());
-            console.log('chat data', res);
+            const result = res.reverse();
+            dispatch(setChatState(result));
         } catch (err) {
             console.log(err);
         }
     };
 
-    useEffect(() => {
-        console.log(otherChatUserData);
-        console.log(chatSocket);
-        fetchChatData();
+    const appendNewMessage = (data: any) => {
+        const newData = {
+            MARK: '',
+            chatId: 0,
+            avatarUrl: '',
+            senderId: data.senderId,
+            username: '',
+            created: data.created,
+            text: data.text,
+        };
+        dispatch(setChatState([...chatState, newData]));
+    };
 
-        // socket.on('alarm', () => {
-        //     console.log('오옷 누군가 나의 게시글/댓글에 좋아요 또는 댓글을 남겼다!!');
-        //     setHasNewAlarmState(true);
-        // });
+    useEffect(() => {
+        fetchChatData();
     }, []);
+
+    useEffect(() => {
+        chatSocket.on('newChatMessage', (data: any) => {
+            appendNewMessage(data);
+        });
+    }, [chatState]);
 
     useEffect(() => {
         //채팅 시작 시 스크롤 맨 아래에서부터 시작
         if (scrollRef.current && scrollRef.current.clientHeight)
             scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }, [chatData]);
+    }, [chatState]);
 
     return (
         <Container>
             <MessageWrapper ref={scrollRef}>
-                {chatData.map((item, index) => (
+                {chatState.map((item, index) => (
                     <ChatMessageContainer key={index}>
                         <ChatMessageWrapper
                             className={otherChatUserData?.userId === item.senderId ? 'other' : 'my'}
