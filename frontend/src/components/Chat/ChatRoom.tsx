@@ -89,16 +89,6 @@ interface IPropData {
     otherChatUserData: IOtherUser | null;
 }
 
-interface IChatData {
-    MARK: string;
-    chatId: number;
-    avatarUrl: string;
-    senderId: number;
-    username: string;
-    created: Date;
-    text: string;
-}
-
 interface IChatSocketData {
     senderId: number;
     created: Date;
@@ -122,7 +112,7 @@ const ChatRoom = ({ otherChatUserData }: IPropData) => {
     const sendMessage = async () => {
         try {
             const data = {
-                fromRoomId: 24,
+                fromRoomId: otherChatUserData?.roomId,
                 text: text,
             };
             await API.post('/chat/message', data);
@@ -142,12 +132,17 @@ const ChatRoom = ({ otherChatUserData }: IPropData) => {
                 created: new Date(),
                 text,
             };
+
             chatSocket.emit('sendMessage', otherChatUserData?.roomId, socketData);
             dispatch(setChatState([...chatState, newData]));
         } catch (err) {
             console.log(err);
         }
         setText('');
+    };
+
+    const sendMessageWithEnter = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+        if (e.key === 'Enter') sendMessage();
     };
 
     const fetchChatData = async () => {
@@ -179,6 +174,7 @@ const ChatRoom = ({ otherChatUserData }: IPropData) => {
     const leaveChatRoom = async () => {
         try {
             await API.patch('/chat/room', '', otherChatUserData?.roomId);
+            resetChatState();
         } catch (err) {
             console.log(err);
         }
@@ -218,7 +214,7 @@ const ChatRoom = ({ otherChatUserData }: IPropData) => {
                 ))}
             </MessageWrapper>
             <FormWrapper>
-                <MessageInput value={text} onChange={onChange} />
+                <MessageInput value={text} onChange={onChange} onKeyDown={sendMessageWithEnter} />
                 <ButtonMessageSend onClick={sendMessage}>전송</ButtonMessageSend>
             </FormWrapper>
         </Container>

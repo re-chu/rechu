@@ -84,7 +84,7 @@ const ChatHeaderElem = styled.div`
 
 const ChatTitle = styled.h2`
     font-size: 2rem;
-    margin-left: 3rem;
+    margin-left: 1.4rem;
 `;
 
 const ChatBody = styled.div`
