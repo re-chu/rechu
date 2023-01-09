@@ -60,7 +60,7 @@ const WrapperOpened = styled.div`
         rgb(0 0 0 / 30%) 0px 12px 60px;
     @media screen and (max-width: 580px) {
         max-width: 90%;
-        max-height: 45vh;
+        max-height: 85vh;
         left: 0;
         bottom: 2rem;
         right: 0;
