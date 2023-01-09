@@ -7,6 +7,14 @@ export function formatPhoneNumber(phoneNumber: string) {
     return formattedPhoneNumber;
 }
 
+export function formatTimeToAMPM(date: Date) {
+    return new Date(date).toLocaleString('ko-KR', {
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: true,
+    });
+}
+
 // ~초 전, ~분 전, ~일 전 등 상황에 맞게 수정
 export function calcElapsed(date: Date | undefined) {
     const time = new Date(String(date)).getTime();
