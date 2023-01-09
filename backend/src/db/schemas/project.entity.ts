@@ -23,11 +23,8 @@ export class Project {
   @Column({ nullable: true })
   link2: string;
 
-  @Column({ nullable: true ,default:""})
-  skills: string;
-
-  // @OneToMany((type) => Stack, (stack) => stack.project)
-  // skills: Stack[];
+  @OneToMany((type) => Stack, (stack) => stack.project)
+  skills: Stack[];
 
   @ManyToOne((type) => Resume, (resume) => resume.projects)
   usedResume: Resume;

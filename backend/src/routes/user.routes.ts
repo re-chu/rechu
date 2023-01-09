@@ -52,6 +52,7 @@ userRoute.post("/match", tokenValidator, async (req, res, next) => {
 });
 userRoute.delete("/match", tokenValidator, async (req, res, next) => {
   const matchingId = req.body.matchingId;
+  console.log(req.body, "wegwgwegweg");
   try {
     const result = await userService.cancelMatch(matchingId);
     return res.status(200).json({
@@ -84,8 +85,9 @@ userRoute.post("/match/success", tokenValidator, async (req, res, next) => {
     next(new Error(`400, role 값을 잘 입력해주세요`));
     return;
   }
+  console.log(matchingId, "야 잘 들어오냐?", role);
   try {
-    const result = await userService.successMatch(matchingId, role);
+    const result = await userService.successMatch(matchingId, role, userId);
     return res.status(200).json({
       msg: "첨삭완료",
       data: result,
@@ -108,7 +110,6 @@ userRoute.get("/req", tokenValidator, async (req, res, next) => {
   }
 });
 
-//회원탈퇴
 userRoute.patch("/off", tokenValidator, async (req, res, next) => {
   const userId = Number(req.body.jwtDecoded.id);
   try {
@@ -191,6 +192,8 @@ userRoute.patch("/individuals", tokenValidator, async (req, res, next) => {
   const avatarUrl = req.body.avatarUrl;
   const working = req.body.working;
   const chance = req.body.chance;
+  const news = req.body.news;
+  console.log(req.body, "dd");
   // const avatarUrl = req.body.avatarUrl;
   const toUpdate = {
     ...(password && { password }),
@@ -199,10 +202,14 @@ userRoute.patch("/individuals", tokenValidator, async (req, res, next) => {
     ...(gitHubUrl && { gitHubUrl }),
     ...(working && { working }),
     ...(chance && { chance }),
+    ...(news && { news }),
   };
   // 0값으로 들어오면 위 코드로 잡히지 않음.
   if (req.body.working === false) {
     toUpdate.working = 0;
+  }
+  if (req.body.news === 0) {
+    toUpdate.news = 0;
   }
   console.log("업데이트 할 것들", toUpdate);
   try {
@@ -241,7 +248,7 @@ userRoute.post("/email", validateBody(CreateAuthDataDto), async (req, res, next)
     // 실제로 보내는 함수
     return res.status(200).json({
       msg: "전송완료 4분이내 인증을 완료해주세요.",
-      // data: number,
+      data: number,
     });
   } catch (err) {
     next(err);
@@ -266,7 +273,7 @@ userRoute.post("/eamil/password", validateBody(CreateAuthDataDto), async (req, r
     const newPassword = await userService.findPassword(email);
     return res.status(200).json({
       msg: `임시 비밀번호가 ${email}로 발송되었습니다.`,
-      // data: newPassword, // 배포시 수정 -삭제
+      data: newPassword, // 배포시 수정 -삭제
     });
   } catch (err) {
     next(err);

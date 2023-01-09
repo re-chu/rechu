@@ -7,6 +7,7 @@
 
 ### 1.0.0 : 최초 배포 22.12.30
 
+### 1.1.0 : 채팅 및 알람기능 + UI 개선 22.01.10 
 
 ## 1. 프로젝트 소개
 
@@ -46,6 +47,26 @@
 
 ## 2. 기술 스택
 
+### 2-1 Backend
+
+<img src="https://user-images.githubusercontent.com/102174146/210304653-97f6eaac-d017-4e13-ba2f-3b46632c134b.png" width="640" />
+
+### 2-2 Frontend
+
+<img src="https://user-images.githubusercontent.com/102174146/210304650-3c59236d-1d0e-4cd6-a66b-1bacdae01544.png" width="640" />
+
+### 2-3 Infra Structure
+
+<img src="https://user-images.githubusercontent.com/102174146/210772522-a4525b0e-751a-4935-8dfa-b7740f4ffd1a.png" width="640">
+<br>
+
+| 포지션   | 스택                             |
+| -------- | -------------------------------- |
+| language | TypeScript                       |
+| FE       | React, Redux                     |
+| BE       | Node, TypeScript, Express, mySQL |
+| Deploy   | PM2, NGINX                       |
+
 ### BE
 
 <img src="https://user-images.githubusercontent.com/102174146/210304653-97f6eaac-d017-4e13-ba2f-3b46632c134b.png" width="640" />
@@ -56,12 +77,12 @@
 
 <br>
 
-| 포지션   | 스택                            |
-| -------- | ------------------------------- |
-| language | TypeScript                      |
-| FE       | React, Redux                    |
+| 포지션   | 스택                             |
+| -------- | -------------------------------- |
+| language | TypeScript                       |
+| FE       | React, Redux                     |
 | BE       | Node, TypeScript, Express, mySQL |
-| Deploy   | PM2, NGINX                      |
+| Deploy   | PM2, NGINX                       |
 
 <br>
 
@@ -170,13 +191,11 @@
 
 | 이름         | 포지션 | 담당 업무                                                                                                                                |
 | ------------ | ------ | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| 이진희(팀장) | BE     | -API 제작 [게시물, 회원, 댓글] </br> - 배포                                                                                                           |
-| 김현아       | BE     | SQL 가이드, API 제작 [이력서, 프로젝트, 커리어, 관리자]                                                                                                              |
-| 이다노       | FE     | - 디자인 관련 전역 세팅 </br> - 이력서 생성 및 수정 페이지 구현                                                                          |
+| 이진희(팀장) | BE     | -API 제작 [게시물, 회원, 댓글] </br> - 배포                                                                                              |
+| 김현아       | BE     | SQL 가이드, API 제작 [이력서, 프로젝트, 커리어, 관리자]                                                                                  |
+| 이다노       | FE     | - 이력서 작성 및 수정 페이지 구현 </br> - 헤더 유저 role에 따른 업데이트 구현  </br> - 디자인 관련 전역 세팅                                                                            |
 | 양성수       | FE     | 마이페이지,이력서 작성 리스트 페이지 구현                                                                                                |
 | 허지윤       | FE     | - 로그인 , 회원가입 , 비밀번호찾기, 소셜 로그인 </br> - 이력서 상세페이지 </br> - 관리자 페이지 구현</br> - 이력서 첨삭 매칭 페이지 구현 |
 | 김진영       | FE     | 게시물 작성 및 상세 페이지, 게시물 리스트 페이지 구현                                                                                    |
 
 <br />
-
-

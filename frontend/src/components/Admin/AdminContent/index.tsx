@@ -78,6 +78,7 @@ interface userReportData {
     avatarUrl: number;
     reason: string;
     reporterUserId: number;
+    defendantUserId: number;
 }
 
 const AdminContent: React.FC = () => {
@@ -205,7 +206,7 @@ const AdminContent: React.FC = () => {
                                                     {userReportData.map((data: any) => (
                                                         <p>
                                                             신고유저Id :&nbsp;
-                                                            {data.defendantUserId}
+                                                            {data.reporterUserId}
                                                             &nbsp;&nbsp;&nbsp; 사유 :&nbsp;
                                                             {data.reason}
                                                         </p>

@@ -8,7 +8,7 @@ import Header from 'components/Header';
 import { Outlet } from 'react-router-dom';
 import { Link, useNavigate } from 'react-router-dom';
 import Layout from 'components/Layout';
-
+import socket from 'services/socket';
 interface myData {
     avatarUrl: string;
     chance: number;
@@ -47,6 +47,7 @@ const Match = () => {
     const [modalUserNameContent, setModalUserNameContent] = useState<number | string>('');
     const [modalPointContent, setModalPointContent] = useState<number | string>();
     const [modalEmail, setModalEmail] = useState<number | string>();
+    const [modalTier, setModalTier] = useState<number | string>();
     const [modalGitHubUrl, setModalGitHubUrl] = useState<number | string | undefined>();
     const [data, setData] = useState<myData[]>([]);
     const [myData, setMyData] = useState<myData>();
@@ -73,7 +74,11 @@ const Match = () => {
             console.log(rotId);
             const res = await API.post(`/users/match`, { rotId });
             console.log(res);
-            getMatching();
+            console.log('되냐');
+            console.log(res);
+            socket.emit('matchRequestToMento', rotId);
+            window.location.href = 'matched';
+            // getMatching();
             setModalOpen(false);
         } catch (e) {
             console.log(e);
@@ -114,6 +119,7 @@ const Match = () => {
         const email = data.email;
         const gitHubUrl = data.gitHubUrl;
         const avatarUrl = data.avatarUrl;
+        const tier = data.tier;
 
         setModalGitHubUrl(gitHubUrl);
         setModalEmail(email);
@@ -121,6 +127,7 @@ const Match = () => {
         setModalUserNameContent(userName);
         setModalPointContent(point);
         setModalAvatarUrl(avatarUrl);
+        setModalAvatarUrl(tier);
         setModalOpen(true);
     };
 
@@ -168,6 +175,7 @@ const Match = () => {
         <Layout>
             <Title className="title">
                 <h1>이력서 첨삭 매칭</h1>
+                <button onClick={getMyData}>🔄refresh</button>
             </Title>
             <MobileDiv>
                 <Row gutter={[0, 0]}>
@@ -210,7 +218,7 @@ const Match = () => {
                             <strong>{modalUserNameContent}</strong>님께 이력서 첨삭 부탁하기
                         </p>
                         <p>
-                            <strong>등급 :</strong> {modalPointContent}
+                            <strong>등급 :</strong> {tier}
                         </p>
                         <p>
                             <strong>이메일 :</strong> {modalEmail}

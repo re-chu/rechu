@@ -6,6 +6,12 @@ export class CommentLikeMaping {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column({ default: false })
+  checkout: boolean;
+
+  @Column({ type: "datetime", default: () => "CURRENT_TIMESTAMP" })
+  created: Date;
+
   @ManyToOne((type) => User, (user) => user.likesResume)
   user: User;
 

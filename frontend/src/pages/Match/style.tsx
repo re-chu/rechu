@@ -25,8 +25,23 @@ export const MobileDiv = styled.div`
 
 export const Title = styled.div`
     text-align: left;
-
+    display: flex;
+    justify-content: space-between;
     & h1 {
         font-size: 2.4rem;
+    }
+    & div {
+        font-size: 2.4rem;
+    }
+    & button {
+        color: blue;
+        background-color: white;
+        border: 1px solid black;
+        border-radius: 5px;
+        width: 10rem;
+        height: 3rem;
+        :hover {
+            background-color: #0088ff98;
+        }
     }
 `;

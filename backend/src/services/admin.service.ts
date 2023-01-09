@@ -6,7 +6,7 @@ import * as adminRepo from "../db/admin.repo";
 //import jwt from "jsonwebtoken";
 //import { send } from "../config/sendMail";
 import { EmailAuth, UserProfile } from "../db/schemas";
-import { findUsersQ, updateUserQ } from "../db/admin.repo";
+import {findUsersQ, updateUserQ} from "../db/admin.repo";
 
 // 2-0. 페이지네이션
 export const findPages = async (count: number) => {
@@ -53,17 +53,12 @@ export const findUser = async (keyword: string) => {
 };
 
 // 3-1. 포인트 / 비활성화
-export const updateUser = async (
-  userId: number,
-  updateInfo: Record<string, string | number>,
-  count: number,
-  offset: number
-) => {
+export const updateUser = async (userId: number, updateInfo: Record<string, string | number>, count: number, offset: number) => {
   const updatedUser = await adminRepo.updateUserQ(userId, updateInfo);
   const updatedUsers = await adminRepo.findUsersQ(count, offset);
 
   return updatedUsers;
-};
+}
 
 // 3-2. 2주 밴
 export const banUser = async (userId: number, type: string): Promise<Date> => {

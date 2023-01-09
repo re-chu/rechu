@@ -13,10 +13,9 @@ export const tokenValidator: RequestHandler = (req, res, next) => {
   try {
     const secretKey = process.env.JWT_SECRET_KEY || "secret";
     const jwtDecoded = jwt.verify(userToken, secretKey);
-
     req.body = { ...req.body, jwtDecoded };
     if (req.body.jwtDecoded.type === "RT") throw new Error("is not access token");
-    console.log(req.body);
+    // console.log(req.body);
     next();
   } catch (error) {
     // jwt.verify 함수가 에러를 발생시키는 경우는 토큰이 정상적으로 decode 안되었을 경우임.
@@ -36,7 +35,7 @@ export const tokenValidator: RequestHandler = (req, res, next) => {
         next(notAT);
         break;
       default:
-        next(new Error("400, 토큰 검증 도중 오류가 발생했습니다."));
+        next(new Error("500, 토큰 검증 도중 오류가 발생했습니다."));
     }
   }
 };

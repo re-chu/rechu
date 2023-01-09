@@ -3,6 +3,7 @@ import { CreateUserDto } from "src/routes/dto/create-individual.dto";
 import { db } from ".";
 import { UserProfile } from "./schemas";
 import { updateData } from "./utils/transData";
+import * as chatRepo from "./chat.repo";
 
 export const getUsersWhereRot = async () => {
   const getColumns = "id,username,point,avatarUrl,working";
@@ -30,7 +31,7 @@ export const getUsersByAdmin = async () => {
 /** 인자로 userId 또는 email을 넣어주시면, 비밀번호를 제외한 사용자 정보를 드립니다. */
 export const unIncludePasswordUserInfoQ = async (userIdOrEmail: number | string): Promise<UserProfile> => {
   const queryResultCoulmns =
-    "id,username,point,email,phoneNumber,created,avatarUrl,clickedLikes,gitHubUrl,howToLogin,role,working,chance";
+    "id,news,username,point,email,phoneNumber,created,avatarUrl,clickedLikes,gitHubUrl,howToLogin,role,working,chance";
   let [userInfoRows, fields] = [[], []];
 
   // 파라미터로 들어온 data 값이 num이면 id로 찾고, 아니면 email로 찾음
@@ -209,10 +210,7 @@ export const getRotListQ = async (userId: number): Promise<RotList> => {
       username,
       id,
       point,
-      corrections,
-      email,
-      gitHubUrl,
-      avatarUrl
+      corrections
     FROM user
     WHERE 
       id != ? AND
@@ -284,17 +282,6 @@ export const findMatchQ = async (userId: number): Promise<MatchInfo> => {
     },
     cancelAble: false,
   };
-  const [matchingId] = await db.query(
-    `
-    SELECT
-      matching
-    FROM user
-    WHERE
-      id = ?
-  `,
-    [userId]
-  );
-  const parseMatching = utils.jsonParse(matchingId)[0];
   const [connect] = await db.query(
     `
       SELECT 
@@ -311,9 +298,9 @@ export const findMatchQ = async (userId: number): Promise<MatchInfo> => {
       JOIN user u
       on mentoId = u.id
       WHERE 
-        c.id = ?
+        menteeId = ? AND menteeComplate = 0
     `,
-    [parseMatching.matching]
+    [userId]
   );
   const parseConnect = utils.jsonParse(connect)[0];
   console.log("현재 진행중인 매칭", parseConnect);
@@ -353,6 +340,14 @@ export const createMatchQ = async (data: { step: string; menteeId: number; mento
         id = ?
     `,
       [matchingId, data.menteeId]
+    );
+    await conn.query(
+      `
+      UPDATE user
+      SET news = 1
+      WHERE id = ?
+    `,
+      [data.mentoId]
     );
     conn.commit();
     return matchingId;
@@ -400,42 +395,115 @@ export const cancelMatchQ = async (matchingId: number): Promise<boolean> => {
 };
 
 // 매칭 수락 ( 고인물 )
-export const acceptMatchQ = async (matchingId: number, menteeId: number): Promise<boolean> => {
-  const [updateMatch] = await db.query(
-    `
-    UPDATE connect
-    SET
-      step = "진행중"
-    WHERE 
-      id= ? AND
-      menteeId = ?
-  `,
-    [matchingId, menteeId]
-  );
-  return true;
-};
-
-// 매칭 끝내기버튼
-export const successMatchQ = async (matchingId: number, data: { role: string; deleteMenteeIdQuery?: string }) => {
+export const acceptMatchQ = async (matchingId: number, menteeId: number, mentoId: number): Promise<boolean> => {
+  const data = {
+    fromConnectId: matchingId,
+    menteeId,
+    mentoId,
+  };
+  const [keys, values, valval] = utils.insertData(data);
   const conn = await db.getConnection();
   conn.beginTransaction();
   try {
-    if (data.role === "menteeComplate") {
-      console.log("멘티제거");
-      // 멘티의 matching을 0으로 만들어서 추후 고인물조회가 가능하도록 함.
+    await Promise.all([
+      conn.query(
+        `
+          UPDATE user
+          SET news = 1 
+          WHERE id = ?
+        `,
+        [menteeId]
+      ),
+      conn.query(
+        `
+        UPDATE connect
+        SET
+          step = "진행중"
+        WHERE 
+          id= ? AND
+          menteeId = ?
+      `,
+        [matchingId, menteeId]
+      ),
+    ]);
+    const [checkMatchStatus, alreadyCreatedRoom] = await Promise.all([
+      utils.jsonParse(
+        await conn.query(
+          `
+            SELECT step
+            FROM connect
+            WHERE id=?
+        `,
+          [matchingId]
+        )
+      )[0][0],
+      utils.jsonParse(
+        await conn.query(
+          `
+            SELECT id FROM chat_room_table WHERE fromConnectId = ?
+    `,
+          [matchingId]
+        )
+      )[0][0],
+    ]);
+    // 채팅방 중복생성 불가하게 함
+    console.log("아마 이게 안되는듯");
+    if (checkMatchStatus || !alreadyCreatedRoom) {
+      await conn.query(
+        `
+        INSERT INTO chat_room_table
+        (${keys.join(",")})
+        VALUES (${values.join(", ")})
+      `,
+        [...valval]
+      );
+    }
 
+    conn.commit();
+    return true;
+  } catch (err) {
+    conn.rollback();
+    throw new Error(err);
+  } finally {
+    conn.release();
+  }
+};
+
+// 매칭 끝내기버튼
+export const successMatchQ = async (
+  matchingId: number,
+  data: { role: string; deleteMenteeIdQuery?: string },
+  userId: number
+): Promise<string> => {
+  const conn = await db.getConnection();
+  conn.beginTransaction();
+  try {
+    if (data.deleteMenteeIdQuery) {
+      console.log("멘티제거");
       await conn.query(
         `
       UPDATE user 
       SET 
-        point = point -50,
-        matching = 0 
+        matching = 0 ,
+        point = point -50
       WHERE 
         id IN (
             SELECT menteeId FROM connect WHERE id = ?
           );
     `,
         [matchingId]
+      );
+    } else {
+      conn.query(
+        `
+      UPDATE user
+      SET
+        corrections=corrections+1 ,
+        point = point +50
+      WHERE
+        id = ?
+    `,
+        [userId]
       );
     }
     const [updated] = await conn.query(
@@ -448,21 +516,56 @@ export const successMatchQ = async (matchingId: number, data: { role: string; de
   `,
       [matchingId]
     );
-    const [select] = await conn.query(
+    const [matchInfoRow] = await conn.query(
       `
-      SELECT 
-      menteeComplate,
-      mentoComplate
-      FROM connect
-      WHERE
-       id = ?
+      SELECT mentoComplate , menteeComplate From connect Where id = ?
     `,
       [matchingId]
     );
-    const resultValue = utils.jsonParse(select)[0];
-    // const result = data.role === "menteeComplate" ? "멘티가 종료누름" : "멘토가 종료누름";
+    const matchInfo = utils.jsonParse(matchInfoRow)[0];
+    if (matchInfo.menteeComplate + matchInfo.mentoComplate === 2) {
+      await conn.query(
+        `
+      UPDATE connect
+      SET
+        step = "완료"
+      WHERE 
+        id = ?
+    `,
+        [matchingId]
+      );
+      const [match] = await conn.query(
+        `
+      SELECT 
+        mentoId,
+        menteeId
+      FROM connect
+      WHERE
+        id = ?
+    `,
+        [matchingId]
+      );
+      // 매칭아이디로 룸 찾기
+      const [roomDataRow] = await conn.query(
+        `
+      SELECT id FROM chat_room_table WHERE fromConnectId = ?
+    `,
+        [matchingId]
+      );
+      const roomData = utils.jsonParse(roomDataRow)[0];
+      // 채팅 내역, 룸 삭제
+      await chatRepo.destructionRoom(roomData.id);
+      console.log(roomData.id, "룸아이디 ");
+      await conn.query(
+        `
+        DELETE FROM connect WHERE id = ?
+      `,
+        [matchingId]
+      );
+    }
+    const result = data.role === "menteeComplate" ? "멘티가 종료누름" : "멘토가 종료누름";
     conn.commit();
-    return resultValue;
+    return result;
   } catch (err) {
     console.log(err.message);
     conn.rollback();
@@ -490,34 +593,32 @@ export const complateMatch = async (matchingId: number) => {
     `,
       [matchingId]
     );
-    const parseMatch = utils.jsonParse(match)[0];
-    const mentoId = parseMatch.mentoId;
-    const menteeId = parseMatch.menteeId;
-    console.log(parseMatch);
+    // 매칭아이디로 룸 찾기
+    const [roomDataRow] = await conn.query(
+      `
+      SELECT id FROM chat_room_table WHERE fromConnectId = ?
+    `,
+      [matchingId]
+    );
+    const roomData = utils.jsonParse(roomDataRow)[0];
+    // 채팅 내역, 룸 삭제
+    await chatRepo.destructionRoom(roomData.id);
+    console.log(roomData.id, "룸아이디 ");
     await Promise.all([
       conn.query(
         `
-      UPDATE connect
-      SET
-        menteeId = 0 ,
-        step = "완료"
-      WHERE 
-        id = ?
-    `,
-        [matchingId]
+       DELETE FROM chat_data_table WHERE fromRoomId = ?
+     `,
+        [roomData.id]
       ),
       conn.query(
         `
-      UPDATE user
-      SET
-        corrections=corrections+1 ,
-        point = point +50
-      WHERE
-        id = ?
-    `,
-        [mentoId]
+       DELETE FROM chat_room_table WHERE id = ?
+     `,
+        [roomData.id]
       ),
     ]);
+
     conn.commit();
     return "매칭 종료";
   } catch (err) {
@@ -538,6 +639,11 @@ type 임시 = {
   created: string;
 };
 // 고인물에게 들어온 요청  트렌젝션 O
+export type GetMatchRequest = {
+  matchingId: number;
+  step: string;
+  menteeId: number;
+};
 export const getRequestCorrectionQ = async (userId: number) => {
   // step = 요청중, mentoId =userId , complate = 0인것들을 created DESC 로 뱉기
   console.log("이까진 오나?", userId);
@@ -574,13 +680,12 @@ export const getRequestCorrectionQ = async (userId: number) => {
       req.cancelAble = req.step !== "요청중" ? false : true;
       return { ...req };
     });
-    console.log("그지꺵꺵이", addCancelAble);
     conn.commit();
     // if (result.step !== "요청중") {
     //   result.cancelAble = false;
     // }
     // result.cancelAble = true;
-    return addCancelAble;
+    return result;
   } catch (err) {
     conn.rollback();
     console.log(err.message);
@@ -653,11 +758,12 @@ export const offUserQ = async (userId: number) => {
         `
         UPDATE user
         SET
-          email = NULL,
+          email = '${text}',
           username = '${text}',
           avatarUrl = '${"https://url.kr/7h42va"}',
-          phoneNumber = NULL,
-          gitHubUrl = ""
+          phoneNumber = "",
+          gitHubUrl = "",
+          point = 0
         WHERE 
           id = ?
       `,

@@ -7,9 +7,8 @@ import axios from 'axios';
 import Layout from 'components/Layout';
 import { useNavigate } from 'react-router-dom';
 import API from 'utils/api';
-
+import { io } from 'socket.io-client';
 const token = localStorage.getItem('accessToken');
-
 const tierColors = {
     bronze: '#964b00',
     silver: '#c0c0c0',
@@ -257,7 +256,7 @@ const Profile: React.FC = () => {
                             {
                                 label: `첨삭(플레티넘 이상)`,
                                 key: '2',
-                                children: <Proofread></Proofread>,
+                                children: <Proofread id={res.id}></Proofread>,
                                 disabled: true,
                             },
                         ]}

@@ -59,10 +59,10 @@ const Loading = () => {
         try {
             const res = await axios.get(`${API.BASE_URL}/sosial/kakao/auth?code=${getCode}`);
             console.log(res);
-            const accessToken = res.data.result.accessToken;
-            const refreshToken = res.data.result.refreshToken;
-            const userId = res.data.result.userId;
-            const isAdmin = res.data.result.isAdmin;
+            const accessToken = res.data.accessToken;
+            const refreshToken = res.data.refreshToken;
+            const userId = res.data.userId;
+            const isAdmin = res.data.isAdmin;
             localStorage.setItem('isAdmin', isAdmin);
             localStorage.setItem('accessToken', accessToken);
             localStorage.setItem('refreshToken', refreshToken);

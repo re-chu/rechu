@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { UserOutlined, BookOutlined } from '@ant-design/icons';
+import { UserOutlined, BookOutlined, HomeOutlined } from '@ant-design/icons';
 import { Layout, Menu, theme } from 'antd';
 import { Link, Outlet } from 'react-router-dom';
 
@@ -42,6 +42,11 @@ const Admin: React.FC = () => {
                             key: '2',
                             icon: <BookOutlined />,
                             label: <Link to="/admin/content">회원신고관리</Link>,
+                        },
+                        {
+                            key: '3',
+                            icon: <HomeOutlined />,
+                            label: <Link to="/">Main </Link>,
                         },
                     ]}
                 />

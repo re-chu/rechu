@@ -3,6 +3,7 @@ import axios from 'axios';
 class axiosAPI {
     instance;
     BASE_URL = 'https://rechu.jinytree.shop/api';
+    // BASE_URL = 'http://localhost:8080';
 
     constructor() {
         this.instance = axios.create();
@@ -15,9 +16,10 @@ class axiosAPI {
                         headers.Authorization = token ? `Bearer ${token}` : '';
                     return config;
                 } catch (err) {
-                    console.error('[_axios.interceptors.request] config : ' + err);
+                    // console.error('[_axios.interceptors.request] config : ' + err);
+                    console.log('Without Token', err);
+                    return config;
                 }
-                return config;
             },
             error => {
                 return Promise.reject(error);
@@ -28,7 +30,6 @@ class axiosAPI {
     async get(endpoint: string, params = '') {
         try {
             const apiUrl = `${endpoint}/${params}`;
-            console.log(`%cGET 요청: ${apiUrl} `, 'color: #a25cd1;');
             const res = await this.instance.get(this.BASE_URL + apiUrl);
             const data = res.data.data;
             return data;
@@ -57,10 +58,10 @@ class axiosAPI {
         }
     }
 
-    async delete(endpoint: any, params = '', data = {}) {
+    async delete(endpoint: any, params = '', data?: any) {
         try {
             const apiUrl = `${endpoint}/${params}`;
-            const res = await this.instance.delete(this.BASE_URL + apiUrl, data);
+            const res = await this.instance.delete(this.BASE_URL + apiUrl, { data });
             return res;
         } catch (err) {
             console.log(err);

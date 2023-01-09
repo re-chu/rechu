@@ -20,6 +20,7 @@ boardRoute.get("/random", tokenValidator, async (req, res, next) => {
     next(err);
   }
 });
+
 /**type으로 최신,좋아요,댓글 순으로 리스트 반환 */
 boardRoute.get("/", async (req, res, next) => {
   const filter = String(req.query.filter);
@@ -105,14 +106,13 @@ boardRoute.get("/:id/", async (req, res, next) => {
 boardRoute.post("/", validateBody(CreateBoardDto), tokenValidator, async (req, res, next) => {
   // console.log(req.file);
   const { id } = req.body.jwtDecoded;
-  const { title, content, hashTags } = req.body;
+  const { title, content } = req.body;
   let { resumeId } = req.body;
   if (resumeId === 0) resumeId = null;
   const data: Record<string, string | boolean | number> = {
     fromUserId: id,
     content,
     title,
-    hashTags,
     hasResumeId: resumeId,
   };
   console.log("바디의 데이터 : ", data);
@@ -161,11 +161,13 @@ boardRoute.patch("/:boardId", tokenValidator, async (req, res, next) => {
 });
 
 // 게시글 좋아요 API
+// import { wsServer } from "../server";
 boardRoute.patch("/:boardId/like", tokenValidator, async (req, res, next) => {
   const id = Number(req.body.jwtDecoded.id);
   const boardId = Number(req.params.boardId);
   const { likesStatus } = req.body;
   console.log("userID ", id, "boardId", boardId, likesStatus);
+  // })
   try {
     const likes = await boardService.addLikes(id, boardId, likesStatus);
     return res.status(200).json({

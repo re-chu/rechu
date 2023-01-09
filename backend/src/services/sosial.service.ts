@@ -29,7 +29,6 @@ export const kakaoAuth = async (code: string) => {
     redirect_uri: process.env.KAKAO_REDIRECT,
     code,
   };
-  console.log(config, "zzz");
   const params = new URLSearchParams(config).toString();
   try {
     const accessToken = await axios
@@ -64,17 +63,19 @@ export const kakaoAuth = async (code: string) => {
           avatarUrl,
           email,
           howToLogin: "sosial",
-          phoneNumber: "010-0000-0000",
         };
         await userRepo.createIndiUser(joinData);
         // 로그인 진행 후 리턴
       }
-      const result = await userService.login(email);
-      console.log(result, "카카오 리져트");
-      return result;
+      try {
+        const result = await userService.login(email);
+        return result;
+      } catch (err) {
+        throw new Error(err);
+      }
     }
   } catch (err) {
-    console.log(err.message);
+    console.log(err);
     throw new Error(`500, `);
   }
 };

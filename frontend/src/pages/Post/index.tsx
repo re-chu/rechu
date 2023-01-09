@@ -10,6 +10,7 @@ import { Button, Typography, Input, Card, Modal, notification } from 'antd';
 import type { NotificationPlacement } from 'antd/es/notification/interface';
 import { calcElapsed } from 'utils/format';
 import ResumeComponent from 'components/Resume';
+import socket from 'services/socket';
 
 const { confirm } = Modal;
 const { Title, Text } = Typography;
@@ -96,6 +97,7 @@ interface IBoardInfo {
     likeCnt: number;
     ownUserId: number;
     title: string;
+    username: string;
 }
 
 interface IResumeInfo {
@@ -151,7 +153,6 @@ interface ICommentData {
     text: string;
     username: string;
 }
-
 const Post = () => {
     const [boardData, setBoardData] = useState<IBoardInfo | null>(null);
     const [resumeData, setResumeData] = useState<IResumeInfo | null>(null);
@@ -219,6 +220,18 @@ const Post = () => {
             };
             await API.patch(`/board/${postId}/like`, '', data);
             // Refresh
+
+            // 좋아요를누를경우 AND 내 게시글이 아닐경우에만 알림 보내기
+            if (
+                data.likesStatus === false &&
+                Number(localStorage.getItem('userID')) !== boardData?.ownUserId
+            ) {
+                // boardData 에서 해당 게시물의 소유자Id 가져옴
+                const boardOwnerId = boardData?.ownUserId;
+                // likesBoard 라는 이벤트로 소유자 ID 를 같이보냄
+                // 추후 소유자는 App.tsx에서 alaram 으로 수신할 수 있음
+                socket.emit('likesBoard', boardOwnerId);
+            }
             fetchBoardData();
         } catch (err) {
             openNotification('bottomRight', `문제가 발생했습니다 : ${err}`);
@@ -235,13 +248,21 @@ const Post = () => {
             setComment('');
             fetchBoardData();
             fetchCommentData();
+
+            // 해당 게시물의 소유자 Id 추출
+            const boardOwnerId = boardData?.ownUserId;
+            // 게시글 owner와 로그인한 userID 가 같지않을때 알람
+            if (boardOwnerId !== Number(localStorage.getItem('userId')))
+                // addComment 라는 이벤트로 소유자 ID 를 같이보냄
+                // 추후 소유자는 App.tsx에서 alaram 으로 수신할 수 있음
+                socket.emit('addComment', boardOwnerId);
         } catch (err) {
             console.log(err);
         }
     };
 
     // 댓글 좋아요
-    const handleCommentLike = async (id: number, likesStatus: boolean) => {
+    const handleCommentLike = async (id: number, likesStatus: boolean, commentOwnerId: number) => {
         try {
             const data = {
                 likesStatus,
@@ -261,6 +282,13 @@ const Post = () => {
                 }
                 return item;
             });
+            // 추가된 commentOwnerId 로 내 것인지 구분 후 알림
+            if (
+                commentOwnerId !== Number(localStorage.getItem('userId')) &&
+                data.likesStatus === false
+            ) {
+                socket.emit('likesComment', commentOwnerId);
+            }
             setCommentData(newCommentData);
         } catch (err) {
             openNotification('bottomRight', `문제가 발생했습니다 : ${err}`);
@@ -470,7 +498,7 @@ const Post = () => {
                             onClick={() => checkReportBoardUser(boardData?.ownUserId)}
                         ></ProfileImg>
                         <ProfileInfo>
-                            <ProfileInfoName>{boardData?.email}</ProfileInfoName>
+                            <ProfileInfoName>{boardData?.username}</ProfileInfoName>
                             <Text>{calcElapsed(boardData?.boardCreated)} 전</Text>
                         </ProfileInfo>
                         {ownBoard ? (
@@ -568,7 +596,12 @@ const Post = () => {
                                             }
                                             size="large"
                                             onClick={() =>
-                                                handleCommentLike(item.commentId, item.alreadyLikes)
+                                                // 댓글 소유자 추가했습니다!!
+                                                handleCommentLike(
+                                                    item.commentId,
+                                                    item.alreadyLikes,
+                                                    item.fromUserId,
+                                                )
                                             }
                                         >
                                             {String(item.likes)}

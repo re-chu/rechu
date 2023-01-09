@@ -91,7 +91,6 @@ const ResumeMain = () => {
 
     return (
         <>
-            {' '}
             <Layout>
                 <ContentElement>
                     <div onClick={postPortfolio}>

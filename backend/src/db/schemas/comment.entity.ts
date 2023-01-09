@@ -17,8 +17,10 @@ export class Comment {
 
   @Column({ type: "datetime", default: () => "CURRENT_TIMESTAMP" })
   created: Date;
+
   @Column({ type: "datetime", default: null, nullable: true })
   updated: Date;
+
   @Column({ default: 0 })
   likes: number;
 
@@ -27,6 +29,9 @@ export class Comment {
 
   @Column({ default: 1 })
   active: number;
+
+  @Column({ default: false })
+  checkout: boolean;
 
   @OneToMany((type) => CommentLikeMaping, (table) => table.comment)
   ownLikes: CommentLikeMaping;

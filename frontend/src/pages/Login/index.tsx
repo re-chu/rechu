@@ -1,22 +1,31 @@
+import { useCallback } from 'react';
 import { LoginSection, Container, ImgSection } from './style';
 import Logo from 'assets/images/logo.png';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
 import { useForm } from 'react-hook-form';
 import Kakao from 'assets/images/kakao.png';
 import API from 'utils/api';
+import { setAdmin } from 'store/slices/userSlice';
+import { useAppDispatch } from 'store/config';
+
+interface FormData {
+    password: string;
+    email: string;
+}
 
 const Login = () => {
+    const dispatch = useAppDispatch();
+
     const {
         register,
         handleSubmit,
         formState: { errors },
     } = useForm<FormData>();
 
-    interface FormData {
-        password: string;
-        email: string;
-    }
+    // 관리자 계정일 경우 유저 전역 상태에 관리자 여부 저장
+    const setIsAdmin = useCallback(() => {
+        dispatch(setAdmin(true));
+    }, [dispatch]);
 
     const onSubmitHandler = async (data: FormData) => {
         const jsondata = {
@@ -24,19 +33,22 @@ const Login = () => {
             password: data.password,
         };
         try {
-            const res = await axios.post(`${API.BASE_URL}/users`, jsondata);
-            const accessToken = res.data.accessToken;
-            const refreshToken = res.data.refreshToken;
-            const userId = res.data.userId;
-            const isAdmin = res.data.isAdmin;
+            const res = await API.post('/users', jsondata);
+            const accessToken = res.accessToken;
+            const refreshToken = res.refreshToken;
+            const userId = res.userId;
+            const isAdmin = res.isAdmin;
             localStorage.setItem('accessToken', accessToken);
             localStorage.setItem('refreshToken', refreshToken);
             localStorage.setItem('userId', userId);
             localStorage.setItem('isAdmin', isAdmin);
+            // 관리자 계정일 경우
+            if (isAdmin) setIsAdmin();
             window.location.replace('/');
         } catch (err: any) {
-            console.error(err.stack);
-            alert('아이디 혹은 비밀번호가 틀렸습니다');
+            const res = err.response.data;
+            console.error(res);
+            alert(res.msg);
         }
     };
 
@@ -88,6 +100,10 @@ const Login = () => {
                             placeholder="비밀번호 입력"
                             autoComplete="new-password"
                         />
+                        <label className={`${errors.password ? 'block' : 'none'}`}>
+                            {errors?.password?.message}
+                        </label>
+
                         <div className="util">
                             <Link to="/join">회원가입 </Link>
                             <Link to="/find-pw">비밀번호 찾기</Link>
