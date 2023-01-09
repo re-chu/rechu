@@ -212,6 +212,15 @@ export const sendChatQ = async (data: { sendFrom: number; fromRoomId: number; te
     `,
       [...valval]
     );
+    await conn.query(
+      `
+      UPDATE chat_room_table
+      SET
+        lastText = ${data.text}
+      WHERE id = ?
+    `,
+      [data.fromRoomId]
+    );
     conn.commit();
     return true;
   } catch (err) {
