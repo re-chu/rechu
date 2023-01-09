@@ -265,7 +265,7 @@ const ChatRoom = ({ otherChatUserData }: IPropData) => {
 
     const moveScrollToBottom = () => {
         if (scrollRef.current && scrollRef.current.clientHeight)
-            scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+            scrollRef.current.scrollTop = scrollRef.current.scrollHeight * 9999;
     };
 
     // const moveScrollToBottomFromNewChat = () => {
@@ -331,7 +331,7 @@ const ChatRoom = ({ otherChatUserData }: IPropData) => {
                 ))}
             </MessageWrapper>
             <FormWrapper>
-                <MessageInput value={text} onChange={onChange} onKeyDown={sendMessageWithEnter} />
+                <MessageInput value={text} onChange={onChange} onKeyUp={sendMessageWithEnter} />
                 <ButtonMessageSend onClick={sendMessage}>전송</ButtonMessageSend>
             </FormWrapper>
         </Container>
