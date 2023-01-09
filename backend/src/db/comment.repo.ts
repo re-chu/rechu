@@ -259,15 +259,23 @@ export const deleteCommentQ = async (userId: number, boardId: number, commentId:
       [commentId]
     );
     console.log("매핑테이블에서 삭제");
-    await conn.query(
-      `
-        DELETE 
-        FROM point_from_comment 
-        WHERE commentId = ? AND userId = ?
-        `,
-      [commentId, userId]
-    );
+    // await conn.query(
+    //   `
+    //     DELETE
+    //     FROM point_from_comment
+    //     WHERE commentId = ? AND userId = ?
+    //     `,
+    //   [commentId, userId]
+    // );
     console.log("포인트테이블에서 삭제");
+    conn.query(
+      `
+      DELETE 
+      FROM point_from_comment
+      WHERE commentId = 
+    `,
+      [commentId]
+    );
     const [rows] = await conn.query(
       `
       DELETE
