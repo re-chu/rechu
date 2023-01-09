@@ -160,7 +160,8 @@ const ChatRoomList = ({
     }, [otherChatUserData]);
 
     useEffect(() => {
-        chatSocket.on('newChatMessage', (roomId: number, data: IChatSocketData) => {
+        chatSocket.on('newChatAlarm', (roomId: number, data: IChatSocketData) => {
+            // console.log('dsfhlsdkhfklsdhfkldshfklsdhkldfhsklfhsdklfhklsdhfklsdhfkl');
             const state = chatRoomState;
 
             const newChatRoomList = state?.map(item => {

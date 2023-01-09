@@ -9,9 +9,8 @@ chatSocket.on('connection', (socket: Socket) => {
    });
 
    socket.on('sendMessage', (roomId: number, data: { text: string; created: Date; senderId: number }) => {
-      console.log(data, 'hhhhhhhhhh');
-      socket.to(String(roomId)).emit('newChatMessage', roomId, data);
-      // socket.to(String(roomId)).emit('newMessageAlarm', roomId, data);
+      socket.to(String(roomId)).emit('newChatMessage', data);
+      socket.to(String(roomId)).emit('newChatAlarm', roomId, data);
    });
    socket.on('leaveChatRoom', roomId => {
       socket.leave(String(roomId));
