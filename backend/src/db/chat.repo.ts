@@ -104,7 +104,6 @@ export type ChatData = {
   chatId: number;
   senderId: number;
   username: string;
-  avatarUrl: string;
   text: string;
   MARK: string;
 };
@@ -126,8 +125,7 @@ export const firstGetChatDataQ = async (userId: number, roomId: number): Promise
                 LPAD (chat.id,8,0)
             ) as MARK,
             chat.created,
-            user.username,
-            user.avatarUrl	
+            user.username
         FROM chat_data_table chat
         JOIN user user
         ON user.id = chat.sendFrom
@@ -166,21 +164,25 @@ export const moreGetChatDataQ = async (userId: number, roomId: number, mark: str
     const [chatDataRows] = await conn.query(
       `
         SELECT
-            id as chatId,
-            sendFrom as senderId,
-            text,
+            chat.id as chatId,
+            chat.sendFrom as senderId,
+            chat.text,
             CONCAT (
-                LPAD (unix_timestamp(created),12,0)
+                LPAD (unix_timestamp(chat.created),12,0)
                 ,
-                LPAD (id,8,0)
+                LPAD (chat.id,8,0)
             ) as MARK,
-            created		
-        WHERE fromRoomId = ? AND
+            chat.created,
+            user.username
+        FROM chat_data_table chat
+        JOIN user user
+        ON user.id = chat.sendFrom
+        WHERE chat.fromRoomId = ? AND
             ${mark} >  CONCAT (
-            LPAD (unix_timestamp(created),12,0),
-            LPAD (b.id,8,0)
+            LPAD (unix_timestamp(chat.created),12,0),
+            LPAD (chat.id,8,0)
           )
-        ORDER BY created DESC 
+        ORDER BY chat.created DESC 
         LIMIT 20
     `,
       [roomId]

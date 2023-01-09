@@ -5,6 +5,7 @@ import API from 'utils/api';
 import { calcElapsed } from 'utils/format';
 import { useNavigate } from 'react-router-dom';
 import { Button } from 'antd';
+import socket from 'services/socket';
 
 const Wrapper = styled.div`
     display: flex;
@@ -148,6 +149,7 @@ const Alaram = () => {
                 menteeId: item.menteeId,
             };
             await API.patch('/users/match', '', data);
+            socket.emit('matchRequestToMentee', item.menteeId);
             fetchAlarmData();
         } catch (err) {
             console.log(err);
@@ -159,8 +161,8 @@ const Alaram = () => {
             const data = {
                 matchingId: item.matchingId,
             };
-            await API.delete('/users/match', '', data);
-            // fetchAlarmData();
+            await API.delete('/users/match', '', { matchingId: item.matchingId });
+            fetchAlarmData();
         } catch (err) {
             console.log(err);
         }
@@ -251,7 +253,25 @@ const Alaram = () => {
                                       </AlarmWrapper>
                                   </AlarmContainer>
                               );
+                          } else if (item.type === 'acceptMatch') {
+                              return (
+                                  <AlarmContainer key={index}>
+                                      <AlarmWrapper
+                                          isChecked={item.checkout}
+                                          onClick={() => handleAlarmCheck(item)}
+                                      >
+                                          <Profile src={item.whoIsUserAvatarUrl} />
+                                          <AlarmText>
+                                              {item.whoIsUsername}님이 매칭을 수락했습니다.
+                                          </AlarmText>
+                                          <AlarmDate>
+                                              {calcElapsed(new Date(item.created))} 전
+                                          </AlarmDate>
+                                      </AlarmWrapper>
+                                  </AlarmContainer>
+                              );
                           }
+
                           return null;
                       })
                     : ''}

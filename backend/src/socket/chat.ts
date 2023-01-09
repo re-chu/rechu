@@ -1,6 +1,6 @@
 import { Socket } from "socket.io";
 import wsServer from "../wsServer";
-import { db } from "../db";
+
 const chatSocket = wsServer.of("/chat");
 chatSocket.on("connection", (socket: Socket) => {
   console.log("채팅 소켓 연결");
@@ -8,13 +8,10 @@ chatSocket.on("connection", (socket: Socket) => {
     socket.join(String(roomId));
   });
 
-  socket.on(
-    "sendMessage",
-    (data: { roomId: number; sender: string; text: string; created: Date; avatarUrl: string }) => {
-      console.log(data.sender, "가 메시지를 보냄");
-      socket.to(String(data.roomId)).emit("newChatMessage", data);
-    }
-  );
+  socket.on("sendMessage", (roomId: number, data: { username: string; text: string; created: Date }) => {
+    console.log(data.username, "가 메시지를 보냄");
+    socket.to(String(roomId)).emit("newChatMessage", data);
+  });
   socket.on("leaveChatRoom", (roomId) => {
     socket.leave(String(roomId));
   });

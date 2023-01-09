@@ -52,6 +52,7 @@ userRoute.post("/match", tokenValidator, async (req, res, next) => {
 });
 userRoute.delete("/match", tokenValidator, async (req, res, next) => {
   const matchingId = req.body.matchingId;
+  console.log(req.body, "wegwgwegweg");
   try {
     const result = await userService.cancelMatch(matchingId);
     return res.status(200).json({
