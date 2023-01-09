@@ -284,6 +284,9 @@ const ChatRoom = ({ otherChatUserData }: IPropData) => {
         chatSocket.on('newChatMessage', (data: IChatSocketData) => {
             appendNewMessage(data);
         });
+
+        //채팅 시작 시 스크롤 맨 아래에서부터 시작
+        moveScrollToBottom();
     }, [chatState]);
 
     useEffect(() => {
