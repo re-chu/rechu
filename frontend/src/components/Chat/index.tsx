@@ -185,7 +185,10 @@ const Chat = () => {
                                 setOtherChatUserId={setOtherChatUserId}
                             />
                         ) : (
-                            <ChatRoom otherChatUserData={otherChatUserData} />
+                            <ChatRoom
+                                otherChatUserData={otherChatUserData}
+                                setOtherChatUserData={setOtherChatUserData}
+                            />
                         )}
                     </ChatBody>
                 </WrapperOpened>

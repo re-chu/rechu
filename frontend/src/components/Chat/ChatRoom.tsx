@@ -149,6 +149,7 @@ const OtherChatMessageText = styled.p`
 
 interface IPropData {
     otherChatUserData: IOtherUser | null;
+    setOtherChatUserData: React.Dispatch<React.SetStateAction<IOtherUser | null>>;
 }
 
 interface IChatSocketData {
@@ -157,7 +158,7 @@ interface IChatSocketData {
     text: string;
 }
 
-const ChatRoom = ({ otherChatUserData }: IPropData) => {
+const ChatRoom = ({ otherChatUserData, setOtherChatUserData }: IPropData) => {
     const scrollRef = useRef<HTMLDivElement>(null);
 
     const chatState = useAppSelector(state => state.chatState);
@@ -259,6 +260,7 @@ const ChatRoom = ({ otherChatUserData }: IPropData) => {
             await API.patch('/chat/room', '', data);
 
             dispatch(resetChatState());
+            setOtherChatUserData(null);
         } catch (err) {
             console.log(err);
         }
