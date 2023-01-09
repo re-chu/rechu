@@ -19,7 +19,7 @@ type MatchRequests = {
 type AlarmBoardsLikes = {
   type: string;
   whoIsUserId: number;
-  whoIsAvatarUrl: string;
+  whoIsUserAvatarUrl: string;
   whoIsUsername: string;
   whereBoard: number;
   created: Date;
@@ -30,7 +30,7 @@ type AlarmNewComments = {
   commentId: number;
   whoIsUserId: number;
   whoIsUsername: string;
-  whoIsAvatarUrl: string;
+  whoIsUserAvatarUrl: string;
   whereBoard: number;
   created: Date;
   checkout: number;
@@ -39,15 +39,15 @@ type AlarmCommentsLikes = {
   type: string;
   cmCommentId: number;
   whoIsUsername: string;
-  whoIsAvatarUrl: string;
+  whoIsUserAvatarUrl: string;
   whoIsUserId: number;
   created: Date;
   whereBoard: number;
   checkout: number;
 };
 type AlarmAcceptMatch = {
-  mentoName: string;
-  mentoAvatarUrl: string;
+  whoIsUsername: string;
+  whoIsUserAvatarUrl: string;
   created: Date;
   type: string;
 };
@@ -153,8 +153,8 @@ export const getAlarmDataQ = async (userId: number): Promise<AlarmData> => {
     db.query(
       `
     SELECT
-      u.username as mentoName,
-      u.avatarUrl as mentoAvatarUrl,
+      u.username as whoIsUsername,
+      u.avatarUrl as whoIsUserAvatarUrl,
       c.created as created
     FROM connect c
     JOIN user u

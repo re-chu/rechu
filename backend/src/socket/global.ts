@@ -25,7 +25,7 @@ rootIo.on("connection", (socket) => {
     socket.to(String(mentoId)).emit("alarm");
   });
   socket.on("matchRequestToMentee", (mentoId) => {
-    console.log("멘티에게 요청알림 보내기");
+    console.log("멘티에게 수락알림 보내기");
     socket.to(String(mentoId)).emit("alarm");
   });
 });

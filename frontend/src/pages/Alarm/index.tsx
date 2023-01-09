@@ -5,6 +5,7 @@ import API from 'utils/api';
 import { calcElapsed } from 'utils/format';
 import { useNavigate } from 'react-router-dom';
 import { Button } from 'antd';
+import socket from 'services/socket';
 
 const Wrapper = styled.div`
     display: flex;
@@ -141,31 +142,59 @@ const Alaram = () => {
         navigate(`/post/${data.whereBoard}`);
     };
 
+    const handleAcceptMatch = async (item: IMatchAlarmData) => {
+        try {
+            const data = {
+                matchingId: item.matchingId,
+                menteeId: item.menteeId,
+            };
+            await API.patch('/users/match', '', data);
+            socket.emit('matchRequestToMentee', item.menteeId);
+            fetchAlarmData();
+        } catch (err) {
+            console.log(err);
+        }
+    };
+
+    const handleRefuseMatch = async (item: IMatchAlarmData) => {
+        try {
+            const data = {
+                matchingId: item.matchingId,
+            };
+            await API.delete('/users/match', '', { matchingId: item.matchingId });
+            fetchAlarmData();
+        } catch (err) {
+            console.log(err);
+        }
+    };
+
     return (
         <Layout>
             {matchAlarmData.length !== 0 && (
                 <>
                     <Title>매칭 요청</Title>
                     {matchAlarmData.map((item, index) => (
-                        <>
-                            <MatchingAlarmContainer key={index}>
-                                <MatchingAlarmWrapper>
-                                    <Profile src={''} />
-                                    <AlarmText>
-                                        {item.menteeName}님이 이력서 첨삭 요청을 하셨습니다.
-                                    </AlarmText>
-                                    <RightWrapper>
-                                        <AlarmDate>
-                                            {calcElapsed(new Date(item.created))} 전
-                                        </AlarmDate>
-                                        <Button type="primary">수락</Button>
-                                        <Button type="primary" danger>
-                                            거절
-                                        </Button>
-                                    </RightWrapper>
-                                </MatchingAlarmWrapper>
-                            </MatchingAlarmContainer>
-                        </>
+                        <MatchingAlarmContainer key={index}>
+                            <MatchingAlarmWrapper>
+                                <Profile src={''} />
+                                <AlarmText>
+                                    {item.menteeName}님이 이력서 첨삭 요청을 하셨습니다.
+                                </AlarmText>
+                                <RightWrapper>
+                                    <AlarmDate>{calcElapsed(new Date(item.created))} 전</AlarmDate>
+                                    <Button type="primary" onClick={() => handleAcceptMatch(item)}>
+                                        수락
+                                    </Button>
+                                    <Button
+                                        type="primary"
+                                        danger
+                                        onClick={() => handleRefuseMatch(item)}
+                                    >
+                                        거절
+                                    </Button>
+                                </RightWrapper>
+                            </MatchingAlarmWrapper>
+                        </MatchingAlarmContainer>
                     ))}
                 </>
             )}
@@ -224,7 +253,25 @@ const Alaram = () => {
                                       </AlarmWrapper>
                                   </AlarmContainer>
                               );
+                          } else if (item.type === 'acceptMatch') {
+                              return (
+                                  <AlarmContainer key={index}>
+                                      <AlarmWrapper
+                                          isChecked={item.checkout}
+                                          onClick={() => handleAlarmCheck(item)}
+                                      >
+                                          <Profile src={item.whoIsUserAvatarUrl} />
+                                          <AlarmText>
+                                              {item.whoIsUsername}님이 매칭을 수락했습니다.
+                                          </AlarmText>
+                                          <AlarmDate>
+                                              {calcElapsed(new Date(item.created))} 전
+                                          </AlarmDate>
+                                      </AlarmWrapper>
+                                  </AlarmContainer>
+                              );
                           }
+
                           return null;
                       })
                     : ''}

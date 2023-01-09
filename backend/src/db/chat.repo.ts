@@ -4,6 +4,7 @@ import { db } from ".";
 // 채팅방 목록 가져오기
 export type RoomData = {
   roomId: number;
+  otherUserId: number;
   username: string;
   avatarUrl: string;
   lastText: string;
@@ -41,32 +42,45 @@ export const getChatRoomQ = async (userId: number): Promise<RoomData[]> => {
     const extendsRoomDatas = await Promise.all(
       chatRoomData.map(async (roomData: RoomData) => {
         const [chatRows] = await conn.query(
-          `SELECT 
-            text,
-            checkout,
-            sendFrom
-            FROM chat_data_table 
-            WHERE fromRoomId = ? AND sendFrom != ? AND checkout = 0
-            ORDER BY created DESC
-            LIMIT 301
-            `,
+          `SELECT
+          text,
+          checkout,
+          sendFrom
+          FROM chat_data_table 
+          WHERE fromRoomId = ? AND sendFrom != ? AND checkout = 0
+          ORDER BY created DESC
+          LIMIT 301
+          `,
           [roomData.roomId, userId]
         );
 
         const noCheckedChatDatas = utils.jsonParse(chatRows);
         // 상대방이 누군지 찾아서 리턴
+        let target = 0;
+        switch (userId === roomData.menteeId) {
+          case true:
+            target = roomData.mentoId;
+            break;
+          default:
+            target = roomData.menteeId;
+        }
+        console.log(target, "??");
         const [targetUserRow] = await conn.query(
           `
-              SELECT avatarUrl,username FROM user WHERE ?
-            `,
-          [noCheckedChatDatas.sendFrom]
+          SELECT id as otherUserId,avatarUrl,username FROM user WHERE id =?
+          `,
+          [target]
         );
         const targetUser = utils.jsonParse(targetUserRow)[0];
 
+        roomData.otherUserId = targetUser.otherUserId;
         roomData.avatarUrl = targetUser.avatarUrl;
         roomData.username = targetUser.username;
-        roomData.lastText = noCheckedChatDatas.text;
-        roomData.created = noCheckedChatDatas[0].created;
+        //
+        if (noCheckedChatDatas.length !== 0) {
+          roomData.lastText = noCheckedChatDatas[0].text;
+          roomData.created = noCheckedChatDatas[0].created;
+        }
         return {
           ...roomData,
           noCheckoutMessages: noCheckedChatDatas.length,
@@ -90,7 +104,6 @@ export type ChatData = {
   chatId: number;
   senderId: number;
   username: string;
-  avatarUrl: string;
   text: string;
   MARK: string;
 };
@@ -112,8 +125,7 @@ export const firstGetChatDataQ = async (userId: number, roomId: number): Promise
                 LPAD (chat.id,8,0)
             ) as MARK,
             chat.created,
-            user.username,
-            user.avatarUrl	
+            user.username
         FROM chat_data_table chat
         JOIN user user
         ON user.id = chat.sendFrom
@@ -152,21 +164,25 @@ export const moreGetChatDataQ = async (userId: number, roomId: number, mark: str
     const [chatDataRows] = await conn.query(
       `
         SELECT
-            id as chatId,
-            sendFrom as senderId,
-            text,
+            chat.id as chatId,
+            chat.sendFrom as senderId,
+            chat.text,
             CONCAT (
-                LPAD (unix_timestamp(created),12,0)
+                LPAD (unix_timestamp(chat.created),12,0)
                 ,
-                LPAD (id,8,0)
+                LPAD (chat.id,8,0)
             ) as MARK,
-            created		
-        WHERE fromRoomId = ? AND
+            chat.created,
+            user.username
+        FROM chat_data_table chat
+        JOIN user user
+        ON user.id = chat.sendFrom
+        WHERE chat.fromRoomId = ? AND
             ${mark} >  CONCAT (
-            LPAD (unix_timestamp(created),12,0),
-            LPAD (b.id,8,0)
+            LPAD (unix_timestamp(chat.created),12,0),
+            LPAD (chat.id,8,0)
           )
-        ORDER BY created DESC 
+        ORDER BY chat.created DESC 
         LIMIT 20
     `,
       [roomId]
@@ -195,6 +211,15 @@ export const sendChatQ = async (data: { sendFrom: number; fromRoomId: number; te
       VALUES (${values.join(", ")})
     `,
       [...valval]
+    );
+    await conn.query(
+      `
+      UPDATE chat_room_table
+      SET
+        lastText = ${data.text}
+      WHERE id = ?
+    `,
+      [data.fromRoomId]
     );
     conn.commit();
     return true;
