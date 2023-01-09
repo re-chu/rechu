@@ -2,6 +2,7 @@ import styled from '@emotion/styled';
 import { useState, useEffect } from 'react';
 import API from 'utils/api';
 import { IOtherUser } from './index';
+import { chatSocket } from 'services/socket';
 
 const Container = styled.div`
     width: 90%;
@@ -109,7 +110,9 @@ const ChatRoomList = ({
     const fetchChatRoomList = async () => {
         try {
             const res = await API.get('/chat/room');
-            console.log(res);
+            res.forEach((item: IChatRoomItem) => {
+                chatSocket.emit('enterChatRoom', item?.roomId);
+            });
             setChatRoomList(res);
         } catch (err) {
             console.log(err);
@@ -118,6 +121,9 @@ const ChatRoomList = ({
 
     useEffect(() => {
         fetchChatRoomList();
+        chatSocket.on('newChatMessage', (data: any) => {
+            console.log('채팅 JKL!JKL', data);
+        });
     }, []);
 
     return (
