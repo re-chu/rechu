@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from 'react';
-import styled from '@emotion/styled';
 import Logo from 'assets/images/logo.png';
 import { useNavigate, Link } from 'react-router-dom';
 import { HContainer, HHeader, AlarmWrapper, AlarmDot } from './style';

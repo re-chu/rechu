@@ -7,7 +7,7 @@ import '@toast-ui/editor/dist/toastui-editor.css';
 import '@toast-ui/editor-plugin-color-syntax/dist/toastui-editor-plugin-color-syntax.css';
 import '@toast-ui/editor/dist/i18n/ko-kr';
 import colorSyntax from '@toast-ui/editor-plugin-color-syntax';
-import { Button, Input, Switch, Typography, notification, Modal, Tag, Radio, Space } from 'antd';
+import { Button, Input, Switch, Typography, notification, Modal, Radio, Space } from 'antd';
 import type { RadioChangeEvent } from 'antd';
 import type { NotificationPlacement } from 'antd/es/notification/interface';
 import API from 'utils/api';
@@ -49,8 +49,6 @@ const ResumeSelectUI = styled.div`
     width: 100%;
     padding: 2rem;
 `;
-
-const TagWrapper = styled.div``;
 
 interface RouteState {
     state: IBoardInfo;
@@ -349,25 +347,7 @@ function PostCreate() {
                         ref={editorRef}
                     />
                 </Wrapper>
-                <Wrapper>
-                    {/* <Title level={4}>태그</Title>
-                    <TagWrapper>
-                        {hashTags !== '' &&
-                            hashTags.split(',').map((item, index) => (
-                                <Tag key={index} closable onClose={handleTagDelete}>
-                                    {item}
-                                </Tag>
-                            ))}
-                    </TagWrapper>
-
-                    <Input
-                        size="large"
-                        name="hashTags"
-                        value={tag}
-                        onChange={handleTagInput}
-                        onKeyDown={onKeyDown}
-                    /> */}
-                </Wrapper>
+                <Wrapper></Wrapper>
                 <ButtonDiv>
                     <Button type="default" size="large">
                         취소
