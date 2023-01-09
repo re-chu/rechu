@@ -37,44 +37,40 @@ export const getChatRoomQ = async (userId: number): Promise<RoomData[]> => {
       [userId, userId]
     );
     const chatRoomData = utils.jsonParse(chatRoomDataRows);
-    console.log(chatRoomData, "??");
-
-    await chatRoomData.map(async (room) => {});
 
     const extendsRoomDatas = await Promise.all(
       chatRoomData.map(async (roomData: RoomData) => {
         const [chatRows] = await conn.query(
           `SELECT
-            text,
-            checkout,
-            sendFrom
-            FROM chat_data_table 
-            WHERE fromRoomId = ? AND sendFrom != ? AND checkout = 0
-            ORDER BY created DESC
-            LIMIT 301
-            `,
+          text,
+          checkout,
+          sendFrom
+          FROM chat_data_table 
+          WHERE fromRoomId = ? AND sendFrom != ? AND checkout = 0
+          ORDER BY created DESC
+          LIMIT 301
+          `,
           [roomData.roomId, userId]
         );
 
         const noCheckedChatDatas = utils.jsonParse(chatRows);
         // 상대방이 누군지 찾아서 리턴
         let target = 0;
-        switch (userId) {
-          case roomData.menteeId:
-            target = roomData.menteeId;
+        switch (userId === roomData.menteeId) {
+          case true:
+            target = roomData.mentoId;
             break;
           default:
-            target = roomData.mentoId;
+            target = roomData.menteeId;
         }
-        console.log("맵", noCheckedChatDatas);
+        console.log(target, "??");
         const [targetUserRow] = await conn.query(
           `
-          SELECT avatarUrl,username FROM user WHERE ?
+          SELECT avatarUrl,username FROM user WHERE id =?
           `,
           [target]
         );
         const targetUser = utils.jsonParse(targetUserRow)[0];
-        console.log("dddd", targetUser);
 
         roomData.avatarUrl = targetUser.avatarUrl;
         roomData.username = targetUser.username;
