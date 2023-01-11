@@ -17,10 +17,11 @@ export const slice = createSlice({
     initialState,
     reducers: {
         toggle: (state, action) => {
+            console.log(state, action, 'action', action.payload);
             state.workFormToggle = action.payload;
         },
     },
 });
 
-export default slice;
 export const { toggle } = slice.actions;
+export default slice;

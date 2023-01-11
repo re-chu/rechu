@@ -18,8 +18,9 @@ import Job from './Job';
 import Project from './Project';
 import { UserData, ResumeData, FormStore, CareerData, ProjectData } from 'models/resumeEdit-model';
 import { useSelector, useDispatch } from 'react-redux';
-import { RootState } from 'store/config';
+import { AppDispatch, RootState } from 'store/config';
 import API from 'utils/api';
+import { toggle } from 'store/slices/formSlice';
 
 const Resume = () => {
     const [isWorkFormToggle, setIsWorkFormToggle] = useState<boolean>(false);
@@ -31,7 +32,9 @@ const Resume = () => {
     const [createCareerData, setCreateCareerData] = useState<CareerData[]>([]);
     const [createProjectData, setCreateProjectData] = useState<ProjectData[]>([]);
 
-    // const componentToggle = useSelector<RootState>(state => state.workFormToggle);
+    const workFormToggle = useSelector<RootState>(state => state.formState.workFormToggle);
+    const dispatch = useDispatch<AppDispatch>();
+    console.log(workFormToggle, 'reducer');
 
     const params = useParams();
     const resumeIds = params.id;
@@ -207,10 +210,8 @@ const Resume = () => {
                                 <section>
                                     <FormTitle>
                                         <label>업무경험</label>
-                                        <span
-                                            onClick={() => setIsWorkFormToggle(!isWorkFormToggle)}
-                                        >
-                                            <BiPlus className={isWorkFormToggle ? 'rotate' : ''} />
+                                        <span onClick={() => dispatch(toggle(!workFormToggle))}>
+                                            <BiPlus className={workFormToggle ? 'rotate' : ''} />
                                         </span>
                                     </FormTitle>
 
@@ -257,7 +258,7 @@ const Resume = () => {
                                         );
                                     })}
 
-                                    {isWorkFormToggle && (
+                                    {workFormToggle ? (
                                         <Job
                                             onCareerCreated={state => {
                                                 setCreateCareerData([
@@ -265,10 +266,12 @@ const Resume = () => {
                                                     ...state,
                                                 ]);
                                             }}
-                                            setIsWorkFormToggle={setIsWorkFormToggle}
+                                            // setIsWorkFormToggle={setIsWorkFormToggle}
                                             setAddJobElement={setAddJobElement}
                                             addJobElement={addJobElement}
                                         />
+                                    ) : (
+                                        ''
                                     )}
                                 </section>
 

@@ -4,16 +4,19 @@ import { FormStore, WorkFormData } from 'models/resumeEdit-model';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import API from 'utils/api';
+import { toggle } from 'store/slices/formSlice';
+import { useSelector, useDispatch } from 'react-redux';
+import { AppDispatch, RootState } from 'store/config';
 
 type WorkFormState = {
-    setIsWorkFormToggle: React.Dispatch<React.SetStateAction<boolean>>;
+    // setIsWorkFormToggle: React.Dispatch<React.SetStateAction<boolean>>;
     setAddJobElement: React.Dispatch<React.SetStateAction<FormStore[]>>;
     addJobElement: FormStore[];
-    onCareerCreated: (state: any) => void;
+    onCareerCreated: (state: []) => void;
 };
 
 const Job = ({
-    setIsWorkFormToggle,
+    // setIsWorkFormToggle,
     setAddJobElement,
     addJobElement,
     onCareerCreated,
@@ -29,6 +32,9 @@ const Job = ({
         notDevlop: false,
         workNow: false,
     });
+
+    const workFormToggle = useSelector<RootState>(state => state.formState.workFormToggle);
+    const dispatch = useDispatch<AppDispatch>();
 
     const params = useParams();
     const resumeIds = params.id;
@@ -93,7 +99,7 @@ const Job = ({
 
             if (res.status === 200) {
                 onCareerCreated(result.data.data);
-                setIsWorkFormToggle(false);
+                dispatch(toggle(false));
             }
         } catch (err: unknown) {
             console.log(err);
@@ -209,7 +215,7 @@ const Job = ({
             </div>
 
             <div className="formBtn">
-                <button type="button" onClick={() => setIsWorkFormToggle(e => !e)}>
+                <button type="button" onClick={() => dispatch(toggle(!workFormToggle))}>
                     취소
                 </button>
                 <button type="submit">저장</button>
