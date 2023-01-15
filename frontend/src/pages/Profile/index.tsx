@@ -7,7 +7,7 @@ import axios from 'axios';
 import Layout from 'components/Layout';
 import { useNavigate } from 'react-router-dom';
 import API from 'utils/api';
-import { io } from 'socket.io-client';
+import { useGetProfileQuery } from 'store/config';
 const token = localStorage.getItem('accessToken');
 
 const tierColors = {
@@ -18,7 +18,12 @@ const tierColors = {
     diamond: '#00a3d2',
     challenger: '#dc143c',
 };
-
+const arr = [40, 60, 200, 1000, 10000];
+let upperLimit = arr[0];
+let lowerLimit = 0;
+let tier = 'Bronze';
+let tierColor = tierColors.bronze;
+let testWidth: number 
 const onChange = (key: string) => {
     console.log(key);
 };
@@ -43,6 +48,53 @@ const Profile: React.FC = () => {
     const [imgUrl, setImgUrl] = useState('');
     const imgLoadRef: any = useRef();
     const navigate = useNavigate();
+    const {data,error,isFetching}=useGetProfileQuery('hi')
+    let userData:any
+
+    if(isFetching){
+        <div>기달...</div>
+    }else if(error){
+        <div> error..</div>
+    }else{
+        userData=data.data
+        arr.map((e: number, idx: number): void => {
+            if (e <= userData.point) {
+                upperLimit = arr[idx + 1];
+                if (upperLimit === 60) {
+                    tier = 'Silver';
+                    tierColor = tierColors.silver;
+                } else if (upperLimit === 200) {
+                    tier = 'Gold';
+                    tierColor = tierColors.gold;
+                } else if (upperLimit === 1000) {
+                    tier = 'Platinum';
+                    tierColor = tierColors.platinum;
+                } else if (upperLimit === 10000) {
+                    tier = 'Diamond';
+                    tierColor = tierColors.diamond;
+                } else if (userData.point >= 10000) {
+                    tier = 'Challenger';
+                    tierColor = tierColors.challenger;
+                }
+                if (upperLimit === arr[0]) {
+                    lowerLimit = 0;
+                } else {
+                    if (userData.point >= 10000) {
+                        lowerLimit = 10000;
+                        upperLimit = 10000;
+                    } else {
+                        lowerLimit = arr[idx];
+                    }
+                }
+            }
+        });
+    
+        testWidth = ((userData.point - lowerLimit) / (upperLimit - lowerLimit)) * 100;
+        testWidth = Math.floor(testWidth);
+        if (testWidth === 100) testWidth = 0;
+        if (lowerLimit === 10000) testWidth = 100;
+        console.log('여기는 프로파일:',userData)
+    }
 
     const imgFileSend = async (body: any) => {
         try {
@@ -84,9 +136,7 @@ const Profile: React.FC = () => {
         e.target.parentElement.parentElement.parentElement.children[1].children[0].value = '';
         setOpen(false);
     };
-    const {
-        token: { colorBgContainer },
-    } = theme.useToken();
+
 
     const [res, setRes] = useState<Mock>({
         id: '',
@@ -117,57 +167,18 @@ const Profile: React.FC = () => {
         }
     }
 
-    useEffect(() => {
-        getProfile();
-    }, []);
+    // useEffect(() => {
+    //     getProfile();
+        
+    // }, []);
 
-    const arr = [40, 60, 200, 1000, 10000];
-    let upperLimit = arr[0];
-    let lowerLimit = 0;
-    let tier = 'Bronze';
-    let tierColor = tierColors.bronze;
 
-    arr.map((e: number, idx: number): void => {
-        if (e <= res.point) {
-            upperLimit = arr[idx + 1];
-            if (upperLimit === 60) {
-                tier = 'Silver';
-                tierColor = tierColors.silver;
-            } else if (upperLimit === 200) {
-                tier = 'Gold';
-                tierColor = tierColors.gold;
-            } else if (upperLimit === 1000) {
-                tier = 'Platinum';
-                tierColor = tierColors.platinum;
-            } else if (upperLimit === 10000) {
-                tier = 'Diamond';
-                tierColor = tierColors.diamond;
-            } else if (res.point >= 10000) {
-                tier = 'Challenger';
-                tierColor = tierColors.challenger;
-            }
-            if (upperLimit === arr[0]) {
-                lowerLimit = 0;
-            } else {
-                if (res.point >= 10000) {
-                    lowerLimit = 10000;
-                    upperLimit = 10000;
-                } else {
-                    lowerLimit = arr[idx];
-                }
-            }
-        }
-    });
-
-    let testWidth: number = ((res.point - lowerLimit) / (upperLimit - lowerLimit)) * 100;
-    testWidth = Math.floor(testWidth);
-    if (testWidth === 100) testWidth = 0;
-    if (lowerLimit === 10000) testWidth = 100;
-    res.tierColor = tierColor;
+   
+    // res.tierColor = tierColor;
 
     return (
         <Layout>
-            <Badge.Ribbon text={tier} color={tierColor}>
+           {!isFetching &&<Badge.Ribbon text={tier} color={tierColor}>
                 <div>
                     <Space direction="vertical">
                         <div>
@@ -186,7 +197,7 @@ const Profile: React.FC = () => {
                             <Avatar
                                 size={120}
                                 icon={<UserOutlined />}
-                                src={`${imgUrl === '' ? res.avatarUrl : imgUrl}`}
+                                src={`${imgUrl === '' ? userData.avatarUrl : imgUrl}`}
                                 style={{
                                     cursor: 'pointer',
                                     borderStyle: 'solid',
@@ -198,7 +209,7 @@ const Profile: React.FC = () => {
                             />
                         </div>
                         <div style={{ height: '38px' }}>
-                            <span style={{ fontSize: '35px' }}>{res.username}</span>
+                            <span style={{ fontSize: '35px' }}>{userData.username}</span>
                         </div>
                         <div>
                             <div style={{ width: `${testWidth}%` }}></div>
@@ -233,7 +244,7 @@ const Profile: React.FC = () => {
                             {
                                 label: '유저정보',
                                 key: '1',
-                                children: <UserInfo user={res} getEvent={getProfile}></UserInfo>,
+                                children: <UserInfo user={res} getEvent={getProfile} data={userData}></UserInfo>,
                             },
 
                             {
@@ -251,13 +262,13 @@ const Profile: React.FC = () => {
                             {
                                 label: `유저정보`,
                                 key: '1',
-                                children: <UserInfo user={res} getEvent={getProfile}></UserInfo>,
+                                children: <UserInfo user={res} getEvent={getProfile} data={userData}></UserInfo>,
                             },
 
                             {
                                 label: `첨삭(플레티넘 이상)`,
                                 key: '2',
-                                children: <Proofread id={res.id}></Proofread>,
+                                children: <Proofread id={userData.id}></Proofread>,
                                 disabled: true,
                             },
                         ]}
@@ -272,7 +283,7 @@ const Profile: React.FC = () => {
                         }}
                     />
                 )}
-            </Badge.Ribbon>
+            </Badge.Ribbon>}
         </Layout>
     );
 };
