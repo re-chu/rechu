@@ -247,47 +247,66 @@ export const addCommentQ = async (data: { userId: number; boardId: number; text:
 
 // 댓글 지우기  매핑테이블도 지워야함
 export const deleteCommentQ = async (userId: number, boardId: number, commentId: number) => {
-  const [mapingRows] = await db.query(
-    `
+  const conn = await db.getConnection();
+  conn.beginTransaction();
+  try {
+    const [mapingRows] = await conn.query(
+      `
+        DELETE 
+        FROM comment_like_maping 
+        WHERE commentId = ?
+        `,
+      [commentId]
+    );
+    console.log("매핑테이블에서 삭제");
+    // await conn.query(
+    //   `
+    //     DELETE
+    //     FROM point_from_comment
+    //     WHERE commentId = ? AND userId = ?
+    //     `,
+    //   [commentId, userId]
+    // );
+    console.log("포인트테이블에서 삭제");
+    conn.query(
+      `
       DELETE 
-      FROM comment_like_maping 
+      FROM point_from_comment
       WHERE commentId = ?
-      `,
-    [commentId]
-  );
-  console.log("매핑테이블에서 삭제");
-  await db.query(
-    `
-      DELETE 
-      FROM point_from_comment 
-      WHERE commentId = ? AND userId = ?
-      `,
-    [commentId, userId]
-  );
-  console.log("포인트테이블에서 삭제");
-  const [rows] = await db.query(
-    `
-    DELETE
-    FROM comment
-    WHERE (userId = ? AND boardId = ? AND id = ?) 
-  `,
-    [userId, boardId, commentId]
-  );
-  console.log("댓글삭제");
-  // 해당 댓글에 달렸던 좋아요 데이터 삭제
-  await db.query(
-    `
-    UPDATE board
-    SET
-    commentCnt = commentCnt-1
-    WHERE id = ?
     `,
-    [boardId]
-  );
+      [commentId]
+    );
+    const [rows] = await conn.query(
+      `
+      DELETE
+      FROM comment
+      WHERE (userId = ? AND boardId = ? AND id = ?) 
+    `,
+      [userId, boardId, commentId]
+    );
+    console.log("댓글삭제");
+    // 해당 댓글에 달렸던 좋아요 데이터 삭제
+    await conn.query(
+      `
+      UPDATE board
+      SET
+      commentCnt = commentCnt-1
+      WHERE id = ?
+      `,
+      [boardId]
+    );
 
-  console.log("게시글 댓글카운트 -1");
-  const result = utils.jsonParse(rows)[0];
-  return result;
+    console.log("게시글 댓글카운트 -1");
+    const result = utils.jsonParse(rows)[0];
+    conn.commit();
+    return result;
+  } catch (err) {
+    conn.rollback();
+    console.log(err);
+    throw new Error(err);
+  } finally {
+    conn.release();
+  }
 };
 
 // 댓글 수정

@@ -3,6 +3,7 @@ import { Card, List, Switch, Button, Divider, Badge } from 'antd';
 import axios from 'axios';
 import { off } from 'process';
 import API from 'utils/api';
+import socket from 'services/socket';
 
 type Mock = {
     matchingId: string;
@@ -63,11 +64,12 @@ export const Proofread = (props: any) => {
                 { matchingId: matchingid * 1, menteeId: menteeid * 1 },
                 { headers: { authorization: `Bearer ${token}` } },
             );
-            const chatPostRes = await axios.post(
-                `${API.BASE_URL}/chat`,
-                { menteeId: menteeid * 1, mentoId: props.id * 1, matchingId: matchingid * 1 },
-                { headers: { authorization: `Bearer ${token}` } },
-            );
+            socket.emit('matchRequestToMentee', menteeid);
+            // const chatPostRes = await axios.post(
+            //     `${API.BASE_URL}/chat`,
+            //     { menteeId: menteeid * 1, mentoId: props.id * 1, matchingId: matchingid * 1 },
+            //     { headers: { authorization: `Bearer ${token}` } },
+            // );
             getMentoReq();
         } catch (e) {
             console.log(e);
@@ -88,11 +90,11 @@ export const Proofread = (props: any) => {
     };
 
     const updateMatchData = async (e: any) => {
-        const matchingid = e.currentTarget.id;
+        const matchingId = e.currentTarget.id;
         try {
             const res = await axios.post(
                 `${API.BASE_URL}/users/match/success`,
-                { matchingId: matchingid * 1, role: 'mento' },
+                { matchingId, role: 'mento' },
                 { headers: { authorization: `Bearer ${token}` } },
             );
             if (res.status === 200) getMentoReq();

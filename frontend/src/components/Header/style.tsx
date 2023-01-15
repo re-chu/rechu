@@ -8,7 +8,7 @@ export const HContainer = styled.section`
 export const HHeader = styled.header`
     display: flex;
     justify-content: space-around;
-    padding: 1rem;
+    padding: 4rem 1rem;
     align-items: center;
     font-size: 2rem;
     border-bottom: 1px solid #b0e0e6;
@@ -16,8 +16,11 @@ export const HHeader = styled.header`
     font-weight: 600;
     width: 100%;
 
+    @media all and (max-width: 1080px) {
+        padding: 2rem 1rem;
+    }
+
     & h1 {
-        height: 100px;
         cursor: pointer;
 
         & img {
@@ -25,52 +28,76 @@ export const HHeader = styled.header`
         }
     }
 
-    & .toggleMenu {
-        position: absolute;
-        width: 2.3rem;
-        height: 2.2rem;
-        padding: 1rem;
-        border-right: 1px solid #d3d3d3;
-        border-bottom: 1px solid #d3d3d3;
-        cursor: pointer;
+    @media all and (min-width: 1081px) and (max-width: 2560px) {
+        .mobileMenu {
+            display: none;
+        }
+    }
 
-        .line {
-            position: absolute;
-            width: calc(100% - 20px);
-            height: 4px;
-            background-color: #000;
-            transition: 0.3s;
+    @media all and (max-width: 1080px) {
+        & .mobileMenu {
+            z-index: 999;
 
-            &:nth-of-type(1) {
-                top: 10px;
+            & .toggleMenu {
+                position: relative;
+                width: 2.3rem;
+                height: 2.2rem;
+                padding: 1rem;
+                cursor: pointer;
+
+                .line {
+                    position: absolute;
+                    width: calc(100% - 20px);
+                    height: 4px;
+                    background-color: #000;
+                    transition: 0.3s;
+
+                    &:nth-of-type(1) {
+                        top: 10px;
+                    }
+                    &:nth-of-type(2) {
+                        top: calc(50% - 2px);
+                    }
+                    &:nth-of-type(3) {
+                        top: calc(100% - 14px);
+                    }
+                }
             }
-            &:nth-of-type(2) {
-                top: calc(50% - 2px);
+
+            & .toggleMenu.active {
+                .line {
+                    &:nth-of-type(1) {
+                        top: calc(50% - 2px);
+                        transform: rotate(-45deg);
+                    }
+                    &:nth-of-type(2) {
+                        opacity: 0;
+                        visibility: hidden;
+                    }
+                    &:nth-of-type(3) {
+                        top: calc(50% - 2px);
+                        transform: rotate(45deg);
+                    }
+                }
             }
-            &:nth-of-type(3) {
-                top: calc(100% - 14px);
+
+            & .mobileMenuBar {
+                background-color: rgba(255, 255, 255, 0.5);
+                position: absolute;
+                padding-left: 0.4rem;
+                padding-top: 1rem;
+                line-height: 1.6;
+
+                & .util {
+                    & li {
+                        cursor: pointer;
+                    }
+                }
             }
         }
     }
 
-    .toggleMenu.active {
-        .line {
-            &:nth-of-type(1) {
-                top: calc(50% - 2px);
-                transform: rotate(-45deg);
-            }
-            &:nth-of-type(2) {
-                opacity: 0;
-                visibility: hidden;
-            }
-            &:nth-of-type(3) {
-                top: calc(50% - 2px);
-                transform: rotate(45deg);
-            }
-        }
-    }
-
-    & div {
+    & .navMenu {
         display: flex;
         gap: 4.8rem;
 
@@ -93,4 +120,25 @@ export const HHeader = styled.header`
             }
         }
     }
+`;
+
+export const AlarmWrapper = styled.figure`
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    @media all and (max-width: 1080px) {
+        justify-content: unset;
+    }
+`;
+
+export const AlarmDot = styled.span`
+    position: absolute;
+    width: 1.2rem;
+    height: 1.2rem;
+    right: 1rem;
+    top: 0.3rem;
+    border-radius: 50%;
+    background-color: red;
 `;

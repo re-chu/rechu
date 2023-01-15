@@ -2,8 +2,8 @@ import axios from 'axios';
 
 class axiosAPI {
     instance;
-    // BASE_URL = 'https://rechu.jinytree.shop/api';
-    BASE_URL = 'http://localhost:8080';
+    BASE_URL = 'https://rechu.jinytree.shop/api';
+    // BASE_URL = 'http://localhost:8080';
 
     constructor() {
         this.instance = axios.create();
@@ -58,10 +58,10 @@ class axiosAPI {
         }
     }
 
-    async delete(endpoint: any, params = '', data = {}) {
+    async delete(endpoint: any, params = '', data?: any) {
         try {
             const apiUrl = `${endpoint}/${params}`;
-            const res = await this.instance.delete(this.BASE_URL + apiUrl, data);
+            const res = await this.instance.delete(this.BASE_URL + apiUrl, { data });
             return res;
         } catch (err) {
             console.log(err);

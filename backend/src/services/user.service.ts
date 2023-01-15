@@ -58,7 +58,7 @@ export const acceptMatch = async (userId: number, matchingId: number, menteeId: 
   try {
     const mentoInfo = await userRepo.unIncludePasswordUserInfoQ(userId);
     if (mentoInfo.point < 200) throw new Error(`당신은 고이지 않았다.`);
-    const result = await userRepo.acceptMatchQ(matchingId, menteeId);
+    const result = await userRepo.acceptMatchQ(matchingId, menteeId, userId);
     return result;
   } catch (err) {
     console.log(err.message);

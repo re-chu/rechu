@@ -6,3 +6,4 @@ export * from "./resume.routes";
 export * from "./root.routes";
 export * from "./sosial.routes";
 export * from "./alarm.routes";
+export * from "./chat.routes";

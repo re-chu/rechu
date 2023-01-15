@@ -1,4 +1,5 @@
-import server from "./wsServer";
+import server from "./server";
+import "./socket";
 require("dotenv").config();
 
 import { dataSource } from "./db";
@@ -11,6 +12,6 @@ dataSource
     console.log("Error :", err);
   });
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 8080;
 
 server.listen(PORT, () => console.log("✅ Server Connecting Port, ", PORT));

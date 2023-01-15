@@ -162,6 +162,12 @@ const Quest = styled.div`
     }
 `;
 
+const CarouselWrapper = styled.div`
+    @media screen and (max-width: 580px) {
+        display: none;
+    }
+`;
+
 interface IBoardList {
     commentCount: number;
     createdAt: Date;
@@ -279,23 +285,25 @@ const Main = () => {
     return (
         <Layout>
             {contextHolder}
-            <Carousel autoplay afterChange={onChange}>
-                <div>
-                    <img src={carousel01} alt="carousel" />
-                </div>
-                <div>
-                    <img src={carousel02} alt="carousel" />
-                </div>
-                <div>
-                    <img src={carousel03} alt="carousel" />
-                </div>
-                <div>
-                    <img src={carousel04} alt="carousel" />
-                </div>
-                <div>
-                    <img src={carousel05} alt="carousel" />
-                </div>
-            </Carousel>
+            <CarouselWrapper>
+                <Carousel autoplay afterChange={onChange}>
+                    <div>
+                        <img src={carousel01} alt="carousel" />
+                    </div>
+                    <div>
+                        <img src={carousel02} alt="carousel" />
+                    </div>
+                    <div>
+                        <img src={carousel03} alt="carousel" />
+                    </div>
+                    <div>
+                        <img src={carousel04} alt="carousel" />
+                    </div>
+                    <div>
+                        <img src={carousel05} alt="carousel" />
+                    </div>
+                </Carousel>
+            </CarouselWrapper>
             <Container>
                 <Wrapper>
                     <Title>최근 등록된 게시물</Title>

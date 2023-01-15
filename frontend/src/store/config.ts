@@ -5,13 +5,15 @@ import { combineReducers, configureStore } from '@reduxjs/toolkit';
 import userSlice from 'store/slices/userSlice';
 import authSlice from 'store/slices/authSlice';
 import formSlice from 'store/slices/formSlice';
-import { profileApi } from './apis/profileApi';
+import chatRoomSlice from './slices/chatRoomSlice';
+import chatSlice from './slices/chatSlice';
 import { setupListeners } from '@reduxjs/toolkit/dist/query';
+import { profileApi } from './apis/profileApi';
 // redux-persist
 const persistConfig = {
     key: 'root',
     storage,
-    whitelist: ['userState', 'authState'], // 유지 할 데이터 정의
+    whitelist: ['userState', 'authState', 'chatState', 'chatRoomState'], // 유지 할 데이터 정의
     blacklist: [], // 제외 할 데이터를 정의
 };
 
@@ -19,8 +21,9 @@ const combinedReducer = combineReducers({
     userState: userSlice.reducer,
     authState: authSlice.reducer,
     formState: formSlice.reducer,
+    chatState: chatSlice.reducer,
+    chatRoomState: chatRoomSlice.reducer,
     [profileApi.reducerPath]:profileApi.reducer,
-
 });
 
 const rootReducer = persistReducer(persistConfig, combinedReducer);

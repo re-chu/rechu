@@ -8,20 +8,17 @@ export class ChatRoomTable {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ unique: true })
+  @Column()
   menteeId: number;
 
-  @Column({ unique: true })
+  @Column()
   mentoId: number;
 
   @Column({ type: "datetime", default: () => "CURRENT_TIMESTAMP" })
   created: Date;
 
-  @Column()
+  @Column({ default: "매칭이 성사되었습니다! 채팅을 시작하세요." })
   lastText: string;
-
-  @Column()
-  roomName: string;
 
   @ManyToOne((type) => Connect, (connect) => connect.hasOwnRooms)
   fromConnect: Connect;

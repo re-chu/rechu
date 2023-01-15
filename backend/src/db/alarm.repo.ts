@@ -4,7 +4,7 @@ import * as utils from "./utils/";
 import * as userRepo from "./user.repo";
 
 type AlarmData = {
-  matchRequests: MatchRequests[];
+  matchRequests: MatchRequests[] | null;
   alarmData: Array<AlarmBoardsLikes | AlarmNewComments | AlarmCommentsLikes | AlarmAcceptMatch>;
 };
 type MatchRequests = {
@@ -13,6 +13,7 @@ type MatchRequests = {
   menteeId: number;
   menteeName: string;
   menteeEmail: string;
+  menteeAvatarUrl: string;
   created: Date;
 };
 type AlarmBoardsLikes = {
@@ -29,7 +30,7 @@ type AlarmNewComments = {
   commentId: number;
   whoIsUserId: number;
   whoIsUsername: string;
-  whoIsAvatarUrl: string;
+  whoIsUserAvatarUrl: string;
   whereBoard: number;
   created: Date;
   checkout: number;
@@ -45,9 +46,10 @@ type AlarmCommentsLikes = {
   checkout: number;
 };
 type AlarmAcceptMatch = {
-  mentoName: string;
-  mentoAvatarUrl: string;
+  whoIsUsername: string;
+  whoIsUserAvatarUrl: string;
   created: Date;
+  type: string;
 };
 export const getAlarmDataQ = async (userId: number): Promise<AlarmData> => {
   const [mentoReqRows] = await db.query(
@@ -58,6 +60,7 @@ export const getAlarmDataQ = async (userId: number): Promise<AlarmData> => {
         c.menteeId,
         u.username as menteeName,
         u.email as menteeEmail,
+        u.avatarUrl as menteeAvatarUrl,
         c.created
       FROM connect c
       JOIN user u
@@ -150,8 +153,8 @@ export const getAlarmDataQ = async (userId: number): Promise<AlarmData> => {
     db.query(
       `
     SELECT
-      u.username as mentoName,
-      u.avatarUrl as mentoAvatarUrl,
+      u.username as whoIsUsername,
+      u.avatarUrl as whoIsUserAvatarUrl,
       c.created as created
     FROM connect c
     JOIN user u

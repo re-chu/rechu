@@ -10,14 +10,17 @@ export class ChatDataTable {
   @Column()
   sendFrom: number;
 
-  @Column({ unique: true })
-  mentoId: number;
+  // @Column({ unique: true })
+  // mentoId: number;
 
-  @Column()
-  msg: string;
+  @Column({ type: "varchar", length: 1000 })
+  text: string;
 
-  @Column({ type: "bigint" })
-  created: number;
+  @Column({ default: 0 })
+  checkout: number;
+
+  @Column({ type: "datetime", default: () => "CURRENT_TIMESTAMP" })
+  created: Date;
 
   @ManyToOne((type) => ChatRoomTable, (room) => room.ownDatas)
   fromRoom: ChatRoomTable;

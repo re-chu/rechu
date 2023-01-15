@@ -1,10 +1,30 @@
+import http from "http";
 import express from "express";
 import { errorHandler } from "./middlewares/error-handdler";
-import { userRoute, adminRoute, boardRoute, rootRoute, commentRoute, sosialRoute, alarmRoute } from "./routes";
+import {
+  userRoute,
+  adminRoute,
+  boardRoute,
+  rootRoute,
+  commentRoute,
+  sosialRoute,
+  alarmRoute,
+  chatRoute,
+} from "./routes";
 import cors from "cors";
 import resumeRoute from "./routes/resume.routes";
-
 const app = express();
+const httpServer = http.createServer(app);
+// import { Server } from "socket.io";
+// const zz = new Server(httpServer);
+// zz.on("connection", (socket) => {
+//   socket.on("login", (userId) => {
+//     socket.join(String(userId));
+//     console.log("로그인된다면 만들어지", socket.rooms);
+//   });
+// });
+// app.set("io", zz);
+
 app.use("/uploads", express.static("uploads"));
 // CORS 에러 방지
 app.use(cors());
@@ -24,8 +44,9 @@ app.use("/board", boardRoute);
 app.use("/comments", commentRoute);
 app.use("/sosial", sosialRoute);
 app.use("/alarm", alarmRoute);
+app.use("/chat", chatRoute);
 
 // 에러 미들웨어
 app.use(errorHandler);
 
-export default app;
+export default httpServer;
