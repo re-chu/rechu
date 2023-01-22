@@ -42,6 +42,7 @@ export const sendChat = async (userId: number, roomId: number, text: string): Pr
     text,
   };
   try {
+    console.log("사람의실수지");
     await chatRepo.sendChatQ(data);
     return true;
   } catch (err) {

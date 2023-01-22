@@ -19,19 +19,20 @@ type Mock = {
 type UserProps = {
     user: Mock;
     getEvent: Function;
+    data:any
 };
 
 const anytype: any = null;
 const token = localStorage.getItem('accessToken');
 
-export const UserInfo = ({ user, getEvent }: UserProps) => {
+export const UserInfo = ({ user, getEvent,data }: UserProps) => {
     let { username, phoneNumber, email, gitHubUrl, tierColor, point } = user;
     const [propsOpen, setPropsOpen] = useState(false);
-
     const changeOpen = () => {
         setPropsOpen(prev => !prev);
     };
-
+    // const dataSet=data.data
+    // console.log('여기는 유저인포:',dataSet)
     const updateGitURL = (gitURl: any) => {
         gitHubUrl = gitURl;
         try {

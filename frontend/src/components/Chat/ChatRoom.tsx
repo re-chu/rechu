@@ -6,6 +6,7 @@ import { chatSocket } from 'services/socket';
 
 import { setChatState, resetChatState } from 'store/slices/chatSlice';
 import { useAppDispatch, useAppSelector } from 'store/config';
+import { formatTimeToAMPM } from 'utils/format';
 
 const Container = styled.div`
     display: grid;
@@ -45,15 +46,45 @@ const ChatMessageWrapper = styled.div`
     width: 100%;
     height: 100%;
     font-size: 1.6rem;
-    padding: 2rem 0;
+    padding: 0.5rem 0;
     &.my {
         justify-content: flex-end;
-        background-color: skyblue;
     }
-
     &.other {
-        background-color: yellowgreen;
     }
+`;
+
+const ChatMessage = styled.div`
+    position: relative;
+    display: flex;
+    flex-direction: column;
+`;
+
+const MyChatMessage = styled.div`
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    p:last-child {
+        margin-right: 1.5rem;
+    }
+`;
+
+const MyChatMessageText = styled.p`
+    background-color: #ffe224;
+    max-width: 26rem;
+    padding: 1.8rem 2rem;
+    border-radius: 1.2rem;
+    font-size: 1.4rem;
+    line-height: 2rem;
+    white-space: normal;
+    margin-right: 1rem;
+`;
+
+const ChatDate = styled.p`
+    margin-top: 0.5rem;
+    font-size: 1.2rem;
+    color: #666;
 `;
 
 const FormWrapper = styled.div`
@@ -85,6 +116,37 @@ const ButtonMessageSend = styled.button`
     cursor: pointer;
 `;
 
+const OtherChatMessageWrapper = styled.div`
+    display: grid;
+    grid-template-columns: 6rem 1fr;
+`;
+
+const OtherUserProfile = styled.div`
+    display: flex;
+    justify-content: center;
+`;
+
+const OtherUserProfileImg = styled.img`
+    width: 4rem;
+    height: 4rem;
+    border-radius: 50%;
+`;
+
+const OtherUserName = styled.p`
+    font-size: 1.6rem;
+`;
+
+const OtherChatMessageText = styled.p`
+    background-color: #6dae6d;
+    color: white;
+    max-width: 26rem;
+    padding: 1.8rem 2rem;
+    border-radius: 1.2rem;
+    font-size: 1.4rem;
+    line-height: 2rem;
+    white-space: normal;
+`;
+
 interface IPropData {
     otherChatUserData: IOtherUser | null;
 }
@@ -105,15 +167,43 @@ const ChatRoom = ({ otherChatUserData }: IPropData) => {
 
     const myId = Number(localStorage.getItem('userId'));
 
+    const fetchChatData = async () => {
+        try {
+            const res = await API.get(
+                '/chat/message',
+                `?roomId=${otherChatUserData?.roomId}&mark=`,
+            );
+            const result = res.reverse();
+            if (result.length !== 0) dispatch(setChatState(result));
+        } catch (err) {
+            console.log(err);
+        }
+    };
+
+    const fetchMoreChatData = async () => {
+        try {
+            const firstMark = chatState[0].MARK;
+            const res = await API.get(
+                '/chat/message',
+                `?roomId=${otherChatUserData?.roomId}&mark=${firstMark}`,
+            );
+            const result = res.reverse();
+            dispatch(setChatState([...result, ...chatState]));
+        } catch (err) {
+            console.log(err);
+        }
+    };
+
     const onChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         setText(e.target.value);
     };
 
     const sendMessage = async () => {
+        if (text === '') return;
         try {
             const data = {
                 fromRoomId: otherChatUserData?.roomId,
-                text: text,
+                text,
             };
             await API.post('/chat/message', data);
 
@@ -134,7 +224,9 @@ const ChatRoom = ({ otherChatUserData }: IPropData) => {
             };
 
             chatSocket.emit('sendMessage', otherChatUserData?.roomId, socketData);
+
             dispatch(setChatState([...chatState, newData]));
+            moveScrollToBottom();
         } catch (err) {
             console.log(err);
         }
@@ -143,19 +235,6 @@ const ChatRoom = ({ otherChatUserData }: IPropData) => {
 
     const sendMessageWithEnter = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
         if (e.key === 'Enter') sendMessage();
-    };
-
-    const fetchChatData = async () => {
-        try {
-            const res = await API.get(
-                '/chat/message',
-                `?roomId=${otherChatUserData?.roomId}&mark=`,
-            );
-            const result = res.reverse();
-            dispatch(setChatState(result));
-        } catch (err) {
-            console.log(err);
-        }
     };
 
     const appendNewMessage = (data: IChatSocketData) => {
@@ -169,16 +248,30 @@ const ChatRoom = ({ otherChatUserData }: IPropData) => {
             text: data.text,
         };
         dispatch(setChatState([...chatState, newData]));
+        moveScrollToBottom();
     };
 
     const leaveChatRoom = async () => {
         try {
-            await API.patch('/chat/room', '', otherChatUserData?.roomId);
-            resetChatState();
+            const data = {
+                roomId: otherChatUserData?.roomId,
+            };
+            await API.patch('/chat/room', '', data);
+
+            dispatch(resetChatState());
         } catch (err) {
             console.log(err);
         }
     };
+
+    const moveScrollToBottom = () => {
+        if (scrollRef.current && scrollRef.current.clientHeight)
+            scrollRef.current.scrollTop = scrollRef.current.scrollHeight * 9999;
+    };
+
+    // const moveScrollToBottomFromNewChat = () => {
+    //     console.log("미 구현")
+    // }
 
     useEffect(() => {
         fetchChatData();
@@ -192,13 +285,23 @@ const ChatRoom = ({ otherChatUserData }: IPropData) => {
         chatSocket.on('newChatMessage', (data: IChatSocketData) => {
             appendNewMessage(data);
         });
+
+        //채팅 시작 시 스크롤 맨 아래에서부터 시작
+        moveScrollToBottom();
     }, [chatState]);
 
     useEffect(() => {
+        scrollRef.current?.addEventListener('scroll', () => {
+            if (scrollRef.current?.scrollTop === 0 && chatState.length >= 20) {
+                fetchMoreChatData();
+            }
+        });
+    }, []);
+
+    useEffect(() => {
         //채팅 시작 시 스크롤 맨 아래에서부터 시작
-        if (scrollRef.current && scrollRef.current.clientHeight)
-            scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }, [chatState]);
+        moveScrollToBottom();
+    }, []);
 
     return (
         <Container>
@@ -208,13 +311,31 @@ const ChatRoom = ({ otherChatUserData }: IPropData) => {
                         <ChatMessageWrapper
                             className={otherChatUserData?.userId === item.senderId ? 'other' : 'my'}
                         >
-                            {item.text}
+                            {otherChatUserData?.userId === item.senderId ? (
+                                <OtherChatMessageWrapper>
+                                    <OtherUserProfile>
+                                        <OtherUserProfileImg src={otherChatUserData.avatarUrl} />
+                                    </OtherUserProfile>
+                                    <ChatMessage>
+                                        <OtherUserName>{otherChatUserData.userName}</OtherUserName>
+                                        <OtherChatMessageText>{item.text}</OtherChatMessageText>
+                                        <ChatDate>{formatTimeToAMPM(item.created)}</ChatDate>
+                                    </ChatMessage>
+                                </OtherChatMessageWrapper>
+                            ) : (
+                                <>
+                                    <MyChatMessage>
+                                        <MyChatMessageText>{item.text}</MyChatMessageText>
+                                        <ChatDate>{formatTimeToAMPM(item.created)}</ChatDate>
+                                    </MyChatMessage>
+                                </>
+                            )}
                         </ChatMessageWrapper>
                     </ChatMessageContainer>
                 ))}
             </MessageWrapper>
             <FormWrapper>
-                <MessageInput value={text} onChange={onChange} onKeyDown={sendMessageWithEnter} />
+                <MessageInput value={text} onChange={onChange} onKeyUp={sendMessageWithEnter} />
                 <ButtonMessageSend onClick={sendMessage}>전송</ButtonMessageSend>
             </FormWrapper>
         </Container>

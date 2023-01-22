@@ -3,7 +3,10 @@ import { useState, useEffect } from 'react';
 import API from 'utils/api';
 import { IOtherUser } from './index';
 import { chatSocket } from 'services/socket';
-import { LoadingOutlined } from '@ant-design/icons';
+import { LoadingOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
+
+import { setChatRoomState, resetChatRoomState } from 'store/slices/chatRoomSlice';
+import { useAppDispatch, useAppSelector } from 'store/config';
 
 const Container = styled.div`
     width: 90%;
@@ -78,15 +81,19 @@ const EmptyWrapper = styled.div`
     align-items: center;
     width: 100%;
     font-size: 1.8rem;
+    margin-top: 12rem;
+    @media screen and (max-width: 580px) {
+        margin-top: 5rem;
+    }
     span {
-        color: #f66;
-        margin: 8rem 0;
+        color: #5f9e5f;
+        margin: 6rem 0;
         font-size: 8rem;
     }
 `;
 
 const EmptyInfo = styled.p`
-    color: #666;
+    font-size: 1.6rem;
 `;
 
 interface IChatRoomItem {
@@ -106,6 +113,7 @@ interface IPropData {
     setOtherChatUserData: React.Dispatch<React.SetStateAction<IOtherUser | null>>;
     setOtherChatUser: React.Dispatch<React.SetStateAction<string>>;
     setOtherChatUserId: React.Dispatch<React.SetStateAction<number>>;
+    otherChatUserData: IOtherUser | null;
 }
 
 interface IChatSocketData {
@@ -118,8 +126,11 @@ const ChatRoomList = ({
     setOtherChatUserData,
     setOtherChatUser,
     setOtherChatUserId,
+    otherChatUserData,
 }: IPropData) => {
-    const [chatRoomList, setChatRoomList] = useState<IChatRoomItem[]>([]);
+    // const [chatRoomList, setChatRoomList] = useState<IChatRoomItem[] | null>(null);
+    const chatRoomState = useAppSelector(state => state.chatRoomState);
+    const dispatch = useAppDispatch();
 
     const handleEnterRoom = (item: IChatRoomItem) => {
         setOtherChatUserData({
@@ -138,7 +149,7 @@ const ChatRoomList = ({
             res.forEach((item: IChatRoomItem) => {
                 chatSocket.emit('enterChatRoom', item?.roomId);
             });
-            setChatRoomList(res);
+            dispatch(setChatRoomState(res));
         } catch (err) {
             console.log(err);
         }
@@ -146,41 +157,64 @@ const ChatRoomList = ({
 
     useEffect(() => {
         fetchChatRoomList();
-        chatSocket.on('newChatMessage', (data: IChatSocketData) => {
-            console.log('채팅 JKL!JKL', data);
+    }, [otherChatUserData]);
+
+    useEffect(() => {
+        chatSocket.on('newChatAlarm', (roomId: number, data: IChatSocketData) => {
+            // console.log('dsfhlsdkhfklsdhfkldshfklsdhkldfhsklfhsdklfhklsdhfklsdhfkl');
+            const state = chatRoomState;
+
+            const newChatRoomList = state?.map(item => {
+                const newItem = {
+                    ...item,
+                };
+                if (newItem.roomId === roomId) {
+                    newItem.lastText = data.text;
+                    newItem.noCheckoutMessages = newItem.noCheckoutMessages + 1;
+                }
+                return newItem;
+            });
+            dispatch(setChatRoomState(newChatRoomList));
         });
-    }, []);
+    }, [chatRoomState]);
 
     return (
         <Container>
-            {chatRoomList.length === 0 ? (
-                // <EmptyWrapper>
-                //     <ExclamationCircleOutlined />
-                //     <EmptyInfo>
-                //         이력서 첨삭 매칭 상대가 없습니다. 커뮤니티 활동을 통해 포인트를 모아서 매칭
-                //         신청을 해주세요.
-                //     </EmptyInfo>
-                // </EmptyWrapper>
-                <LoadingOutlined />
+            {chatRoomState !== null ? (
+                chatRoomState.length === 0 ? (
+                    <EmptyWrapper>
+                        <ExclamationCircleOutlined />
+                        <EmptyInfo>
+                            이력서 첨삭 매칭 상대가 없습니다. 커뮤니티 활동을 통해 포인트를 모아서
+                            매칭 신청을 해주세요.
+                        </EmptyInfo>
+                    </EmptyWrapper>
+                ) : (
+                    chatRoomState.map((item, index) => (
+                        <ChatRoom key={index} onClick={() => handleEnterRoom(item)}>
+                            <ChatRoomContent>
+                                <ProfileImg src={item.avatarUrl} />
+                            </ChatRoomContent>
+                            <ChatRoomContent>
+                                <ProfileName>{item.username}</ProfileName>
+                                <LatestChatMessage>{item.lastText}</LatestChatMessage>
+                            </ChatRoomContent>
+                            <ChatRoomContent>
+                                {item.noCheckoutMessages !== 0 && (
+                                    <ChatNewMessageNumWrapper>
+                                        <ChatNewMessageNum>
+                                            {item.noCheckoutMessages}
+                                        </ChatNewMessageNum>
+                                    </ChatNewMessageNumWrapper>
+                                )}
+                            </ChatRoomContent>
+                        </ChatRoom>
+                    ))
+                )
             ) : (
-                chatRoomList.map((item, index) => (
-                    <ChatRoom key={index} onClick={() => handleEnterRoom(item)}>
-                        <ChatRoomContent>
-                            <ProfileImg src={item.avatarUrl} />
-                        </ChatRoomContent>
-                        <ChatRoomContent>
-                            <ProfileName>{item.username}</ProfileName>
-                            <LatestChatMessage>{item.lastText}</LatestChatMessage>
-                        </ChatRoomContent>
-                        <ChatRoomContent>
-                            {item.noCheckoutMessages !== 0 && (
-                                <ChatNewMessageNumWrapper>
-                                    <ChatNewMessageNum>{item.noCheckoutMessages}</ChatNewMessageNum>
-                                </ChatNewMessageNumWrapper>
-                            )}
-                        </ChatRoomContent>
-                    </ChatRoom>
-                ))
+                <EmptyWrapper>
+                    <LoadingOutlined />
+                </EmptyWrapper>
             )}
         </Container>
     );

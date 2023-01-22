@@ -47,7 +47,9 @@ chatRoute.get("/message", tokenValidator, async (req, res, next) => {
 
 chatRoute.post("/message", tokenValidator, async (req, res, next) => {
   const userId = Number(req.body.jwtDecoded.id);
-  const { fromRoomId, text } = req.body;
+  const { fromRoomId } = req.body;
+  const text = String(req.body.text);
+  console.log(userId, text, fromRoomId);
   try {
     await chatService.sendChat(userId, fromRoomId, text);
     return res.status(201).json({
@@ -73,9 +75,10 @@ chatRoute.patch("/message", tokenValidator, async (req, res, next) => {
   }
 });
 
-chatRoute.patch("/chat/room", tokenValidator, async (req, res, next) => {
+chatRoute.patch("/room", tokenValidator, async (req, res, next) => {
   const userId = Number(req.body.jwtDecoded.id);
   const roomId = req.body.roomId;
+  console.log(req.body, "바디체크");
   try {
     await chatService.checkoutChatRoom(userId, roomId);
     return res.status(200).json({
