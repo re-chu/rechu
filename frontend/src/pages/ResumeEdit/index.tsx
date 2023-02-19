@@ -17,14 +17,11 @@ import { useParams } from 'react-router-dom';
 import Job from './Job';
 import Project from './Project';
 import { UserData, ResumeData, FormStore, CareerData, ProjectData } from 'models/resumeEdit-model';
-import { useSelector, useDispatch } from 'react-redux';
-import { AppDispatch, RootState } from 'store/config';
+import { useAppDispatch, useAppSelector } from 'store/config';
+import { changeWorkFormToggle, changeProjectFormToggle } from 'store/slices/formSlice';
 import API from 'utils/api';
-import { toggle } from 'store/slices/formSlice';
 
 const Resume = () => {
-    const [isWorkFormToggle, setIsWorkFormToggle] = useState<boolean>(false);
-    const [isprojectFormToggle, setIsProjectFormToggle] = useState<boolean>(false);
     const [userInfo, setUserInfo] = useState<UserData>({} as UserData);
     const [resumeTitle, setResumeTitle] = useState<ResumeData>({} as ResumeData);
     const [addJobElement, setAddJobElement] = useState<FormStore[]>([]);
@@ -32,9 +29,9 @@ const Resume = () => {
     const [createCareerData, setCreateCareerData] = useState<CareerData[]>([]);
     const [createProjectData, setCreateProjectData] = useState<ProjectData[]>([]);
 
-    const workFormToggle = useSelector<RootState>(state => state.formState.workFormToggle);
-    const dispatch = useDispatch<AppDispatch>();
-    console.log(workFormToggle, 'reducer');
+    const workFormToggle = useAppSelector(state => state.formState.workFormToggle);
+    const projectFormToggle = useAppSelector(state => state.formState.projectFormToggle);
+    const dispatch = useAppDispatch();
 
     const params = useParams();
     const resumeIds = params.id;
@@ -92,27 +89,25 @@ const Resume = () => {
 
     const resumeNameChange = async () => {
         try {
-            const res = await axios.patch(`${API.BASE_URL}/my-portfolio/resumes/${resumeIds}`, {
+            await axios.patch(`${API.BASE_URL}/my-portfolio/resumes/${resumeIds}`, {
                 name: resumeTitle.title,
             });
-
-            console.log(res);
         } catch (err: unknown) {
             console.log(err);
         }
     };
 
-    const addJobComponents = () => {
-        const newJob = [...addJobElement, { list: addJobElement.length, state: false }];
-        setAddJobElement(newJob);
-        setIsWorkFormToggle(true);
-    };
+    // const addJobComponents = () => {
+    //     const newJob = [...addJobElement, { list: addJobElement.length, state: false }];
+    //     setAddJobElement(newJob);
+    //     dispatch(toggle(true));
+    // };
 
-    const addProjectComponents = () => {
-        const newProject = [...addProjectElement, { list: addProjectElement.length, state: false }];
-        setAddProjectElement(newProject);
-        setIsProjectFormToggle(true);
-    };
+    // const addProjectComponents = () => {
+    //     const newProject = [...addProjectElement, { list: addProjectElement.length, state: false }];
+    //     setAddProjectElement(newProject);
+    //     dispatch(toggle(true));
+    // };
 
     const deleteJobComponent = async (carrerId: number) => {
         await axios.delete(`${API.BASE_URL}/my-portfolio/careers/${carrerId}`);
@@ -210,7 +205,11 @@ const Resume = () => {
                                 <section>
                                     <FormTitle>
                                         <label>업무경험</label>
-                                        <span onClick={() => dispatch(toggle(!workFormToggle))}>
+                                        <span
+                                            onClick={() =>
+                                                dispatch(changeWorkFormToggle(!workFormToggle))
+                                            }
+                                        >
                                             <BiPlus className={workFormToggle ? 'rotate' : ''} />
                                         </span>
                                     </FormTitle>
@@ -222,6 +221,9 @@ const Resume = () => {
                                                     <h1>업무경험 {tem.careerId}</h1>
 
                                                     <ul className="customBtn">
+                                                        <li>
+                                                            <button type="button">수정</button>
+                                                        </li>
                                                         <li>
                                                             <button
                                                                 type="button"
@@ -266,7 +268,6 @@ const Resume = () => {
                                                     ...state,
                                                 ]);
                                             }}
-                                            // setIsWorkFormToggle={setIsWorkFormToggle}
                                             setAddJobElement={setAddJobElement}
                                             addJobElement={addJobElement}
                                         />
@@ -280,12 +281,12 @@ const Resume = () => {
                                         <label>프로젝트</label>
                                         <span
                                             onClick={() =>
-                                                setIsProjectFormToggle(!isprojectFormToggle)
+                                                dispatch(
+                                                    changeProjectFormToggle(!projectFormToggle),
+                                                )
                                             }
                                         >
-                                            <BiPlus
-                                                className={isprojectFormToggle ? 'rotate' : ''}
-                                            />
+                                            <BiPlus className={projectFormToggle ? 'rotate' : ''} />
                                         </span>
                                     </FormTitle>
 
@@ -335,9 +336,9 @@ const Resume = () => {
                                             </ExistForm>
                                         );
                                     })}
-                                    {isprojectFormToggle && (
+                                    {projectFormToggle && (
                                         <Project
-                                            setIsProjectFormToggle={setIsProjectFormToggle}
+                                            // setIsProjectFormToggle={setIsProjectFormToggle}
                                             setAddProjectElement={setAddProjectElement}
                                             addProjectElement={addProjectElement}
                                             onProjectCreated={state => {

@@ -143,11 +143,11 @@ export const join = async (data: CreateUserDto): Promise<{ insertId: number }> =
     username: data.username,
     phoneNumber: data.phoneNumber,
   };
-  const statusVerify = await authRepo.findOneAuthData(data.email);
-  console.log(statusVerify);
-  if (!statusVerify) throw Error(`404, [${data.email}] 해당 이메일로 진행된 인증절차가 없습니다.`);
-  if (statusVerify.verify === false || !statusVerify)
-    throw Error(`404, [${data.email}] 해당 이메일에 대한 인증 내역을 확인할 수 없습니다.`);
+  // const statusVerify = await authRepo.findOneAuthData(data.email);
+  // console.log(statusVerify);
+  // if (!statusVerify) throw Error(`404, [${data.email}] 해당 이메일로 진행된 인증절차가 없습니다.`);
+  // if (statusVerify.verify === false || !statusVerify)
+  //   throw Error(`404, [${data.email}] 해당 이메일에 대한 인증 내역을 확인할 수 없습니다.`);
 
   // 이미 가입한 회원이지 확인,
   const overlapUser = await userRepo.findOneUser(data.email);

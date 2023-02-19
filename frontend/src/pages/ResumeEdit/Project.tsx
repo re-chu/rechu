@@ -4,23 +4,23 @@ import axios, { AxiosResponse } from 'axios';
 import { useParams } from 'react-router-dom';
 import { GiCancel } from '@react-icons/all-files/gi/GiCancel';
 import API from 'utils/api';
+import { changeProjectFormToggle } from 'store/slices/formSlice';
+import { useAppDispatch, useAppSelector } from 'store/config';
 
 type ProjectFormState = {
-    setIsProjectFormToggle: React.Dispatch<React.SetStateAction<boolean>>;
     setAddProjectElement: React.Dispatch<React.SetStateAction<FormStore[]>>;
     addProjectElement: FormStore[];
     onProjectCreated: (state: any) => void;
 };
 
 const Project = ({
-    setIsProjectFormToggle,
     addProjectElement,
     setAddProjectElement,
     onProjectCreated,
 }: ProjectFormState) => {
-    const [searchStackToggle, setSearchStackToggle] = useState<boolean>(false);
+    const [searchStackToggle, setSearchStackToggle] = useState(false);
     const [AllStacks, setAllStacks] = useState([]);
-    const [stackInputValue, setStackInputValue] = useState<string>('');
+    const [stackInputValue, setStackInputValue] = useState('');
     const [tagListItem, setTagListItem] = useState<string[]>([]);
     const [projectFormDataState, setProjectFormDataState] = useState<ProjectFormData>({
         projectName: '',
@@ -33,6 +33,8 @@ const Project = ({
 
     const params = useParams();
     const resumeIds = params.id;
+    const projectFormToggle = useAppSelector(state => state.formState.projectFormToggle);
+    const dispatch = useAppDispatch();
 
     const getStack = async () => {
         try {
@@ -127,7 +129,7 @@ const Project = ({
 
             if (res.status === 200) {
                 onProjectCreated(result.data.data);
-                setIsProjectFormToggle(false);
+                dispatch(changeProjectFormToggle(false));
             }
         } catch (err: unknown) {
             console.log(err);
@@ -273,7 +275,10 @@ const Project = ({
                 </section>
 
                 <div className="formBtn">
-                    <button type="button" onClick={() => setIsProjectFormToggle(e => !e)}>
+                    <button
+                        type="button"
+                        onClick={() => dispatch(changeProjectFormToggle(!projectFormToggle))}
+                    >
                         취소
                     </button>
                     <button type="submit">저장</button>

@@ -7,26 +7,27 @@ import { useForm } from 'react-hook-form';
 import API from 'utils/api';
 import { Container, ImgSection } from '../Login/style';
 
+interface FormData {
+    id: string;
+    password: string;
+    name: string;
+    phone: string;
+    email: string;
+    code: number;
+    passwordCheck: string;
+}
+
 const Join = () => {
-    const [email, setEmail] = useState();
-    const [code, setCode] = useState();
     const navigate = useNavigate();
+    const [email, setEmail] = useState('');
+    const [code, setCode] = useState('');
+
     const {
         register,
         handleSubmit,
         formState: { errors },
         setError,
     } = useForm<FormData>();
-
-    interface FormData {
-        id: string;
-        password: string;
-        name: string;
-        phone: string;
-        email: string;
-        code: number;
-        passwordCheck: string;
-    }
 
     const onValid = async (data: FormData) => {
         if (data.password !== data.passwordCheck) {
@@ -57,39 +58,39 @@ const Join = () => {
         setEmail(e.target.value);
     };
 
-    const sendEmail = async (e: any) => {
-        e.preventDefault();
-        const jsondata = {
-            email,
-        };
+    // const sendEmail = async (e: any) => {
+    //     e.preventDefault();
+    //     const jsondata = {
+    //         email,
+    //     };
 
-        try {
-            const res = await axios.post(`${API.BASE_URL}/users/email`, jsondata);
-            alert('이메일을 확인 해 주세요');
-        } catch (err: any) {
-            console.error(err.stack);
-        }
-    };
+    //     try {
+    //         const res = await axios.post(`${API.BASE_URL}/users/email`, jsondata);
+    //         if (res.status === 200) alert('이메일을 확인 해 주세요');
+    //     } catch (err: unknown) {
+    //         console.log(err);
+    //     }
+    // };
 
-    const emailAuth = async (e: any) => {
-        e.preventDefault();
-        const jsondata = {
-            email: email,
-            code: Number(code),
-        };
+    // const emailAuth = async (e: any) => {
+    //     e.preventDefault();
+    //     const jsondata = {
+    //         email: email,
+    //         code: Number(code),
+    //     };
 
-        try {
-            const res = await axios.post(`${API.BASE_URL}/users/email/auth`, jsondata);
+    //     try {
+    //         const res = await axios.post(`${API.BASE_URL}/users/email/auth`, jsondata);
 
-            const reqConfirm = res.data.msg;
+    //         const reqConfirm = res.data.msg;
 
-            sessionStorage.setItem('reqConfirm', reqConfirm);
-            sessionStorage.setItem('email', res.data.email);
-            alert('인증 완료');
-        } catch (err: any) {
-            console.error(err.stack);
-        }
-    };
+    //         sessionStorage.setItem('reqConfirm', reqConfirm);
+    //         sessionStorage.setItem('email', res.data.email);
+    //         alert('인증 완료');
+    //     } catch (err: any) {
+    //         console.error(err.stack);
+    //     }
+    // };
 
     return (
         <Container>
@@ -124,7 +125,7 @@ const Join = () => {
                                 </p>
                             </li>
 
-                            <li>
+                            {/* <li>
                                 <button type="button" onClick={sendEmail}>
                                     인증번호 보내기
                                 </button>
@@ -142,7 +143,7 @@ const Join = () => {
                                 <button type="button" onClick={emailAuth}>
                                     인증하기
                                 </button>
-                            </li>
+                            </li> */}
 
                             <li>
                                 <label>비밀번호</label>

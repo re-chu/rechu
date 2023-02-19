@@ -142,8 +142,7 @@ userRoute.get("/individuals", tokenValidator, async (req, res, next) => {
 // 개인 회원가입 라우트
 userRoute.post("/individuals", validateBody(CreateUserDto), async (req: Request, res: Response, next: NextFunction) => {
   const { username, email, phoneNumber, password } = req.body;
-  console.log(req.body);
-  console.log("들어옴?");
+
   // hash 화 된 비번
   const hashedPassword = await bcrypt.hash(password, 10);
   const data = {
@@ -162,6 +161,7 @@ userRoute.post("/individuals", validateBody(CreateUserDto), async (req: Request,
     next(err);
   }
 });
+
 // 로그인 라우트
 userRoute.post("/", validateBody(LoginUserDto), async (req, res, next) => {
   if (req.body.password === null) {

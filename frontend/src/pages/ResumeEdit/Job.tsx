@@ -4,23 +4,16 @@ import { FormStore, WorkFormData } from 'models/resumeEdit-model';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import API from 'utils/api';
-import { toggle } from 'store/slices/formSlice';
-import { useSelector, useDispatch } from 'react-redux';
-import { AppDispatch, RootState } from 'store/config';
+import { changeWorkFormToggle } from 'store/slices/formSlice';
+import { useAppDispatch, useAppSelector } from 'store/config';
 
 type WorkFormState = {
-    // setIsWorkFormToggle: React.Dispatch<React.SetStateAction<boolean>>;
     setAddJobElement: React.Dispatch<React.SetStateAction<FormStore[]>>;
     addJobElement: FormStore[];
     onCareerCreated: (state: []) => void;
 };
 
-const Job = ({
-    // setIsWorkFormToggle,
-    setAddJobElement,
-    addJobElement,
-    onCareerCreated,
-}: WorkFormState) => {
+const Job = ({ setAddJobElement, addJobElement, onCareerCreated }: WorkFormState) => {
     const [isStilWork, setIsStilWork] = useState<boolean>(true);
 
     const [workFormDataState, setWorkFormDataState] = useState<WorkFormData>({
@@ -33,8 +26,8 @@ const Job = ({
         workNow: false,
     });
 
-    const workFormToggle = useSelector<RootState>(state => state.formState.workFormToggle);
-    const dispatch = useDispatch<AppDispatch>();
+    const workFormToggle = useAppSelector(state => state.formState.workFormToggle);
+    const dispatch = useAppDispatch();
 
     const params = useParams();
     const resumeIds = params.id;
@@ -66,12 +59,6 @@ const Job = ({
         });
     };
 
-    // const deleteWorkForm = (e: React.MouseEvent<HTMLButtonElement>) => {
-    //     const deleteFilter = addJobElement.filter((tem: FormStore) => tem.list !== idx);
-    //     setAddJobElement(deleteFilter);
-    //     if (deleteFilter.length === 0) setIsWorkFormToggle(e => !e);
-    // };
-
     const validationForm = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -99,7 +86,7 @@ const Job = ({
 
             if (res.status === 200) {
                 onCareerCreated(result.data.data);
-                dispatch(toggle(false));
+                dispatch(changeWorkFormToggle(false));
             }
         } catch (err: unknown) {
             console.log(err);
@@ -215,7 +202,10 @@ const Job = ({
             </div>
 
             <div className="formBtn">
-                <button type="button" onClick={() => dispatch(toggle(!workFormToggle))}>
+                <button
+                    type="button"
+                    onClick={() => dispatch(changeWorkFormToggle(!workFormToggle))}
+                >
                     취소
                 </button>
                 <button type="submit">저장</button>

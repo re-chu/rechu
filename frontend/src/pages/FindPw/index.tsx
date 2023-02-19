@@ -19,12 +19,12 @@ const FindPw = () => {
 
     const onSubmitHandler = async (data: FormData) => {
         try {
-            const res = await axios.post(`${API.BASE_URL}/users/eamil/password`, data);
+            const res = await API.post(`/users/eamil/password`, data);
 
             alert('비밀번호가 전송되었습니다.');
             navigate('/login');
-        } catch (err: any) {
-            console.error(err.stack);
+        } catch (err: unknown) {
+            console.log(err);
         }
     };
 

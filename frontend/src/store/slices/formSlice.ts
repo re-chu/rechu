@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 type initialStateType = {
     id: string | number;
@@ -16,12 +16,14 @@ export const slice = createSlice({
     name: 'form',
     initialState,
     reducers: {
-        toggle: (state, action) => {
-            console.log(state, action, 'action', action.payload);
+        changeWorkFormToggle: (state, action: PayloadAction<boolean>) => {
             state.workFormToggle = action.payload;
+        },
+        changeProjectFormToggle: (state, action: PayloadAction<boolean>) => {
+            state.projectFormToggle = action.payload;
         },
     },
 });
 
-export const { toggle } = slice.actions;
+export const { changeWorkFormToggle, changeProjectFormToggle } = slice.actions;
 export default slice;

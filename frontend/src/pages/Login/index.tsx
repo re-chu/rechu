@@ -38,17 +38,19 @@ const Login = () => {
             const refreshToken = res.refreshToken;
             const userId = res.userId;
             const isAdmin = res.isAdmin;
+
             localStorage.setItem('accessToken', accessToken);
             localStorage.setItem('refreshToken', refreshToken);
             localStorage.setItem('userId', userId);
             localStorage.setItem('isAdmin', isAdmin);
+
+            console.log(res, 'resres');
+
             // 관리자 계정일 경우
             if (isAdmin) setIsAdmin();
             window.location.replace('/');
-        } catch (err: any) {
-            const res = err.response.data;
-            console.error(res);
-            alert(res.msg);
+        } catch (err: unknown) {
+            console.log(err);
         }
     };
 

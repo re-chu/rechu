@@ -23,7 +23,7 @@ const combinedReducer = combineReducers({
     formState: formSlice.reducer,
     chatState: chatSlice.reducer,
     chatRoomState: chatRoomSlice.reducer,
-    [profileApi.reducerPath]:profileApi.reducer,
+    [profileApi.reducerPath]: profileApi.reducer,
 });
 
 const rootReducer = persistReducer(persistConfig, combinedReducer);
@@ -36,7 +36,6 @@ const store = configureStore({
     // 단일 함수로 설정한 경우엔 스토어의 rootReducer로 사용됨.
     // slice reducer로 설정한 경우엔 자동으로 combineReducers에 전달하여 rootReducer를 생성.
     reducer: rootReducer,
- 
 
     // Redux DevTools 사용 여부 설정. (기본값은 true)
     devTools: true,
@@ -44,7 +43,9 @@ const store = configureStore({
     // 미들웨어를 설정한 경우엔 자동으로 applyMiddleware에 전달.
     // 미들웨어를 설정하지 않은 경우엔 getDefaultMiddleware를 호출.
     middleware: getDefaultMiddleware =>
-        getDefaultMiddleware().concat(profileApi.middleware),
+        getDefaultMiddleware({
+            serializableCheck: false,
+        }).concat(profileApi.middleware),
 
     //리덕스 스토어의 초기값 설정.
     preloadedState: initialState,
@@ -53,7 +54,7 @@ const store = configureStore({
     // 콜백 함수로 설정하면 미들웨어 적용 순서를 정의 가능.
     enhancers: defaultEnhancers => [...defaultEnhancers],
 });
-setupListeners(store.dispatch)
+setupListeners(store.dispatch);
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
 
@@ -64,4 +65,4 @@ export const persistor = persistStore(store);
 
 export default store;
 
-export {useGetProfileQuery} from './apis/profileApi'
+export { useGetProfileQuery } from './apis/profileApi';
